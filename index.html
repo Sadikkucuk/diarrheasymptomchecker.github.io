@@ -99,6 +99,40 @@
 <script>
 const API_URL = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev/estimate"; // paste your Worker URL
 
+
+/* ====== CLIENT-SIDE SYMPTOM LIST (safe to expose) ====== */
+const SYMPTOMS = [
+  "abdominal pain","abdominal cramping","acid reflux","acute onset","anemia",
+  "anxiety","bloating","bloody stools","dehydration","diarrhea","fecal incontinence",
+  "fever","flatulence","flushing","frequent bowel movements","heat intolerance",
+  "hives","increased stool frequency","malnutrition","mucus in stool","nausea",
+  "palpitations","rectal bleeding","relieved by defecation","sudden severe abdominal pain",
+  "steatorrhea","sweating","tenesmus","throat tightness","tremor","trouble sleeping",
+  "undigested food in stool","urgency","vomiting","watery diarrhea","watery stools (≥3/day)",
+  "weight loss","altered stool consistency","fatigue"
+].sort((a,b)=> a.localeCompare(b));
+
+/* ====== BUILD THE UI ====== */
+const grid = document.getElementById('symptomGrid');
+const selCount = document.getElementById('selectedCount');
+function buildGrid(){
+  grid.innerHTML = '';
+  SYMPTOMS.forEach((sym, idx) => {
+    const idYes = `sym-${idx}-yes`, idNo = `sym-${idx}-no`;
+    const box = document.createElement('div');
+    box.className = 'symptom';
+    box.innerHTML = `
+      <label>${sym}</label>
+      <div class="yesno">
+        <label><input type="radio" name="sym-${idx}" value="yes" id="${idYes}"> Yes</label>
+        <label><input type="radio" name="sym-${idx}" value="no" id="${idNo}" checked> No</label>
+      </div>`;
+    grid.appendChild(box);
+  });
+}
+buildGrid();
+
+/* ====== READ SELECTION ====== */
 function getSelectedSymptoms(){
   const chosen = [];
   const groups = new Map();
@@ -109,50 +143,63 @@ function getSelectedSymptoms(){
     const yes = radios.find(r=>r.value==='yes' && r.checked);
     if(yes){
       const idx = parseInt(yes.id.split('-')[1],10);
-      chosen.push(SYMPTOMS[idx]); // SYMPTOMS is still client-side
+      chosen.push(SYMPTOMS[idx]);
     }
   });
   return chosen;
 }
 
+/* ====== RENDER RESULTS ====== */
+function render(items, chosen){
+  const res = document.getElementById('results');
+  res.innerHTML = '';
+  items.forEach(item=>{
+    const pct = (item.prob*100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<div style="min-width:220px"><strong>${item.cause}</strong> <span class="muted">(${item.matches}/${item.total} match)</span></div>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+      <div style="min-width:60px;text-align:right"><strong>${pct}%</strong></div>`;
+    res.appendChild(row);
+  });
+  const chips = document.createElement('div');
+  chips.className = 'chips';
+  chips.innerHTML = chosen.map(s=>`<span class="chip">${s}</span>`).join('');
+  res.appendChild(chips);
+}
+
+/* ====== CALL CLOUDFLARE WORKER ====== */
 async function calculate(){
   const chosen = getSelectedSymptoms();
   selCount.textContent = chosen.length ? `${chosen.length} symptom(s) selected` : 'No symptoms selected yet';
 
-  const resBox = document.getElementById('results');
-  resBox.innerHTML = '<p class="muted">Calculating…</p>';
+  const res = document.getElementById('results');
+  res.innerHTML = '<p class="muted">Calculating…</p>';
 
-  try {
+  try{
     const resp = await fetch(API_URL, {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ symptoms: chosen })
     });
-    const { items, error } = await resp.json();
-    if (error) { throw new Error(error); }
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'Server error');
 
-    if (!items?.length || items.every(x => x.prob === 0)) {
-      resBox.innerHTML = '<p class="muted">No overlap yet. Try selecting a few symptoms above.</p>';
+    const items = data.items || [];
+    if(!items.length || items.every(x=>x.prob===0)){
+      res.innerHTML = '<p class="muted">No overlap yet. Try selecting a few symptoms above.</p>';
       return;
     }
-
-    resBox.innerHTML = '';
-    items.forEach(item => {
-      const pct = (item.prob * 100).toFixed(1);
-      const row = document.createElement('div');
-      row.className = 'row';
-      row.innerHTML = `<div style="min-width:220px"><strong>${item.cause}</strong> <span class="muted">(${item.matches}/${item.total} match)</span></div>
-        <div class="bar"><span style="width:${pct}%"></span></div>
-        <div style="min-width:60px;text-align:right"><strong>${pct}%</strong></div>`;
-      resBox.appendChild(row);
-    });
-  } catch (e) {
-    resBox.innerHTML = '<p class="muted">Network error. Please try again.</p>';
+    render(items, chosen);
+  }catch(e){
+    res.innerHTML = '<p class="muted">Network or server error. Please try again.</p>';
+    console.error(e);
   }
 }
 
 document.getElementById('nextBtn').addEventListener('click', calculate);
 </script>
+
 
 <!-- Buy Me a Coffee floating widget -->
 <script data-name="BMC-Widget" data-cfasync="false"
