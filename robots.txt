@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://sadikkucuk.github.io/diarrheasymptomchecker.github.io/sitemap.xml
