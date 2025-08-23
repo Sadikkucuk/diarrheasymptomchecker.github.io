@@ -1,1 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Diarrhea Cause Estimator (Prototype)</title>
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 0.2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .symptom{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .symptom label{display:block;font-weight:600;margin-bottom:8px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar > span{display:block;height:100%;background:var(--accent)}
+    .tag{display:inline-block;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;color:#d7e7ff}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    @media (max-width: 820px){.two-col{grid-template-columns:1fr}}
+    details{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:14px}
+    summary{cursor:pointer}
+    .yesno{display:flex;gap:14px;margin-top:6px}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Diarrhea Cause Estimator <span class="tag">prototype</span></h1>
+      <p class="muted">Educational demo — not medical advice. If you have persistent or severe symptoms, blood in stool, fever, dehydration, weight loss, or symptoms since travel, seek medical care.</p>
+
+      <h2>1) Select your signs & symptoms</h2>
+      <p class="muted">For each symptom, choose <strong>Yes</strong> if it applies to you now.</p>
+      <div id="symptomGrid" class="grid"></div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="nextBtn">Next → Calculate</button>
+        <span class="muted" id="selectedCount"></span>
+      </div>
+
+      <h2>2) Estimated likelihood by cause</h2>
+      <div id="results" class="result"></div>
+
+      <details style="margin-top:14px">
+        <summary><strong>How this works</strong></summary>
+        <p class="muted">We compare your selected symptoms to typical symptom sets from publicly available medical encyclopedias. Each cause gets a score = matches ÷ that cause's total listed symptoms. We then normalize scores to sum to 100%. This is a naive overlap metric — not a diagnosis — and ignores age, lab tests, exposures, travel, and red flags.</p>
+      </details>
+      <div class="footer">v0.1 • Built for learning</div>
+    </div>
+  </div>
+
+<script>
+// --- Data (simplified, normalized symptom labels) ---
+const CAUSES = {
+  "Infectious diarrhea": ["acute onset", "fever", "nausea", "vomiting", "abdominal pain", "watery diarrhea", "dehydration", "bloody stools"],
+  "Ulcerative colitis": ["bloody stools", "abdominal pain", "urgency", "tenesmus", "weight loss", "fatigue", "diarrhea"],
+  "Crohn's disease": ["abdominal pain", "diarrhea", "weight loss", "fever", "fatigue", "rectal bleeding"],
+  "Microscopic colitis": ["watery diarrhea", "abdominal pain", "urgency", "weight loss", "fatigue"],
+  "Celiac disease": ["diarrhea", "steatorrhea", "bloating", "abdominal pain", "weight loss", "anemia"],
+  "IBS (diarrhea-predominant)": ["abdominal pain", "diarrhea", "bloating", "urgency", "mucus in stool", "relieved by defecation"],
+  "Bile acid malabsorption": ["watery diarrhea", "urgency", "fecal incontinence", "bloating", "abdominal pain"],
+  "Short bowel syndrome": ["watery diarrhea", "dehydration", "malnutrition", "weight loss", "fatigue"],
+  "Chemotherapy side effects": ["diarrhea", "nausea", "vomiting", "abdominal cramping"],
+  "Orlistat effects": ["steatorrhea", "fecal incontinence", "urgency", "flatulence", "frequent bowel movements"],
+  "Hyperthyroidism": ["diarrhea", "weight loss", "heat intolerance", "palpitations", "tremor", "sweating", "trouble sleeping", "anxiety"],
+  "Intestinal ischemia": ["sudden severe abdominal pain", "bloody stools", "diarrhea", "nausea", "vomiting"],
+  "Toddler's diarrhea": ["watery stools (≥3/day)", "undigested food in stool", "abdominal cramping", "nausea", "vomiting", "fever"],
+  "Environmental enteropathy": ["altered stool consistency", "increased stool frequency", "weight loss", "malnutrition"],
+  "Mast cell activation syndrome": ["diarrhea", "abdominal cramping", "nausea", "vomiting", "acid reflux", "flushing", "hives", "throat tightness"]
+};
+
+// Build the unique symptom list
+const SYMPTOMS = Array.from(new Set(Object.values(CAUSES).flat())).sort((a,b)=> a.localeCompare(b));
+
+const grid = document.getElementById('symptomGrid');
+const selCount = document.getElementById('selectedCount');
+
+SYMPTOMS.forEach((sym, idx) => {
+  const idYes = `sym-${idx}-yes`, idNo = `sym-${idx}-no`;
+  const box = document.createElement('div');
+  box.className = 'symptom';
+  box.innerHTML = `
+    <label>${sym}</label>
+    <div class="yesno">
+      <label><input type="radio" name="sym-${idx}" value="yes" id="${idYes}"> Yes</label>
+      <label><input type="radio" name="sym-${idx}" value="no" id="${idNo}" checked> No</label>
+    </div>`;
+  grid.appendChild(box);
+});
+
+function getSelectedSymptoms(){
+  const chosen = [];
+  const groups = new Map();
+  [...document.querySelectorAll('input[type=radio]')].forEach(r=>{
+    const key = r.name; if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r);
+  });
+  groups.forEach((radios)=>{
+    const yes = radios.find(r=>r.value==='yes' && r.checked);
+    if(yes){
+      const idx = parseInt(yes.id.split('-')[1],10);
+      chosen.push(SYMPTOMS[idx]);
+    }
+  });
+  return chosen;
+}
+
+function calculate(){
+  const chosen = getSelectedSymptoms();
+  selCount.textContent = chosen.length ? `${chosen.length} symptom(s) selected` : 'No symptoms selected yet';
+  const rawScores = Object.entries(CAUSES).map(([cause, arr])=>{
+    const matches = arr.filter(s=> chosen.includes(s)).length;
+    const score = arr.length ? matches / arr.length : 0; // overlap ratio
+    return {cause, matches, total: arr.length, score};
+  });
+  const sum = rawScores.reduce((a,b)=> a + b.score, 0);
+  const withProb = rawScores.map(o=> ({...o, prob: sum>0 ? (o.score/sum) : 0 }));
+  withProb.sort((a,b)=> b.prob - a.prob);
+
+  const res = document.getElementById('results');
+  res.innerHTML = '';
+
+  if(withProb.every(x=>x.prob===0)){
+    res.innerHTML = '<p class="muted">No overlap with our symptom sets yet. Try selecting a few symptoms above.</p>';
+    return;
+  }
+
+  withProb.forEach(item=>{
+    const pct = (item.prob*100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `<div style="min-width:220px"><strong>${item.cause}</strong> <span class="muted">(${item.matches}/${item.total} match)</span></div>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+      <div style="min-width:60px;text-align:right"><strong>${pct}%</strong></div>`;
+    res.appendChild(row);
+  });
+
+  // Show a quick capsule of the selected symptoms
+  const chips = document.createElement('div');
+  chips.className = 'chips';
+  chips.innerHTML = chosen.map(s=>`<span class="chip">${s}</span>`).join('');
+  res.appendChild(chips);
+}
+
+document.getElementById('nextBtn').addEventListener('click', calculate);
+</script>
+</body>
+</html>
 
