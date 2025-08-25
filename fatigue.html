@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date()); gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <title>Fatigue Symptom Checker (Prototype) – Educational, Not Medical Advice</title>
+  <meta charset="utf-8" />
+  <meta name="description" content="Educational fatigue checker that estimates possible causes from selected signs & symptoms. Not medical advice.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://sadikkucuk.github.io/diarrheasymptomchecker.github.io/fatigue.html">
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Fatigue Symptom Checker (Prototype)">
+  <meta property="og:description" content="Select symptoms and see an educational estimate of possible causes of fatigue. Not medical advice.">
+  <meta property="og:url" content="https://sadikkucuk.github.io/diarrheasymptomchecker.github.io/fatigue.html">
+  <meta property="og:image" content="https://sadikkucuk.github.io/diarrheasymptomchecker.github.io/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Fatigue Symptom Checker (Prototype)",
+    "url": "https://sadikkucuk.github.io/diarrheasymptomchecker.github.io/fatigue.html",
+    "applicationCategory": "HealthApplication",
+    "description": "Educational symptom checker that estimates possible fatigue causes based on selected signs/symptoms. Not medical advice.",
+    "creator": { "@type": "Person", "name": "Sadık Küçük" }
+  }
+  </script>
+
+  <!-- Same style as your other pages -->
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 0.2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .symptom{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .symptom label{display:block;font-weight:600;margin-bottom:8px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar > span{display:block;height:100%;background:var(--accent)}
+    .tag{display:inline-block;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;color:#d7e7ff}
+    details{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:14px}
+    summary{cursor:pointer}
+    .yesno{display:flex;gap:14px;margin-top:6px}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .topnav{margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topnav muted">
+        <a href="./index.html">← Diarrhea</a> •
+        <a href="./constipation.html">Constipation</a> •
+        <a href="./vomiting.html">Vomiting</a> •
+        <a href="./cough.html">Cough</a> •
+        <a href="./abdominal-pain.html">Abdominal Pain</a> •
+        <a href="./headache.html">Headache</a> •
+        <a href="./dyspnea.html">Dyspnea</a> •
+        <a href="./sore-throat.html">Sore Throat</a> •
+        <a href="./back-pain.html">Back Pain</a> •
+        <a href="./jaundice.html">Jaundice</a> •
+        <span>Fatigue</span>
+      </div>
+
+      <h1>Fatigue Cause Estimator <span class="tag">prototype</span></h1>
+      <p class="muted">Educational demo — not medical advice. <strong>Red flags:</strong> chest pain, severe shortness of breath, confusion, fainting, black/bloody stools, high fever, rapid weight loss, or pregnancy concerns. Seek medical care for red flags.</p>
+
+      <h2>1) Select your signs & symptoms</h2>
+      <p class="muted">Choose <strong>Yes</strong> for symptoms that apply to you now.</p>
+      <div id="symptomGrid" class="grid"></div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="nextBtn">Next → Calculate</button>
+        <span class="muted" id="selectedCount"></span>
+      </div>
+
+      <h2>2) Estimated likelihood by cause</h2>
+      <div id="results" class="result"></div>
+
+      <details style="margin-top:14px">
+        <summary><strong>How this works</strong></summary>
+        <p class="muted">We compare your selections to typical symptom sets from medical encyclopedias. Each cause gets a score = matches ÷ that cause’s total listed symptoms, normalized to 100%. This is a naive overlap metric — not a diagnosis.</p>
+      </details>
+      <div class="footer">v0.1 • Built for learning</div>
+    </div>
+  </div>
+
+<script>
+/* ====== API (server-scored) ====== */
+const API_URL = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev/estimate-fatigue";
+
+/* ====== CLIENT-SIDE SYMPTOM LIST (safe to expose) ====== */
+const SYMPTOMS = [
+  // core & cognition/sleep
+  "fatigue","daytime sleepiness","unrefreshing sleep","insomnia (trouble sleeping)","early morning awakening","poor concentration/brain fog",
+  "headache","dizziness/lightheadedness",
+
+  // mood/anxiety
+  "low mood/depression","loss of interest (anhedonia)","anxiety/restlessness",
+
+  // sleep apnea pattern
+  "loud snoring","witnessed apneas","morning headache",
+
+  // cardiopulmonary exertional
+  "shortness of breath with exertion","palpitations","chest tightness",
+  "orthopnea (worse when lying down)","paroxysmal nocturnal dyspnea","leg swelling (edema)",
+
+  // endocrine/metabolic
+  "cold intolerance","dry skin","hair loss","constipation","weight gain","weight loss",
+  "increased thirst (polydipsia)","frequent urination (polyuria)","increased hunger (polyphagia)",
+
+  // infectious
+  "fever","sore throat","cough","body aches (myalgias)","swollen/tender neck nodes","night sweats",
+
+  // hepatic/renal
+  "itching (pruritus)","jaundice","dark urine","abdominal swelling (ascites)","poor appetite (loss of appetite)","nausea","vomiting","abdominal pain",
+
+  // rheum/hematologic/other
+  "joint pain/swelling","morning joint stiffness (>30 min)","rash",
+  "numbness/tingling in hands/feet",
+
+  // life events/meds
+  "missed period","new sedating medication"
+].sort((a,b)=> a.localeCompare(b));
+
+/* ====== BUILD THE UI ====== */
+const grid = document.getElementById('symptomGrid');
+const selCount = document.getElementById('selectedCount');
+function buildGrid(){
+  grid.innerHTML = '';
+  SYMPTOMS.forEach((sym, idx) => {
+    const idYes = `sym-${idx}-yes`, idNo = `sym-${idx}-no`;
+    const box = document.createElement('div');
+    box.className = 'symptom';
+    box.innerHTML = `
+      <label>${sym}</label>
+      <div class="yesno">
+        <label><input type="radio" name="sym-${idx}" value="yes" id="${idYes}"> Yes</label>
+        <label><input type="radio" name="sym-${idx}" value="no" id="${idNo}" checked> No</label>
+      </div>`;
+    grid.appendChild(box);
+  });
+}
+buildGrid();
+
+/* ====== READ SELECTION ====== */
+function getSelectedSymptoms(){
+  const chosen = [];
+  const groups = new Map();
+  [...document.querySelectorAll('input[type=radio]')].forEach(r=>{
+    const key = r.name; if(!groups.has(key)) groups.set(key, []); groups.get(key).push(r);
+  });
+  groups.forEach((radios)=>{
+    const yes = radios.find(r=>r.value==='yes' && r.checked);
+    if(yes){
+      const idx = parseInt(yes.id.split('-')[1],10);
+      chosen.push(SYMPTOMS[idx]);
+    }
+  });
+  return chosen;
+}
+
+/* ====== RENDER RESULTS ====== */
+function render(items, chosen){
+  const res = document.getElementById('results');
+  res.innerHTML = '';
+  items.forEach(item=>{
+    const pct = (item.prob*100).toFixed(1);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <div style="min-width:260px"><strong>${item.cause}</strong>
+        <span class="muted">(${item.matches}/${item.total} match)</span></div>
+      <div class="bar"><span style="width:${pct}%"></span></div>
+      <div style="min-width:60px;text-align:right"><strong>${pct}%</strong></div>`;
+    res.appendChild(row);
+  });
+  const chips = document.createElement('div');
+  chips.className = 'chips';
+  chips.innerHTML = chosen.map(s=>`<span class="chip">${s}</span>`).join('');
+  res.appendChild(chips);
+}
+
+/* ====== CALL CLOUDFLARE WORKER ====== */
+async function calculate(){
+  const chosen = getSelectedSymptoms();
+  selCount.textContent = chosen.length ? `${chosen.length} symptom(s) selected` : 'No symptoms selected yet';
+
+  const res = document.getElementById('results');
+  res.innerHTML = '<p class="muted">Calculating…</p>';
+
+  try{
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ symptoms: chosen })
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'Server error');
+
+    const items = data.items || [];
+    if(!items.length || items.every(x=>x.prob===0)){
+      res.innerHTML = '<p class="muted">No overlap yet. Try selecting a few symptoms above.</p>';
+      return;
+    }
+    render(items, chosen);
+  }catch(e){
+    res.innerHTML = '<p class="muted">Network or server error. Please try again.</p>';
+    console.error(e);
+  }
+}
+document.getElementById('nextBtn').addEventListener('click', calculate);
+</script>
+
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data_y_margin="18"></script>
+</body>
+</html>
