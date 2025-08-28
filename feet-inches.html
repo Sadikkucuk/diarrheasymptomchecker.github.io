@@ -11,10 +11,10 @@
 
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Feet & Inches Converter + Math (Prototype)</title>
-  <meta name="description" content="Convert and do math with feet-inch-fraction values. Add, subtract, multiply by number, divide by number. Rounds to common fractions.">
+  <title>Feet & Inches – Converter + Math (Prototype)</title>
+  <meta name="description" content="Convert and do math with feet-inch-fraction values. Add, subtract, multiply/divide by number, and multiply/divide by another measurement for area or ratio.">
 
-  <!-- Same site style -->
+  <!-- Site style (same palette) -->
   <style>
     :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
@@ -38,19 +38,26 @@
     summary{cursor:pointer}
     .field{display:flex;flex-direction:column;gap:8px}
     .field label{font-weight:600}
-    .field input, .field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px}
+    .field input, .field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px; width:100%; box-sizing:border-box}
     .mode, .task{display:flex;gap:14px;flex-wrap:wrap}
     .hidden{display:none}
     .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
     .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
     .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+    /* fraction row that never overlaps */
+    .frac { display:flex; gap:8px; align-items:center; min-width:0; }
+    .frac input{ flex:1; min-width:0; }
+    /* Math panel 3-column layout, responsive */
+    .grid.cols-3 { display:grid; grid-template-columns:repeat(3, minmax(240px,1fr)); gap:16px; }
+    @media (max-width:1024px){ .grid.cols-3 { grid-template-columns:repeat(2, minmax(240px,1fr)); } }
+    @media (max-width:680px){  .grid.cols-3 { grid-template-columns:1fr; } }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
       <h1>Feet & Inches <span class="tag">converter + math</span></h1>
-      <p class="muted">Convert between <strong>feet-inches-fraction</strong>, <strong>decimal feet</strong>, and <strong>decimal inches</strong>. Also <strong>add</strong>, <strong>subtract</strong>, <strong>multiply</strong> (by a number), or <strong>divide</strong> (by a number). Rounds to 1/2, 1/4, 1/8, 1/16, 1/32.</p>
+      <p class="muted">Convert between <strong>feet-inches-fraction</strong>, <strong>decimal feet</strong>, and <strong>decimal inches</strong>. Also do math: <strong>add</strong>, <strong>subtract</strong>, <strong>multiply/divide by number</strong>, and <strong>multiply/divide by measurement</strong> (area or ratio). Rounds to 1/2, 1/4, 1/8, 1/16, 1/32.</p>
 
       <h2>1) Choose tool</h2>
       <div class="task">
@@ -68,38 +75,46 @@
         </div>
 
         <div id="inputs" class="grid" style="margin-top:12px">
-          <!-- Mode A -->
+          <!-- Mode A: Feet/Inches/Fraction -->
           <div class="box modeA">
             <div class="field"><label>Feet (can be negative)</label><input type="number" id="feet" value="5" step="1"></div>
             <div class="field"><label>Inches</label><input type="number" id="inches" value="7" min="0" step="0.001"></div>
             <div class="field">
               <label>Fraction (optional)</label>
-              <div style="display:flex;gap:8px">
-                <input type="number" id="num" min="0" placeholder="numerator" style="flex:1">
-                <span class="muted" style="align-self:center">/</span>
-                <input type="number" id="den" min="1" placeholder="denominator" style="flex:1">
+              <div class="frac">
+                <input type="number" id="num" min="0" placeholder="numerator">
+                <span class="muted">/</span>
+                <input type="number" id="den" min="1" placeholder="denominator">
               </div>
             </div>
           </div>
-          <!-- Mode B -->
+
+          <!-- Mode B: Decimal feet -->
           <div class="box modeB hidden">
             <div class="field"><label>Decimal feet</label><input type="number" id="decFeet" value="5.625" step="0.000001"></div>
             <div class="field">
               <label>Round to</label>
               <select id="roundDenFt">
-                <option value="2">1/2"</option><option value="4">1/4"</option>
-                <option value="8" selected>1/8"</option><option value="16">1/16"</option><option value="32">1/32"</option>
+                <option value="2">1/2"</option>
+                <option value="4">1/4"</option>
+                <option value="8" selected>1/8"</option>
+                <option value="16">1/16"</option>
+                <option value="32">1/32"</option>
               </select>
             </div>
           </div>
-          <!-- Mode C -->
+
+          <!-- Mode C: Decimal inches -->
           <div class="box modeC hidden">
             <div class="field"><label>Decimal inches</label><input type="number" id="decIn" value="67.5" step="0.000001"></div>
             <div class="field">
               <label>Round to</label>
               <select id="roundDenIn">
-                <option value="2">1/2"</option><option value="4">1/4"</option>
-                <option value="8" selected>1/8"</option><option value="16">1/16"</option><option value="32">1/32"</option>
+                <option value="2">1/2"</option>
+                <option value="4">1/4"</option>
+                <option value="8" selected>1/8"</option>
+                <option value="16">1/16"</option>
+                <option value="32">1/32"</option>
               </select>
             </div>
           </div>
@@ -115,49 +130,57 @@
             <div class="mode">
               <label><input type="radio" name="op" value="add" checked> A + B</label>
               <label><input type="radio" name="op" value="sub"> A − B</label>
-              <label><input type="radio" name="op" value="mul"> A × (number)</label>
-              <label><input type="radio" name="op" value="div"> A ÷ (number)</label>
+              <label><input type="radio" name="op" value="mul_measure"> A × B (area)</label>
+              <label><input type="radio" name="op" value="div_measure"> A ÷ B (ratio)</label>
+              <label><input type="radio" name="op" value="mul"> A × number</label>
+              <label><input type="radio" name="op" value="div"> A ÷ number</label>
             </div>
           </div>
-          <div class="grid" style="margin-top:8px">
+
+          <div class="grid cols-3" style="margin-top:8px">
+            <!-- A -->
             <div class="box">
               <div class="field"><label>A — Feet</label><input type="number" id="A_feet" value="5"></div>
               <div class="field"><label>A — Inches</label><input type="number" id="A_inches" value="7" step="0.001"></div>
               <div class="field">
                 <label>A — Fraction</label>
-                <div style="display:flex;gap:8px">
-                  <input type="number" id="A_num" min="0" placeholder="numerator" style="flex:1">
-                  <span class="muted" style="align-self:center">/</span>
-                  <input type="number" id="A_den" min="1" placeholder="denominator" style="flex:1">
+                <div class="frac">
+                  <input type="number" id="A_num" min="0" placeholder="numerator">
+                  <span class="muted">/</span>
+                  <input type="number" id="A_den" min="1" placeholder="denominator">
                 </div>
               </div>
             </div>
 
-            <!-- B as measurement (for add/sub) -->
+            <!-- B as measurement (for add/sub/mul_measure/div_measure) -->
             <div class="box B_measure">
               <div class="field"><label>B — Feet</label><input type="number" id="B_feet" value="2"></div>
               <div class="field"><label>B — Inches</label><input type="number" id="B_inches" value="4" step="0.001"></div>
               <div class="field">
                 <label>B — Fraction</label>
-                <div style="display:flex;gap:8px">
-                  <input type="number" id="B_num" min="0" placeholder="numerator" style="flex:1">
-                  <span class="muted" style="align-self:center">/</span>
-                  <input type="number" id="B_den" min="1" placeholder="denominator" style="flex:1">
+                <div class="frac">
+                  <input type="number" id="B_num" min="0" placeholder="numerator">
+                  <span class="muted">/</span>
+                  <input type="number" id="B_den" min="1" placeholder="denominator">
                 </div>
               </div>
             </div>
 
-            <!-- factor (for mul/div) -->
+            <!-- factor (for mul/div by number) -->
             <div class="box B_factor hidden">
               <div class="field"><label>Number (factor)</label><input type="number" id="factor" value="2" step="0.000001"></div>
             </div>
 
+            <!-- rounding -->
             <div class="box">
               <div class="field">
-                <label>Round to</label>
+                <label>Round to (length results)</label>
                 <select id="roundDenMath">
-                  <option value="2">1/2"</option><option value="4">1/4"</option>
-                  <option value="8" selected>1/8"</option><option value="16">1/16"</option><option value="32">1/32"</option>
+                  <option value="2">1/2"</option>
+                  <option value="4">1/4"</option>
+                  <option value="8" selected>1/8"</option>
+                  <option value="16">1/16"</option>
+                  <option value="32">1/32"</option>
                 </select>
               </div>
             </div>
@@ -185,7 +208,7 @@
 <script>
 const API_URL = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev/calc-feet-inches";
 
-// panels
+/* Task toggling (converter vs math) */
 const taskRadios = [...document.querySelectorAll('input[name=task]')];
 const convertPanel = document.getElementById('convertPanel');
 const mathPanel = document.getElementById('mathPanel');
@@ -195,7 +218,7 @@ taskRadios.forEach(r => r.addEventListener('change', () => {
   mathPanel.classList.toggle('hidden', t!=='math');
 }));
 
-// converter modes
+/* Converter mode toggling */
 const modeRadios = [...document.querySelectorAll('input[name=mode]')];
 const boxA = document.querySelector('.modeA'), boxB = document.querySelector('.modeB'), boxC = document.querySelector('.modeC');
 modeRadios.forEach(r => r.addEventListener('change', () => {
@@ -205,21 +228,46 @@ modeRadios.forEach(r => r.addEventListener('change', () => {
   boxC.classList.toggle('hidden', m!=='dec_in_to_fi');
 }));
 
-// math op toggling
+/* Math op toggling */
 const opRadios = [...document.querySelectorAll('input[name=op]')];
 const bMeasure = document.querySelector('.B_measure');
 const bFactor  = document.querySelector('.B_factor');
-opRadios.forEach(r => r.addEventListener('change', () => {
+function updateOpUI(){
   const op = opRadios.find(x=>x.checked).value;
-  const scalar = (op === 'mul' || op === 'div');
-  bMeasure.classList.toggle('hidden', scalar);
-  bFactor.classList.toggle('hidden', !scalar);
-}));
+  const needsMeasure = (op === 'add' || op === 'sub' || op === 'mul_measure' || op === 'div_measure');
+  bMeasure.classList.toggle('hidden', !needsMeasure);
+  bFactor.classList.toggle('hidden',  needsMeasure);
+}
+opRadios.forEach(r => r.addEventListener('change', updateOpUI));
+updateOpUI();
 
+/* Render results (handles length, area, ratio) */
 function render(res){
   const el = document.getElementById('results');
   if(res.error){ el.innerHTML = `<p class="muted">${res.error}</p>`; return; }
   const r = res.result;
+
+  if (r?.kind === 'area') {
+    el.innerHTML = `
+      <div class="row"><div style="min-width:260px"><strong>Area</strong></div>
+        <div class="bar"><span style="width:100%"></span></div>
+        <div style="min-width:240px;text-align:right"><strong>${r.squareFeet.toFixed(6)} ft²</strong></div></div>
+      <div class="row"><div style="min-width:260px"><strong>Area (in²)</strong></div>
+        <div class="bar"><span style="width:100%"></span></div>
+        <div style="min-width:240px;text-align:right"><strong>${r.squareInches.toFixed(4)} in²</strong></div></div>
+      <div class="chips">${(res.notes||[]).map(n=>`<span class="chip">${n}</span>`).join('')}</div>`;
+    return;
+  }
+
+  if (r?.kind === 'ratio') {
+    el.innerHTML = `
+      <div class="row"><div style="min-width:260px"><strong>Ratio (A ÷ B)</strong></div>
+        <div class="bar"><span style="width:100%"></span></div>
+        <div style="min-width:240px;text-align:right"><strong>${r.ratio.toFixed(6)}</strong></div></div>
+      <div class="chips">${(res.notes||[]).map(n=>`<span class="chip">${n}</span>`).join('')}</div>`;
+    return;
+  }
+
   const frac = r.fraction?.num ? `${r.fraction.num}/${r.fraction.den}` : "0/1";
   const mm = (r.totalInches * 25.4).toFixed(2);
   const m  = (r.decimalFeet * 0.3048).toFixed(4);
@@ -242,15 +290,16 @@ function render(res){
     <div class="chips">${(res.notes||[]).map(n=>`<span class="chip">${n}</span>`).join('')}</div>`;
 }
 
+/* Send to Worker */
 async function calculate(){
   document.getElementById('status').textContent = 'Calculating…';
   document.getElementById('results').innerHTML = '<p class="muted">Working…</p>';
 
-  const task = taskRadios.find(x=>x.checked).value;
+  const task = [...document.querySelectorAll('input[name=task]')].find(x=>x.checked).value;
   let payload = {};
 
   if (task === 'convert') {
-    const mode = modeRadios.find(x=>x.checked).value;
+    const mode = [...document.querySelectorAll('input[name=mode]')].find(x=>x.checked).value;
     payload.mode = mode;
     if(mode === 'fi_to_decimal'){
       payload.feet = +document.getElementById('feet').value || 0;
@@ -267,7 +316,6 @@ async function calculate(){
       payload.roundDen = +document.getElementById('roundDenIn').value || 16;
     }
   } else {
-    // math
     const op = opRadios.find(x=>x.checked).value;
     payload.mode = 'math';
     payload.op = op;
@@ -281,7 +329,7 @@ async function calculate(){
     const A_den = +document.getElementById('A_den').value || 0;
     if (A_num>0 && A_den>0) payload.A.fraction = { num: A_num, den: A_den };
 
-    if (op === 'add' || op === 'sub') {
+    if (['add','sub','mul_measure','div_measure'].includes(op)) {
       payload.B = {
         feet: +document.getElementById('B_feet').value || 0,
         inches: +document.getElementById('B_inches').value || 0
@@ -308,11 +356,10 @@ async function calculate(){
   }
   document.getElementById('status').textContent = '';
 }
-
 document.getElementById('nextBtn').addEventListener('click', calculate);
 </script>
 
-<!-- Buy Me a Coffee -->
+<!-- Optional: Buy Me a Coffee widget -->
 <script data-name="BMC-Widget" data-cfasync="false"
   src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
   data-id="sadikkucuk"
