@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date()); gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feet & Inches Converter (Prototype)</title>
+  <meta name="description" content="Convert between feet-inches-fraction, decimal feet, and decimal inches with rounding to common fractions. Educational prototype.">
+
+  <!-- Same site style -->
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 0.2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .symptom,.box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar > span{display:block;height:100%;background:var(--accent)}
+    .tag{display:inline-block;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;color:#d7e7ff}
+    details{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:14px}
+    summary{cursor:pointer}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field label{font-weight:600}
+    .field input, .field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px}
+    .mode{display:flex;gap:14px;flex-wrap:wrap}
+    .hidden{display:none}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Feet & Inches Converter <span class="tag">prototype</span></h1>
+      <p class="muted">Convert between <strong>feet-inches-fraction</strong>, <strong>decimal feet</strong>, and <strong>decimal inches</strong>. Rounding to 1/2, 1/4, 1/8, 1/16, or 1/32. (This is an educational tool.)</p>
+
+      <h2>1) Choose what you want to convert</h2>
+      <div class="mode">
+        <label><input type="radio" name="mode" value="fi_to_decimal" checked> Feet + Inches (+ fraction) → decimals</label>
+        <label><input type="radio" name="mode" value="dec_ft_to_fi"> Decimal feet → feet + inches</label>
+        <label><input type="radio" name="mode" value="dec_in_to_fi"> Decimal inches → feet + inches</label>
+      </div>
+
+      <div id="inputs" class="grid" style="margin-top:12px">
+        <!-- Mode A: Feet/Inches/Fraction -->
+        <div class="box modeA">
+          <div class="field">
+            <label>Feet (can be negative)</label>
+            <input type="number" id="feet" value="5" step="1">
+          </div>
+          <div class="field">
+            <label>Inches</label>
+            <input type="number" id="inches" value="7" min="0" step="0.001">
+          </div>
+          <div class="field">
+            <label>Fraction (optional)</label>
+            <div style="display:flex;gap:8px">
+              <input type="number" id="num" min="0" placeholder="numerator" style="flex:1">
+              <span class="muted" style="align-self:center">/</span>
+              <input type="number" id="den" min="1" placeholder="denominator" style="flex:1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode B: Decimal feet -->
+        <div class="box modeB hidden">
+          <div class="field">
+            <label>Decimal feet</label>
+            <input type="number" id="decFeet" value="5.625" step="0.000001">
+          </div>
+          <div class="field">
+            <label>Round to</label>
+            <select id="roundDenFt">
+              <option value="2">1/2"</option>
+              <option value="4">1/4"</option>
+              <option value="8" selected>1/8"</option>
+              <option value="16">1/16"</option>
+              <option value="32">1/32"</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Mode C: Decimal inches -->
+        <div class="box modeC hidden">
+          <div class="field">
+            <label>Decimal inches</label>
+            <input type="number" id="decIn" value="67.5" step="0.000001">
+          </div>
+          <div class="field">
+            <label>Round to</label>
+            <select id="roundDenIn">
+              <option value="2">1/2"</option>
+              <option value="4">1/4"</option>
+              <option value="8" selected>1/8"</option>
+              <option value="16">1/16"</option>
+              <option value="32">1/32"</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="nextBtn">Next → Calculate</button>
+        <span class="muted" id="status"></span>
+      </div>
+
+      <h2>2) Results</h2>
+      <div id="results" class="result"></div>
+
+      <details style="margin-top:14px">
+        <summary><strong>How this works</strong></summary>
+        <p class="muted">All calculations run on our server (Cloudflare Worker). Fractions are reduced and rounded to the denominator you choose. 1 ft = 12 in; 1 in = 25.4 mm; 1 ft = 0.3048 m.</p>
+      </details>
+
+      <div class="footer">v1.0 • Construction tools</div>
+    </div>
+  </div>
+
+<script>
+const API_URL = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev/calc-feet-inches";
+
+// mode switcher
+const modeRadios = [...document.querySelectorAll('input[name=mode]')];
+const boxA = document.querySelector('.modeA'), boxB = document.querySelector('.modeB'), boxC = document.querySelector('.modeC');
+modeRadios.forEach(r => r.addEventListener('change', () => {
+  const m = modeRadios.find(x=>x.checked).value;
+  boxA.classList.toggle('hidden', m!=='fi_to_decimal');
+  boxB.classList.toggle('hidden', m!=='dec_ft_to_fi');
+  boxC.classList.toggle('hidden', m!=='dec_in_to_fi');
+}));
+
+function render(res){
+  const el = document.getElementById('results');
+  if(res.error){ el.innerHTML = `<p class="muted">${res.error}</p>`; return; }
+
+  const r = res.result;
+  const frac = r.fraction?.num ? `${r.fraction.num}/${r.fraction.den}` : "0/1";
+  const mm = (r.totalInches * 25.4).toFixed(2);
+  const m  = (r.decimalFeet * 0.3048).toFixed(4);
+
+  el.innerHTML = `
+    <div class="row"><div style="min-width:260px"><strong>Decimal feet</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:180px;text-align:right"><strong>${r.decimalFeet.toFixed(6)} ft</strong></div></div>
+
+    <div class="row"><div style="min-width:260px"><strong>Decimal inches</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:180px;text-align:right"><strong>${r.decimalInches.toFixed(6)} in</strong></div></div>
+
+    <div class="row"><div style="min-width:260px"><strong>Feet-inches (rounded)</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:180px;text-align:right"><strong>${r.feet} ft ${r.inches} ${frac} in</strong></div></div>
+
+    <div class="row"><div style="min-width:260px"><strong>Total inches</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:180px;text-align:right"><strong>${r.totalInches.toFixed(6)} in</strong></div></div>
+
+    <div class="row"><div style="min-width:260px"><strong>Metric</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:180px;text-align:right"><strong>${mm} mm • ${m} m</strong></div></div>
+
+    <div class="chips">${(res.notes||[]).map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function calculate(){
+  document.getElementById('status').textContent = 'Calculating…';
+  document.getElementById('results').innerHTML = '<p class="muted">Working…</p>';
+  const mode = modeRadios.find(x=>x.checked).value;
+
+  const payload = { mode };
+  if(mode === 'fi_to_decimal'){
+    payload.feet = +document.getElementById('feet').value || 0;
+    payload.inches = +document.getElementById('inches').value || 0;
+    const num = +document.getElementById('num').value || 0;
+    const den = +document.getElementById('den').value || 0;
+    if (num>0 && den>0) payload.fraction = { num, den };
+    payload.roundDen = 16; // default rounding when we return mixed form
+  } else if(mode === 'dec_ft_to_fi'){
+    payload.decimalFeet = +document.getElementById('decFeet').value || 0;
+    payload.roundDen = +document.getElementById('roundDenFt').value || 16;
+  } else {
+    payload.decimalInches = +document.getElementById('decIn').value || 0;
+    payload.roundDen = +document.getElementById('roundDenIn').value || 16;
+  }
+
+  try{
+    const resp = await fetch(API_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    render(data);
+  }catch(e){
+    render({ error: 'Network or server error.'});
+  }
+  document.getElementById('status').textContent = '';
+}
+document.getElementById('nextBtn').addEventListener('click', calculate);
+</script>
+
+<!-- Optional: Buy Me a Coffee floating widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+</html>
