@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mulch Calculator</title>
+  <meta name="description" content="Mulch volume and bag estimator for rectangles, borders, circles, triangles and more. Units: in/ft/cm/m. Optional pricing for bulk (per yd³) or bags.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 0.2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar > span{display:block;height:100%;background:var(--accent)}
+    .tag{display:inline-block;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;color:#d7e7ff}
+    details{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:14px}
+    summary{cursor:pointer}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .field label{font-weight:600}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .hr{height:1px;background:rgba(255,255,255,.08);margin:14px 0}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Mulch Calculator</h1>
+      <p class="muted">Replicates the features you highlighted: choose <strong>area shape</strong>, enter <strong>length/width/depth</strong> with units (in/ft/cm/m), and optionally price by <strong>bulk (per yd³)</strong> or by <strong>bags</strong> with common bag sizes.</p>
+
+      <h2>1) Select area & enter dimensions</h2>
+      <div class="grid">
+        <div class="box">
+          <div class="field">
+            <label>Mulch Area</label>
+            <select id="shape"></select>
+          </div>
+          <div class="field">
+            <label>Quantity</label>
+            <input type="number" id="qty" value="1" min="1" step="1">
+          </div>
+        </div>
+
+        <div class="box" id="dimsBox">
+          <div id="dimsGrid" class="grid"></div>
+        </div>
+
+        <div class="box">
+          <div class="field"><label>Pricing (optional)</label></div>
+          <div class="grid">
+            <div class="field">
+              <label>Mode</label>
+              <select id="priceMode">
+                <option value="bulk">Bulk</option>
+                <option value="bags" selected>Bags</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Currency</label>
+              <select id="cur">
+                <option value="$">$</option><option value="€">€</option><option value="£">£</option>
+                <option value="₺">₺</option><option value="₹">₹</option><option value="¥">¥</option>
+              </select>
+            </div>
+            <div class="field">
+              <label id="priceLabel">Price</label>
+              <input type="number" id="price" placeholder="per bag" step="0.01" min="0">
+            </div>
+            <div class="field" id="bagSizeWrap">
+              <label>Bag size</label>
+              <select id="bagSize"></select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="calcBtn">Next → Calculate</button>
+        <span class="muted" id="status"></span>
+      </div>
+
+      <h2>2) Results</h2>
+      <div id="results" class="result"></div>
+
+      <details style="margin-top:14px">
+        <summary><strong>How this works</strong></summary>
+        <p class="muted">Inputs are converted to feet. Volume = <em>area × depth</em>. Results show cubic yards (yd³), cubic feet (ft³), and cubic meters (m³). Bag count = ft³ / selected bag size. If pricing is filled: bulk cost = yd³ × price; bags cost = bag count × price. All math is done on your Cloudflare Worker.</p>
+      </details>
+
+      <div class="footer">v1.0 • Landscaping tools</div>
+    </div>
+  </div>
+
+<script>
+const API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev";
+const DATASET_URL = API_URL_BASE + "/mulch-dataset";
+const CALC_URL    = API_URL_BASE + "/calc-mulch";
+
+const shapeSel = document.getElementById('shape');
+const dimsGrid = document.getElementById('dimsGrid');
+const qtyEl = document.getElementById('qty');
+const priceMode = document.getElementById('priceMode');
+const priceEl = document.getElementById('price');
+const priceLabel = document.getElementById('priceLabel');
+const bagSizeSel = document.getElementById('bagSize');
+const bagSizeWrap = document.getElementById('bagSizeWrap');
+
+let DATASET = null;
+
+function unitSelect(defaultUnit){
+  const sel = document.createElement('select');
+  ["in","ft","cm","m"].forEach(u => {
+    const opt = document.createElement('option');
+    opt.value = u; opt.textContent = u;
+    if (u === (defaultUnit||"ft")) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  return sel;
+}
+
+function buildDimsUI(shape){
+  dimsGrid.innerHTML = "";
+  shape.fields.forEach(f => {
+    const box = document.createElement('div');
+    box.className = 'box';
+    const wrap = document.createElement('div');
+    wrap.className = 'two';
+    const v = document.createElement('input');
+    v.type = 'number'; v.step = '0.0001'; v.min = '0'; v.id = `dim-${f.key}`;
+    const u = unitSelect(f.unitDefault || "ft"); u.id = `unit-${f.key}`;
+    wrap.appendChild(v); wrap.appendChild(u);
+
+    const field = document.createElement('div');
+    field.className = 'field';
+    const lab = document.createElement('label'); lab.textContent = f.label;
+    field.appendChild(lab); field.appendChild(wrap);
+
+    box.appendChild(field);
+    dimsGrid.appendChild(box);
+  });
+}
+
+async function loadDataset(){
+  const res = await fetch(DATASET_URL);
+  DATASET = await res.json();
+  DATASET.shapes.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id; opt.textContent = s.name;
+    shapeSel.appendChild(opt);
+  });
+  // bag sizes
+  DATASET.bagSizes.forEach(b => {
+    const o = document.createElement('option');
+    o.value = b.ft3; o.textContent = b.label;
+    bagSizeSel.appendChild(o);
+  });
+  buildDimsUI(DATASET.shapes[0]);
+}
+shapeSel.addEventListener('change', () => {
+  const s = DATASET.shapes.find(x => x.id === shapeSel.value);
+  if (s) buildDimsUI(s);
+});
+
+priceMode.addEventListener('change', () => {
+  const mode = priceMode.value;
+  if (mode === 'bulk'){
+    priceLabel.textContent = 'Price per yd³';
+    bagSizeWrap.style.display = 'none';
+  }else{
+    priceLabel.textContent = 'Price per bag';
+    bagSizeWrap.style.display = '';
+  }
+});
+
+function render(resp){
+  const el = document.getElementById('results');
+  if (resp.error) { el.innerHTML = `<p class="muted">${resp.error}</p>`; return; }
+
+  const r = resp.result;
+  const cost = r.cost;
+  const notes = resp.notes || [];
+  const costLine = cost ? `<div class="row"><div style="min-width:260px"><strong>Estimated cost</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:200px;text-align:right"><strong>${cost.currency}${cost.total.toFixed(2)}</strong>
+      <span class="muted"> (${cost.currency}${cost.unitPrice.toFixed(2)} ${cost.mode === 'bulk' ? '/ yd³' : '/ bag'})</span></div></div>` : '';
+
+  const bagsLine = r.bags ? `<div class="row"><div style="min-width:260px"><strong>Bags needed</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:200px;text-align:right"><strong>${r.bags.toFixed(2)}</strong>
+      <span class="muted"> (size: ${r.bagSizeFt3} ft³)</span></div></div>` : '';
+
+  el.innerHTML = `
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic yards)</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:200px;text-align:right"><strong>${r.cubicYards.toFixed(6)} yd³</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic feet)</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:200px;text-align:right"><strong>${r.cubicFeet.toFixed(6)} ft³</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic meters)</strong></div>
+      <div class="bar"><span style="width:100%"></span></div>
+      <div style="min-width:200px;text-align:right"><strong>${r.cubicMeters.toFixed(6)} m³</strong></div></div>
+    ${bagsLine}
+    ${costLine}
+    <div class="chips">${notes.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function calculate(){
+  document.getElementById('status').textContent = 'Calculating…';
+  document.getElementById('results').innerHTML = '<p class="muted">Working…</p>';
+
+  const s = DATASET.shapes.find(x => x.id === shapeSel.value);
+  const dims = {};
+  s.fields.forEach(f => {
+    const val = +document.getElementById(`dim-${f.key}`).value || 0;
+    const unit = document.getElementById(`unit-${f.key}`).value;
+    dims[f.key] = { value: val, unit };
+  });
+
+  const payload = {
+    shape: s.id,
+    dims,
+    quantity: +qtyEl.value || 1,
+    pricing: {
+      mode: priceMode.value, // 'bulk' | 'bags'
+      currency: document.getElementById('cur').value,
+      unitPrice: +priceEl.value || 0,
+      bagSizeFt3: +bagSizeSel.value || 2.0
+    }
+  };
+
+  try{
+    const resp = await fetch(CALC_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch { return { error: text || 'Bad response' }; }})();
+    render(data);
+  }catch(e){
+    render({ error: 'Network or server error.'});
+  }
+  document.getElementById('status').textContent = '';
+}
+
+document.getElementById('calcBtn').addEventListener('click', calculate);
+loadDataset();
+</script>
+
+<!-- Buy Me a Coffee -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data_y_margin="18"></script>
+</body>
+</html>
