@@ -133,7 +133,26 @@
     const TEMPLATES = {
       context: {
         lang: 'plantuml',
-        code: `@startuml\n' Context Diagram (edit freely)\n!pragma teoz true\nskinparam rectangleStyle rounded\nskinparam shadowing false\nskinparam defaultFontName Arial\n\nactor \"Customer\" as C\nrectangle \"Our System\" as S { }\nC --> S : Uses\n\nrectangle \"Payment Gateway\" as PG\nrectangle \"Bank\" as BK\nS --> PG : API calls\nPG --> BK : Settlement\n\ncloud \"Partner API\" as P\nS --> P : REST\n\n@enduml`
+        code: `@startuml
+' Context Diagram (edit freely)
+!pragma teoz true
+skinparam shadowing false
+skinparam defaultFontName Arial
+
+actor \"Customer\" as C
+rectangle \"Our System\" as S
+C --> S : Uses
+
+rectangle \"Payment Gateway\" as PG
+rectangle \"Bank\" as BK
+S --> PG : API calls
+PG --> BK : Settlement
+
+cloud \"Partner API\" as P
+S --> P : REST
+
+@enduml`
+      }
       },
       functional: {
         lang: 'plantuml',
@@ -188,17 +207,34 @@
       outcome.textContent = '';
     }
 
+    function detectEngine(code){
+      const head = code.trim().slice(0, 200).toLowerCase();
+      if (head.includes('<bpmn:definitions') || head.includes('<definitions') && head.includes('bpmn')) return 'bpmn';
+      if (head.includes('@startuml') || head.includes('@enduml')) return 'plantuml';
+      if (head.includes('flowchart ') || head.includes('graph ') || head.includes('sequenceDiagram'.toLowerCase())) return 'mermaid';
+      return null;
+    }
+
     async function render(format){
-      const lang = languageSel.value;
+      let lang = languageSel.value;
       const code = editor.value.trim();
       if(!code){ outcome.textContent = 'Editor is empty.'; return; }
+
+      // Auto-detect engine from code to prevent Mermaid/PlantUML mix-ups
+      const guessed = detectEngine(code);
+      if (guessed && guessed !== lang){
+        lang = guessed;
+        languageSel.value = guessed;
+        status.textContent = `Auto-detected language: ${guessed}`;
+      }
+
       outcome.textContent = 'Rendering…';
       preview.innerHTML = '';
       linkDownloadSvg.hidden = true;
       linkDownloadPng.hidden = true;
       try{
         const endpoint = `${KROKI_BASE}/${lang}/${format}`;
-        const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body: code });
+        const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body: code });
         if(!res.ok){
           const text = await res.text();
           throw new Error(text || `HTTP ${res.status}`);
