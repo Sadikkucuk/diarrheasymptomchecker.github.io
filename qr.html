@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create QR Code — Free Online</title>
+  <meta name="description" content="Create a free QR code online. Enter text or URL, choose size, margin, colors, and error correction (L/M/Q/H). Download SVG or PNG.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    textarea{min-height:120px;resize:vertical;background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+    input[type="color"]{height:40px;padding:0}
+    .preview{display:flex;align-items:center;justify-content:center;background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:14px;min-height:260px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar" style="display:flex;justify-content:flex-start;margin:-6px 0 12px">
+        <a href="index.html" class="home-link"
+           style="display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.06);color:#e7ebff;text-decoration:none">
+          ← Home
+        </a>
+      </div>
+
+      <h1>Create QR Code — Free Online</h1>
+      <p class="muted">Enter content, pick size & colors, choose error correction (<b>L/M/Q/H</b>). All encoding runs on your Cloudflare Worker; you can download <b>SVG</b> or <b>PNG</b>.</p>
+
+      <h2>1) Inputs</h2>
+      <div class="grid">
+        <div class="box">
+          <div class="field">
+            <label>Text / URL</label>
+            <textarea id="qr_text" placeholder="https://example.com or any text"></textarea>
+          </div>
+          <div class="field">
+            <label>Error correction</label>
+            <select id="qr_ecc">
+              <option value="L">L (low, ~7%)</option>
+              <option value="M" selected>M (~15%)</option>
+              <option value="Q">Q (~25%)</option>
+              <option value="H">H (high, ~30%)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="field">
+            <label>Size (pixels)</label>
+            <div class="two">
+              <input type="number" id="qr_size" value="512" min="64" step="8">
+              <div class="chip" style="display:flex;align-items:center;justify-content:center">px</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Quiet zone (margin, modules)</label>
+            <div class="two">
+              <input type="number" id="qr_margin" value="4" min="0" step="1">
+              <div class="chip" style="display:flex;align-items:center;justify-content:center">modules</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Foreground / Background</label>
+            <div class="two">
+              <input type="color" id="qr_fg" value="#000000">
+              <input type="color" id="qr_bg" value="#ffffff">
+            </div>
+          </div>
+          <div class="field">
+            <label>Output format</label>
+            <select id="qr_format">
+              <option value="svg" selected>SVG (vector)</option>
+              <option value="png">PNG (raster)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+        <button class="btn" id="qr_btn">Next → Generate</button>
+        <span class="muted" id="qr_status"></span>
+      </div>
+
+      <h2>2) Preview & Download</h2>
+      <div class="result">
+        <div id="qr_preview" class="preview"></div>
+        <div class="actions" style="margin-top:12px">
+          <button class="btn" id="qr_download_svg" disabled>Download SVG</button>
+          <button class="btn" id="qr_download_png" disabled>Download PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+<script>
+const QR_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set this
+const QR_GEN_URL = QR_API_URL_BASE + "/qr-generate";
+
+const qr_el = {
+  text: document.getElementById('qr_text'),
+  ecc: document.getElementById('qr_ecc'),
+  size: document.getElementById('qr_size'),
+  margin: document.getElementById('qr_margin'),
+  fg: document.getElementById('qr_fg'),
+  bg: document.getElementById('qr_bg'),
+  format: document.getElementById('qr_format'),
+  btn: document.getElementById('qr_btn'),
+  status: document.getElementById('qr_status'),
+  preview: document.getElementById('qr_preview'),
+  dlSvg: document.getElementById('qr_download_svg'),
+  dlPng: document.getElementById('qr_download_png')
+};
+let qr_last = null; // server result
+
+function asSvgBlob(svgText){ return new Blob([svgText], {type:"image/svg+xml"}); }
+
+function paintPngFromMatrix(matrix, fg, bg, sizePx, marginMods){
+  const n = matrix.length;
+  const totalMods = n + marginMods*2;
+  const scale = Math.floor(sizePx / totalMods) || 1;
+  const dim = totalMods * scale;
+
+  const cvs = document.createElement('canvas');
+  cvs.width = cvs.height = dim;
+  const ctx = cvs.getContext('2d');
+
+  // background
+  ctx.fillStyle = bg;
+  ctx.fillRect(0,0,dim,dim);
+
+  // modules
+  ctx.fillStyle = fg;
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if (matrix[r][c]) {
+        const x = (c + marginMods) * scale;
+        const y = (r + marginMods) * scale;
+        ctx.fillRect(x,y,scale,scale);
+      }
+    }
+  }
+  return cvs;
+}
+
+async function generate(){
+  qr_el.status.textContent = "Generating…";
+  qr_el.preview.innerHTML = "";
+  qr_el.dlSvg.disabled = true;
+  qr_el.dlPng.disabled = true;
+
+  const payload = {
+    text: qr_el.text.value || "",
+    ecc: qr_el.ecc.value,             // L/M/Q/H
+    size: +qr_el.size.value || 512,   // preferred px (used for viewBox convenience)
+    margin: +qr_el.margin.value || 4, // quiet zone in modules
+    fg: qr_el.fg.value,
+    bg: qr_el.bg.value
+  };
+
+  try{
+    const resp = await fetch(QR_GEN_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch{ return {error:text||'Bad response'}; } })();
+    if (data.error) throw new Error(data.error);
+    qr_last = data;
+
+    // Show preview according to selected output
+    if (qr_el.format.value === 'svg'){
+      const svgBlob = asSvgBlob(data.svg);
+      const url = URL.createObjectURL(svgBlob);
+      const img = document.createElement('img');
+      img.src = url; img.alt = "QR code (SVG)";
+      img.style.maxWidth = "100%"; img.style.height = "auto";
+      qr_el.preview.innerHTML = ""; qr_el.preview.appendChild(img);
+      qr_el.dlSvg.disabled = false;
+      qr_el.dlPng.disabled = false; // we can still render PNG locally from matrix
+    } else {
+      // PNG preview from matrix
+      const cvs = paintPngFromMatrix(data.matrix, payload.fg, payload.bg, payload.size, payload.margin);
+      qr_el.preview.innerHTML = ""; qr_el.preview.appendChild(cvs);
+      qr_el.dlSvg.disabled = false; // also allow SVG download
+      qr_el.dlPng.disabled = false;
+    }
+    qr_el.status.textContent = "";
+  }catch(e){
+    qr_el.preview.innerHTML = `<p class="muted">Error: ${e.message}</p>`;
+    qr_el.status.textContent = "";
+  }
+}
+
+function download(filename, blob){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+qr_el.btn.addEventListener('click', generate);
+
+qr_el.dlSvg.addEventListener('click', ()=>{
+  if (!qr_last) return;
+  download("qr-code.svg", asSvgBlob(qr_last.svg));
+});
+qr_el.dlPng.addEventListener('click', ()=>{
+  if (!qr_last) return;
+  const cvs = paintPngFromMatrix(qr_last.matrix, qr_last.fg, qr_last.bg, qr_last.size, qr_last.margin);
+  cvs.toBlob(b => download("qr-code.png", b), "image/png");
+});
+</script>
+
+<script>
+(function(){
+  // CSS
+  const css = document.createElement('style');
+  css.textContent = `
+    :root { --sticky-footer-h: 60px; }
+    body { padding-bottom: calc(var(--sticky-footer-h) + env(safe-area-inset-bottom)); }
+    .sticky-footer{position:fixed;left:0;right:0;bottom:0;z-index:1000;
+      background:rgba(18,25,52,.96);border-top:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+    .sticky-footer .inner{max-width:1100px;margin:0 auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+      height:var(--sticky-footer-h);display:flex;align-items:center;justify-content:center;text-align:center}
+    .sticky-footer .inner .muted{color:var(--muted)} .sticky-footer strong{color:var(--text)}
+  `;
+  document.head.appendChild(css);
+
+  // Footer
+  const f = document.createElement('footer');
+  f.className = 'sticky-footer';
+  f.setAttribute('role','contentinfo');
+  f.setAttribute('aria-label','Site notice');
+  f.innerHTML = '<div class="inner"><p class="muted" style="margin:0"><strong>Educational demo</strong> — not medical advice. Please double check important information.</p></div>';
+  document.body.appendChild(f);
+})();
+</script>
+
+
+   
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+
+  
+</body>
+</html>
