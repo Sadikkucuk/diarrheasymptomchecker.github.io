@@ -14,31 +14,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BAC (Blood Alcohol Content) Calculator</title>
   <meta name="description" content="BAC calculator with five drink rows, weight in kg/lb, sex, time since first drink, and raw-grams input. Results: %BAC, ‰, time until sober, and time to legal limit.">
+  <!-- Keep EXACT style as your other pages -->
   <style>
     :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
     .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
     .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    h1{margin:.2em 0 .2em;font-size:28px}
+    h1{margin:.2em 0 0.2em;font-size:28px}
     h2{margin-top:28px;font-size:20px;color:var(--muted)}
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
-    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .symptom{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .symptom label{display:block;font-weight:600;margin-bottom:8px}
     .muted{color:var(--muted)}
     .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
     .btn:active{transform:translateY(1px)}
+    .footer{font-size:12px;color:var(--muted);margin-top:16px}
     .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
     .row{display:flex;align-items:center;gap:10px;margin:8px 0}
     .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
-    .bar>span{display:block;height:100%;background:var(--accent)}
+    .bar > span{display:block;height:100%;background:var(--accent)}
+    .tag{display:inline-block;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;color:#d7e7ff}
+    details{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:12px 14px;border-radius:14px}
+    summary{cursor:pointer}
+    .yesno{display:flex;gap:14px;margin-top:6px}
     .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
     .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
-    .field{display:flex;flex-direction:column;gap:8px}
-    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
-    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
-    .pill{display:inline-flex;gap:10px;align-items:center}
-    .radio{display:inline-flex;gap:6px;align-items:center;margin-right:14px}
-    .dim{opacity:.8;font-size:12px}
+    .topnav{margin-bottom:8px}
   </style>
 </head>
 <body>
