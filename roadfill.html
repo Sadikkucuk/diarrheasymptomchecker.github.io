@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roadway Fill Volume Calculator</title>
+  <meta name="description" content="Roadway/Circle/Lot fill volume & weight with material densities. Units: mi/yd/ft/km/m and in/ft/cm/m. Optional price per ton (short/long/metric).">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar>span{display:block;height:100%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Roadway Fill Volume Calculator</h1>
+    <p class="muted">“Calculate for” → Roadway, Circle veya Lot/Driveway seçin; boyutlar + derinlik girin; <b>Malzeme</b> yoğunluğu ile tonajı ve isterseniz <b>ton başı fiyat</b>ı hesaplayın. Tüm matematik Cloudflare Worker’da çalışır.</p>
+
+    <h2>1) Inputs</h2>
+    <div class="grid">
+      <div class="box">
+        <div class="field">
+          <label>Calculate for</label>
+          <select id="rf_shape"></select>
+        </div>
+        <div class="field">
+          <label>Material</label>
+          <select id="rf_material"></select>
+        </div>
+        <div class="field" id="rf_custom_wrap" style="display:none">
+          <label>Custom density (short ton / cubic yard)</label>
+          <input type="number" id="rf_custom_density" placeholder="e.g., 1.35" min="0" step="0.0001">
+        </div>
+      </div>
+
+      <div class="box" id="rf_dims_box">
+        <div id="rf_dims_grid" class="grid"></div>
+        <div class="field" style="margin-top:8px">
+          <label>Quantity</label>
+          <input type="number" id="rf_qty" value="1" min="1" step="1">
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="field"><label>Optional Cost Calculation</label></div>
+        <div class="grid">
+          <div class="field">
+            <label>Currency</label>
+            <select id="rf_cur"><option>$</option><option>€</option><option>£</option><option>₺</option><option>₹</option><option>¥</option></select>
+          </div>
+          <div class="field">
+            <label>Price</label>
+            <input type="number" id="rf_price" placeholder="0.00" step="0.01" min="0">
+          </div>
+          <div class="field">
+            <label>Per unit</label>
+            <select id="rf_ton_unit">
+              <option value="short" selected>Ton (short US)</option>
+              <option value="long">Ton (long)</option>
+              <option value="metric">Ton (metric)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+      <button class="btn" id="rf_calc_btn">Next → Calculate</button>
+      <span class="muted" id="rf_status"></span>
+    </div>
+
+    <h2>2) Results</h2>
+    <div id="rf_results" class="result"></div>
+  </div>
+</div>
+
+<script>
+const RF_API_URL_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev"; // ← değiştirin
+const RF_DATASET_URL = RF_API_URL_BASE + "/roadfill-dataset";
+const RF_CALC_URL    = RF_API_URL_BASE + "/calc-roadfill";
+
+const rf_shapeSel   = document.getElementById('rf_shape');
+const rf_materialSel= document.getElementById('rf_material');
+const rf_customWrap = document.getElementById('rf_custom_wrap');
+const rf_customDen  = document.getElementById('rf_custom_density');
+const rf_dimsGrid   = document.getElementById('rf_dims_grid');
+const rf_qtyEl      = document.getElementById('rf_qty');
+const rf_statusEl   = document.getElementById('rf_status');
+
+let RF_DATASET = null;
+
+function rf_unitSelect(units, def){
+  const sel = document.createElement('select');
+  units.forEach(u=>{
+    const o=document.createElement('option'); o.value=u; o.textContent=u;
+    if(u===def) o.selected=true; sel.appendChild(o);
+  });
+  return sel;
+}
+
+function rf_buildDimsUI(shape){
+  rf_dimsGrid.innerHTML="";
+  shape.fields.forEach(f=>{
+    const box=document.createElement('div'); box.className='box';
+    const wrap=document.createElement('div'); wrap.className='two';
+    const v=document.createElement('input'); v.type='number'; v.step='0.0001'; v.min='0'; v.id=`rf_dim_${f.key}`;
+    const u=rf_unitSelect(f.units, f.defaultUnit); u.id=`rf_unit_${f.key}`;
+    wrap.appendChild(v); wrap.appendChild(u);
+    const fld=document.createElement('div'); fld.className='field';
+    const lab=document.createElement('label'); lab.textContent=f.label;
+    fld.appendChild(lab); fld.appendChild(wrap);
+    box.appendChild(fld); rf_dimsGrid.appendChild(box);
+  });
+}
+
+function rf_toggleCustom(){
+  const id = rf_materialSel.value;
+  rf_customWrap.style.display = (id === 'custom') ? '' : 'none';
+}
+
+async function rf_loadDataset(){
+  try{
+    const res = await fetch(RF_DATASET_URL, {mode:"cors"});
+    RF_DATASET = await res.json();
+
+    // shapes
+    rf_shapeSel.innerHTML="";
+    RF_DATASET.shapes.forEach(s=>{
+      const o=document.createElement('option'); o.value=s.id; o.textContent=s.name; rf_shapeSel.appendChild(o);
+    });
+    rf_buildDimsUI(RF_DATASET.shapes[0]);
+
+    // materials
+    rf_materialSel.innerHTML="";
+    RF_DATASET.materials.forEach(m=>{
+      const o=document.createElement('option'); o.value=m.id; o.textContent=m.name; rf_materialSel.appendChild(o);
+    });
+    rf_toggleCustom();
+  }catch(e){
+    rf_statusEl.textContent = "Dataset load error: "+e.message;
+  }
+}
+rf_shapeSel.addEventListener('change',()=>{
+  const s = RF_DATASET.shapes.find(x=>x.id===rf_shapeSel.value);
+  if(s) rf_buildDimsUI(s);
+});
+rf_materialSel.addEventListener('change', rf_toggleCustom);
+
+function rf_render(resp){
+  const el=document.getElementById('rf_results');
+  if(resp.error){ el.innerHTML=`<p class="muted">${resp.error}</p>`; return; }
+  const r=resp.result, cost=r.cost, notes=resp.notes||[];
+
+  const costLine = cost ? `<div class="row"><div style="min-width:260px"><strong>Estimated cost</strong></div>
+    <div class="bar"><span style="width:100%"></span></div>
+    <div style="min-width:240px;text-align:right"><strong>${cost.currency}${cost.total.toFixed(2)}</strong>
+    <span class="muted"> (${cost.currency}${cost.unitPrice.toFixed(2)} / ${cost.per})</span></div></div>` : '';
+
+  el.innerHTML = `
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic yards)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.cubicYards.toFixed(6)} yd³</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic feet)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.cubicFeet.toFixed(6)} ft³</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Volume (cubic meters)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.cubicMeters.toFixed(6)} m³</strong></div></div>
+
+    <div class="row"><div style="min-width:260px"><strong>Weight (short US tons)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.tonsShort.toFixed(6)} tn</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Weight (long tons)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.tonsLong.toFixed(6)} tn</strong></div></div>
+    <div class="row"><div style="min-width:260px"><strong>Weight (metric tons)</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.tonsMetric.toFixed(6)} t</strong></div></div>
+
+    ${costLine}
+    <div class="chips">${notes.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function rf_calculate(){
+  rf_statusEl.textContent='Calculating…';
+  document.getElementById('rf_results').innerHTML = '<p class="muted">Working…</p>';
+
+  const s = RF_DATASET.shapes.find(x=>x.id===rf_shapeSel.value);
+  const dims = {};
+  s.fields.forEach(f=>{
+    const val = +document.getElementById(`rf_dim_${f.key}`).value || 0;
+    const unit= document.getElementById(`rf_unit_${f.key}`).value;
+    dims[f.key] = { value: val, unit };
+  });
+
+  const payload = {
+    shape: s.id,
+    dims,
+    quantity: +rf_qtyEl.value || 1,
+    materialId: rf_materialSel.value,
+    customDensityTonPerYd3: +rf_customDen.value || null,
+    pricing: {
+      currency: document.getElementById('rf_cur').value,
+      unitPrice: +document.getElementById('rf_price').value || 0,
+      per: document.getElementById('rf_ton_unit').value // short|long|metric
+    }
+  };
+
+  try{
+    const resp = await fetch(RF_CALC_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch { return {error:text||'Bad response'}; } })();
+    rf_render(data);
+  }catch(e){
+    rf_render({error:'Network or server error.'});
+  }
+  rf_statusEl.textContent='';
+}
+
+document.getElementById('rf_calc_btn').addEventListener('click', rf_calculate);
+rf_loadDataset();
+</script>
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+</html>
