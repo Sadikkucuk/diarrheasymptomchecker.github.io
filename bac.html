@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BAC (Blood Alcohol Content) Calculator</title>
+  <meta name="description" content="BAC calculator with five drink rows, weight in kg/lb, sex, time since first drink, and raw-grams input. Results: %BAC, ‰, time until sober, and time to legal limit.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar>span{display:block;height:100%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+    .pill{display:inline-flex;gap:10px;align-items:center}
+    .radio{display:inline-flex;gap:6px;align-items:center;margin-right:14px}
+    .dim{opacity:.8;font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>BAC (Blood Alcohol Content) Calculator</h1>
+    <p class="muted">Pick sex and body weight, add up to <b>5 drinks</b> (or enter raw grams), and set when you started drinking. All math runs on your Cloudflare Worker.</p>
+
+    <h2>1) Inputs</h2>
+    <div class="grid">
+      <div class="box">
+        <div class="field">
+          <label>Region (legal limit)</label>
+          <select id="bac_region">
+            <option value="us_ca">USA or Canada (0.08%)</option>
+            <option value="eu">EU (0.05%)</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="field" id="bac_custom_limit_wrap" style="display:none">
+          <label>Custom legal limit (%)</label>
+          <input type="number" id="bac_custom_limit" min="0" step="0.001" placeholder="e.g., 0.03">
+        </div>
+        <div class="field">
+          <label>Sex</label>
+          <div class="pill">
+            <label class="radio"><input type="radio" name="bac_sex" value="male" checked> Male</label>
+            <label class="radio"><input type="radio" name="bac_sex" value="female"> Female</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Body weight</label>
+          <div class="two">
+            <input type="number" id="bac_weight" value="90" min="1" step="0.1">
+            <select id="bac_weight_unit"><option value="kg" selected>kg</option><option value="lb">lb</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Started drinking</label>
+          <div class="three">
+            <input type="number" id="bac_hrs" value="0" min="0" step="1"><div class="chip" style="display:flex;align-items:center;justify-content:center">hrs</div>
+            <input type="number" id="bac_min" value="0" min="0" step="1"><div class="chip" style="display:flex;align-items:center;justify-content:center">min</div>
+          </div>
+          <div class="dim">Time since first drink (e.g., 1 hr 30 min ago → 1 and 30)</div>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="field"><label>I drank (choose type for each row)</label></div>
+        <div id="bac_drinks"></div>
+        <div class="field" style="margin-top:6px">
+          <label>Raw alcohol (optional)</label>
+          <div class="two">
+            <input type="number" id="bac_raw_grams" value="0" min="0" step="0.1">
+            <div class="chip" style="display:flex;align-items:center;justify-content:center">grams</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+      <button class="btn" id="bac_calc_btn">Next → Calculate</button>
+      <span class="muted" id="bac_status"></span>
+    </div>
+
+    <h2>2) Results</h2>
+    <div id="bac_results" class="result"></div>
+    <div class="dim" style="margin-top:8px">This is an estimate (Widmark method). Never drink and drive.</div>
+  </div>
+</div>
+
+<script>
+const BAC_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set this
+const BAC_DATASET_URL  = BAC_API_URL_BASE + "/bac-dataset";
+const BAC_CALC_URL     = BAC_API_URL_BASE + "/calc-bac";
+
+// --- elements
+const bac_region = document.getElementById('bac_region');
+const bac_custom_wrap = document.getElementById('bac_custom_limit_wrap');
+const bac_custom_limit = document.getElementById('bac_custom_limit');
+const bac_drinksWrap = document.getElementById('bac_drinks');
+const bac_status = document.getElementById('bac_status');
+
+let BAC_DATASET = null;
+
+function showCustomLimit(){ bac_custom_wrap.style.display = (bac_region.value === 'custom') ? '' : 'none'; }
+bac_region.addEventListener('change', showCustomLimit);
+
+// create five rows
+function buildDrinkRows(){
+  bac_drinksWrap.innerHTML = "";
+  for(let i=0;i<5;i++){
+    const row = document.createElement('div'); row.className='two'; row.style.marginBottom='8px';
+    const qty = document.createElement('input'); qty.type='number'; qty.min='0'; qty.step='1'; qty.value = i===0 ? 6 : 0; qty.id = `bac_qty_${i}`;
+    const sel = document.createElement('select'); sel.id = `bac_type_${i}`;
+    BAC_DATASET.drinks.forEach(d=>{
+      const o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o);
+    });
+    if(i===0){ sel.value = 'large_beer'; }
+    row.appendChild(qty); row.appendChild(sel);
+    bac_drinksWrap.appendChild(row);
+  }
+}
+
+async function loadDataset(){
+  try{
+    const res = await fetch(BAC_DATASET_URL, {mode:"cors"});
+    BAC_DATASET = await res.json();
+    buildDrinkRows();
+  }catch(e){
+    bac_status.textContent = "Dataset load error: " + e.message;
+  }
+}
+
+function render(resp){
+  const el = document.getElementById('bac_results');
+  if (resp.error) { el.innerHTML = `<p class="muted">${resp.error}</p>`; return; }
+  const r = resp.result;
+  const notes = resp.notes || [];
+
+  function hms(hoursFloat){
+    const h = Math.floor(hoursFloat);
+    const m = Math.round((hoursFloat - h) * 60);
+    return `${h} hrs ${m} min`;
+  }
+
+  el.innerHTML = `
+    <div class="row"><div style="min-width:220px"><strong>Raw alcohol</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.totalGrams.toFixed(2)} g</strong></div></div>
+
+    <div class="row"><div style="min-width:220px"><strong>BAC</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.bacPercent.toFixed(3)} %</strong>
+      <span class="muted"> (${r.bacPermille.toFixed(2)} ‰)</span></div></div>
+
+    <div class="row"><div style="min-width:220px"><strong>Time until sober</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${hms(r.hoursUntilSober)}</strong></div></div>
+
+    <div class="row"><div style="min-width:220px"><strong>Time to legal driving</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${hms(r.hoursToLegal)}</strong>
+      <span class="muted"> (limit ${r.legalLimitPercent.toFixed(2)}%)</span></div></div>
+
+    <div class="chips">${notes.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function calculate(){
+  bac_status.textContent = 'Calculating…';
+  document.getElementById('bac_results').innerHTML = '<p class="muted">Working…</p>';
+
+  const sex = [...document.querySelectorAll('input[name="bac_sex"]')].find(r=>r.checked)?.value || 'male';
+  const weight = +document.getElementById('bac_weight').value || 0;
+  const weightUnit = document.getElementById('bac_weight_unit').value;
+  const hrs = +document.getElementById('bac_hrs').value || 0;
+  const min = +document.getElementById('bac_min').value || 0;
+  const gramsRaw = +document.getElementById('bac_raw_grams').value || 0;
+
+  const drinks = [];
+  for(let i=0;i<5;i++){
+    const qty = +document.getElementById(`bac_qty_${i}`).value || 0;
+    const typeId = document.getElementById(`bac_type_${i}`).value;
+    if(qty>0) drinks.push({ qty, typeId });
+  }
+
+  const payload = {
+    sex, weight, weightUnit, hoursSinceFirstDrink: hrs + (min/60),
+    drinks, gramsRaw,
+    region: bac_region.value,
+    customLegalLimitPercent: bac_region.value==='custom' ? (+bac_custom_limit.value || 0) : null
+  };
+
+  try{
+    const resp = await fetch(BAC_CALC_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const text = await resp.text();
+    const data = (()=>{try{ return JSON.parse(text); }catch{ return {error:text||'Bad response'}; }})();
+    render(data);
+  }catch(e){
+    render({error:'Network or server error.'});
+  }
+  bac_status.textContent = '';
+}
+
+document.getElementById('bac_calc_btn').addEventListener('click', calculate);
+loadDataset();
+showCustomLimit();
+</script>
+
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+</html>
