@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tank Volume Calculator</title>
+  <meta name="description" content="Tank capacity & filled volume calculator. Types: Horizontal Cylinder, Vertical Cylinder, Rectangle. Units in/ft/mm/cm/m. Results in US gal, Imp gal, liters, m³, ft³.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar>span{display:block;height:100%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Tank Volume Calculator</h1>
+    <p class="muted">Select a tank type, enter dimensions, and optionally a filled depth for partial volume. All math runs on your Cloudflare Worker.</p>
+
+    <h2>1) Inputs</h2>
+    <div class="grid">
+      <div class="box">
+        <div class="field">
+          <label>Tank Type</label>
+          <select id="tv_shape"></select>
+        </div>
+      </div>
+
+      <div class="box" id="tv_dims_box">
+        <div id="tv_dims_grid" class="grid"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+      <button class="btn" id="tv_calc_btn">Next → Calculate</button>
+      <span class="muted" id="tv_status"></span>
+    </div>
+
+    <h2>2) Results</h2>
+    <div id="tv_results" class="result"></div>
+
+    <details style="margin-top:14px">
+      <summary><strong>Notes</strong></summary>
+      <p class="muted">US gal = U.S. liquid gallons. Imp gal = imperial gallons. If Filled Depth is left blank, only total capacity is returned.</p>
+    </details>
+  </div>
+</div>
+
+<script>
+const TV_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set to your Worker
+const TV_DATASET_URL  = TV_API_URL_BASE + "/tank-dataset";
+const TV_CALC_URL     = TV_API_URL_BASE + "/calc-tank";
+
+const tv_shapeSel = document.getElementById('tv_shape');
+const tv_dimsGrid = document.getElementById('tv_dims_grid');
+const tv_statusEl = document.getElementById('tv_status');
+
+let TV_DATASET = null;
+
+function tv_unitSelect(units, def){
+  const sel = document.createElement('select');
+  units.forEach(u => {
+    const o = document.createElement('option'); o.value = u; o.textContent = u;
+    if (u === def) o.selected = true; sel.appendChild(o);
+  });
+  return sel;
+}
+
+function tv_buildDimsUI(shape){
+  tv_dimsGrid.innerHTML = "";
+  shape.fields.forEach(f => {
+    const box = document.createElement('div'); box.className = 'box';
+    const wrap = document.createElement('div'); wrap.className = 'two';
+    const v = document.createElement('input'); v.type = 'number'; v.step = '0.0001'; v.min = '0'; v.id = `tv_dim_${f.key}`;
+    const u = tv_unitSelect(f.units, f.defaultUnit); u.id = `tv_unit_${f.key}`;
+    wrap.appendChild(v); wrap.appendChild(u);
+    const fld = document.createElement('div'); fld.className = 'field';
+    const lab = document.createElement('label'); lab.textContent = f.label + (f.optional ? " (optional)" : "");
+    fld.appendChild(lab); fld.appendChild(wrap);
+    box.appendChild(fld); tv_dimsGrid.appendChild(box);
+  });
+}
+
+async function tv_loadDataset(){
+  try{
+    const res = await fetch(TV_DATASET_URL, {mode:"cors"});
+    TV_DATASET = await res.json();
+    tv_shapeSel.innerHTML = "";
+    TV_DATASET.shapes.forEach(s => {
+      const o = document.createElement('option'); o.value = s.id; o.textContent = s.name; tv_shapeSel.appendChild(o);
+    });
+    tv_buildDimsUI(TV_DATASET.shapes[0]);
+  }catch(e){
+    tv_statusEl.textContent = "Dataset load error: " + e.message;
+  }
+}
+tv_shapeSel.addEventListener('change', () => {
+  const s = TV_DATASET.shapes.find(x => x.id === tv_shapeSel.value);
+  if (s) tv_buildDimsUI(s);
+});
+
+function tv_render(resp){
+  const el = document.getElementById('tv_results');
+  if (resp.error) { el.innerHTML = `<p class="muted">${resp.error}</p>`; return; }
+  const r = resp.result;
+  const notes = resp.notes || [];
+
+  el.innerHTML = `
+    <div class="row"><div style="min-width:200px"><strong>U.S. Gallons</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.usGallons.total.toFixed(4)}</strong>
+      ${r.usGallons.filled != null ? `<span class="muted"> (filled: ${r.usGallons.filled.toFixed(4)})</span>` : ""}</div></div>
+    <div class="row"><div style="min-width:200px"><strong>Imp. Gallons</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.impGallons.total.toFixed(4)}</strong>
+      ${r.impGallons.filled != null ? `<span class="muted"> (filled: ${r.impGallons.filled.toFixed(4)})</span>` : ""}</div></div>
+    <div class="row"><div style="min-width:200px"><strong>Liters</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.liters.total.toFixed(4)}</strong>
+      ${r.liters.filled != null ? `<span class="muted"> (filled: ${r.liters.filled.toFixed(4)})</span>` : ""}</div></div>
+    <div class="row"><div style="min-width:200px"><strong>Cubic Meters</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.cubicMeters.total.toFixed(6)}</strong>
+      ${r.cubicMeters.filled != null ? `<span class="muted"> (filled: ${r.cubicMeters.filled.toFixed(6)})</span>` : ""}</div></div>
+    <div class="row"><div style="min-width:200px"><strong>Cubic Feet</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.cubicFeet.total.toFixed(6)}</strong>
+      ${r.cubicFeet.filled != null ? `<span class="muted"> (filled: ${r.cubicFeet.filled.toFixed(6)})</span>` : ""}</div></div>
+    <div class="chips">${notes.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function tv_calculate(){
+  tv_statusEl.textContent = 'Calculating…';
+  document.getElementById('tv_results').innerHTML = '<p class="muted">Working…</p>';
+
+  const s = TV_DATASET.shapes.find(x => x.id === tv_shapeSel.value);
+  const dims = {};
+  s.fields.forEach(f => {
+    const val = document.getElementById(`tv_dim_${f.key}`).value;
+    const unit = document.getElementById(`tv_unit_${f.key}`).value;
+    if (val !== "") dims[f.key] = { value: +val, unit };
+  });
+
+  const payload = { shape: s.id, dims };
+
+  try{
+    const resp = await fetch(TV_CALC_URL, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch { return {error:text||'Bad response'}; }})();
+    tv_render(data);
+  }catch(e){
+    tv_render({error:'Network or server error.'});
+  }
+  tv_statusEl.textContent = '';
+}
+
+document.getElementById('tv_calc_btn').addEventListener('click', tv_calculate);
+tv_loadDataset();
+</script>
+
+<!-- Buy Me a Coffee -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data_y_margin="18"></script>
+</body>
+</html>
