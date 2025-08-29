@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BA Diagram Studio — BPMN / UML to Context, Flow & Swimlanes</title>
+  <meta name="description" content="Paste BPMN XML, PlantUML or Mermaid code. Render Context, Functional Flow, Cross‑functional (Swimlane) and Flowchart diagrams via Kroki. Export PNG/SVG." />
+  <style>
+    :root{
+      --bg:#0b1220; --panel:#111a2e; --ink:#e9eefc; --muted:#95a0b3; --brand:#5b9cff; --accent:#31d0aa; --danger:#ff6b6b;
+      --border: rgba(255,255,255,0.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"; background:var(--bg); color:var(--ink)}
+    header{position:sticky; top:0; z-index:3; background:linear-gradient(180deg, #0b1220 0%, #0b1220cc 70%, transparent); backdrop-filter:saturate(1.2) blur(6px);}
+    .wrap{max-width:1200px; margin:0 auto; padding:16px}
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:16px}
+    @media (max-width: 980px){ .row{grid-template-columns: 1fr} }
+    .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.25)}
+    .card header{padding:14px 16px; border-bottom:1px solid var(--border); background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))}
+    .card h2{margin:0; font-size:16px; letter-spacing:0.2px; color:#cfe1ff}
+    .card .body{padding:12px}
+
+    textarea{width:100%; height:520px; background:#0b1426; color:var(--ink); border:1px solid var(--border); border-radius:12px; padding:12px 14px; line-height:1.4; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:14px; resize:vertical}
+    select, button, input[type="text"]{background:#0b1426; color:var(--ink); border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-weight:600}
+    .toolbar{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px}
+    .toolbar label{font-size:12px; color:var(--muted); margin-right:6px}
+    .toolbar .spacer{flex:1}
+    button{cursor:pointer; border:1px solid rgba(255,255,255,0.1); transition:transform .05s ease, background .2s ease}
+    button:hover{background:#101b32}
+    button:active{transform:translateY(1px)}
+    .btn-primary{background:linear-gradient(180deg, #2b70ff, #2257c4); border-color:#1e4db0}
+    .btn-accent{background:linear-gradient(180deg, #34e1be, #23b795); border-color:#1c9b80; color:#04261f}
+    .btn-danger{background:linear-gradient(180deg, #ff7b7b, #e45c5c); border-color:#c94f4f}
+    .muted{color:var(--muted); font-size:12px}
+    .preview{min-height:520px; max-height:70vh; overflow:auto; background:#0b1426; border:1px solid var(--border); border-radius:12px; padding:10px}
+    .status{margin-top:8px; min-height:22px}
+    .links a{color:#b9d3ff; text-decoration:none; margin-right:12px}
+    .links a:hover{text-decoration:underline}
+    .hint{font-size:12px; color:#a7b2c6}
+    .footer{opacity:0.8; font-size:12px;}
+    .kbd{padding:2px 6px; border-radius:6px; border:1px solid var(--border); font-family: ui-monospace, monospace; background:#0a1325; color:#cfe1ff}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap" style="display:flex; align-items:center; gap:14px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 3h10l4 6-9 12L3 9l4-6z" stroke="#5b9cff" stroke-width="1.5" fill="none"/></svg>
+      <div>
+        <div style="font-weight:800; letter-spacing:.2px">BA Diagram Studio</div>
+        <div class="muted">Paste BPMN XML, PlantUML or Mermaid → render & export via Kroki</div>
+      </div>
+      <div class="spacer"></div>
+      <a class="muted" href="https://kroki.io" target="_blank" rel="noopener">Powered by Kroki</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="row">
+      <div class="card">
+        <header><h2>Editor</h2></header>
+        <div class="body">
+          <div class="toolbar">
+            <label for="language">Language</label>
+            <select id="language" title="Diagram language">
+              <option value="plantuml">PlantUML (UML/Activity/Context)</option>
+              <option value="mermaid">Mermaid (Flowchart)</option>
+              <option value="bpmn">BPMN 2.0 XML</option>
+            </select>
+
+            <label for="template">Templates</label>
+            <select id="template" title="Quick-start templates">
+              <option value="">— Choose a template —</option>
+              <option value="context">Context Diagram (PlantUML)</option>
+              <option value="functional">Functional Flow (PlantUML Activity)</option>
+              <option value="swimlane">Cross‑functional Flow (PlantUML Swimlanes)</option>
+              <option value="flowchart">Flowchart (Mermaid)</option>
+              <option value="bpmn">BPMN Minimal (XML)</option>
+            </select>
+
+            <button id="btnClear" class="btn-danger" title="Clear the editor">Clear</button>
+            <div class="spacer"></div>
+            <span class="hint">Tip: <span class="kbd">Ctrl/⌘</span> + <span class="kbd">S</span> saves to your browser</span>
+          </div>
+
+          <textarea id="editor" spellcheck="false" placeholder="Paste your PlantUML / Mermaid / BPMN code here…"></textarea>
+          <div class="status muted" id="status"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <header><h2>Preview & Export</h2></header>
+        <div class="body">
+          <div class="toolbar">
+            <button id="btnRender" class="btn-primary">Render (SVG)</button>
+            <button id="btnExportPng" class="btn-accent">Export PNG</button>
+            <div class="spacer"></div>
+            <div class="links">
+              <a id="linkDownloadSvg" href="#" download="diagram.svg" hidden>Download SVG</a>
+              <a id="linkDownloadPng" href="#" download="diagram.png" hidden>Download PNG</a>
+            </div>
+          </div>
+          <div id="preview" class="preview" aria-live="polite"></div>
+          <div class="status muted" id="outcome"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer muted" style="margin-top:18px;">
+      <p><strong>How it works:</strong> We send your diagram text to <code>https://kroki.io/&lt;engine&gt;/&lt;format&gt;</code> (Mermaid/PlantUML/BPMN) and show the returned SVG/PNG. Nothing is stored on our servers. For offline or private use, you can self‑host Kroki and change the <code>KROKI_BASE</code> constant below.</p>
+    </div>
+  </div>
+
+  <script>
+    // ===== Config =====
+    const KROKI_BASE = 'https://kroki.io'; // change to your self-hosted Kroki if needed
+
+    // ===== DOM =====
+    const editor = document.getElementById('editor');
+    const languageSel = document.getElementById('language');
+    const templateSel = document.getElementById('template');
+    const btnRender = document.getElementById('btnRender');
+    const btnExportPng = document.getElementById('btnExportPng');
+    const btnClear = document.getElementById('btnClear');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('status');
+    const outcome = document.getElementById('outcome');
+    const linkDownloadSvg = document.getElementById('linkDownloadSvg');
+    const linkDownloadPng = document.getElementById('linkDownloadPng');
+
+    // ===== Templates =====
+    const TEMPLATES = {
+      context: {
+        lang: 'plantuml',
+        code: `@startuml\n' Context Diagram (edit freely)\n!pragma teoz true\nskinparam rectangleStyle rounded\nskinparam shadowing false\nskinparam defaultFontName Arial\n\nactor \"Customer\" as C\nrectangle \"Our System\" as S { }\nC --> S : Uses\n\nrectangle \"Payment Gateway\" as PG\nrectangle \"Bank\" as BK\nS --> PG : API calls\nPG --> BK : Settlement\n\ncloud \"Partner API\" as P\nS --> P : REST\n\n@enduml`
+      },
+      functional: {
+        lang: 'plantuml',
+        code: `@startuml\n' Functional Flow (Activity)\nskinparam shadowing false\nstart\n:Receive Request;\n:Validate Input;\nif (Valid?) then (yes)\n  :Process;\n  :Generate Output;\nelse (no)\n  :Show Error;\nendif\nstop\n@enduml`
+      },
+      swimlane: {
+        lang: 'plantuml',
+        code: `@startuml\n' Cross-functional Flow with Swimlanes\nskinparam shadowing false\ntitle Cross-functional Flow\n|Customer|\nstart\n:Submit Ticket;\n|Support|\n:Assess;\n|Engineering|\n:Investigate;\n|Support|\n:Respond;\nstop\n@enduml`
+      },
+      flowchart: {
+        lang: 'mermaid',
+        code: `flowchart LR\n  A([Start]) --> B{Valid?}\n  B -- Yes --> C[Process]\n  B -- No --> D[Show Error]\n  C --> E([Finish])\n  D --> E`
+      },
+      bpmn: {
+        lang: 'bpmn',
+        code: `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n  xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" id=\"Definitions_1\">\n  <bpmn:process id=\"Process_1\" isExecutable=\"false\">\n    <bpmn:startEvent id=\"StartEvent_1\" name=\"Start\"/>\n    <bpmn:task id=\"Task_1\" name=\"Do work\"/>\n    <bpmn:endEvent id=\"EndEvent_1\" name=\"End\"/>\n    <bpmn:sequenceFlow id=\"Flow_1\" sourceRef=\"StartEvent_1\" targetRef=\"Task_1\"/>\n    <bpmn:sequenceFlow id=\"Flow_2\" sourceRef=\"Task_1\" targetRef=\"EndEvent_1\"/>\n  </bpmn:process>\n</bpmn:definitions>`
+      }
+    };
+
+    // ===== Persistence (localStorage) =====
+    const LS_KEY = 'ba-diagram-studio';
+    function saveLocal(){
+      const data = { code: editor.value, lang: languageSel.value };
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+      status.textContent = 'Saved to your browser.';
+      setTimeout(()=> status.textContent='', 1200);
+    }
+    function loadLocal(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(raw){
+          const obj = JSON.parse(raw);
+          if(obj.lang) languageSel.value = obj.lang;
+          if(obj.code) editor.value = obj.code;
+        } else {
+          // default template to help first-time users
+          applyTemplate('context');
+        }
+      }catch(e){ /* ignore */ }
+    }
+
+    // ===== Helpers =====
+    function applyTemplate(key){
+      const t = TEMPLATES[key];
+      if(!t) return;
+      languageSel.value = t.lang;
+      editor.value = t.code;
+      status.textContent = `Loaded template: ${key}`;
+      preview.innerHTML = '';
+      linkDownloadSvg.hidden = true;
+      linkDownloadPng.hidden = true;
+      outcome.textContent = '';
+    }
+
+    async function render(format){
+      const lang = languageSel.value;
+      const code = editor.value.trim();
+      if(!code){ outcome.textContent = 'Editor is empty.'; return; }
+      outcome.textContent = 'Rendering…';
+      preview.innerHTML = '';
+      linkDownloadSvg.hidden = true;
+      linkDownloadPng.hidden = true;
+      try{
+        const endpoint = `${KROKI_BASE}/${lang}/${format}`;
+        const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body: code });
+        if(!res.ok){
+          const text = await res.text();
+          throw new Error(text || `HTTP ${res.status}`);
+        }
+        if(format === 'svg'){
+          const svg = await res.text();
+          preview.innerHTML = svg;
+          const blob = new Blob([svg], {type:'image/svg+xml'});
+          const url = URL.createObjectURL(blob);
+          linkDownloadSvg.href = url;
+          linkDownloadSvg.hidden = false;
+          outcome.textContent = 'Rendered as SVG.';
+        } else if(format === 'png'){
+          const blob = await res.blob();
+          const url = URL.createObjectURL(blob);
+          preview.innerHTML = `<img src="${url}" alt="Diagram PNG preview" style="max-width:100%; height:auto;"/>`;
+          linkDownloadPng.href = url;
+          linkDownloadPng.hidden = false;
+          outcome.textContent = 'Exported as PNG.';
+        }
+      }catch(err){
+        console.error(err);
+        outcome.textContent = 'Error: ' + (err.message || err);
+      }
+    }
+
+    // ===== Events =====
+    templateSel.addEventListener('change', e=> applyTemplate(e.target.value));
+    btnClear.addEventListener('click', ()=>{ editor.value=''; preview.innerHTML=''; outcome.textContent=''; linkDownloadSvg.hidden=true; linkDownloadPng.hidden=true; });
+    btnRender.addEventListener('click', ()=> render('svg'));
+    btnExportPng.addEventListener('click', ()=> render('png'));
+    editor.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); saveLocal(); }
+    });
+
+    // Initialize
+    loadLocal();
+  </script>
+</body>
+</html>
