@@ -118,19 +118,34 @@
       </div>
     </div>
   </div>
+
 <script>
 (function(){
-  const footer = document.createElement('footer');
-  footer.className = 'site-footer';
-  footer.innerHTML =
-    '<div class="wrap">' +
-      '<p class="muted" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;text-align:center">' +
-      'Educational demo — not medical advice. Please double check important information.' +
-      '</p>' +
-    '</div>';
-  document.body.appendChild(footer);
+  // CSS
+  const css = document.createElement('style');
+  css.textContent = `
+    :root { --sticky-footer-h: 60px; }
+    body { padding-bottom: calc(var(--sticky-footer-h) + env(safe-area-inset-bottom)); }
+    .sticky-footer{position:fixed;left:0;right:0;bottom:0;z-index:1000;
+      background:rgba(18,25,52,.96);border-top:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}
+    .sticky-footer .inner{max-width:1100px;margin:0 auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
+      height:var(--sticky-footer-h);display:flex;align-items:center;justify-content:center;text-align:center}
+    .sticky-footer .inner .muted{color:var(--muted)} .sticky-footer strong{color:var(--text)}
+  `;
+  document.head.appendChild(css);
+
+  // Footer
+  const f = document.createElement('footer');
+  f.className = 'sticky-footer';
+  f.setAttribute('role','contentinfo');
+  f.setAttribute('aria-label','Site notice');
+  f.innerHTML = '<div class="inner"><p class="muted" style="margin:0"><strong>Educational demo</strong> — not medical advice. Please double check important information.</p></div>';
+  document.body.appendChild(f);
 })();
 </script>
+
+
+   
 <!-- Optional: Buy Me a Coffee widget -->
 <script data-name="BMC-Widget" data-cfasync="false"
   src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
