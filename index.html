@@ -1,14 +1,17 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- Google tag -->
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-C4SV7HGYM6');</script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-C4SV7HGYM6');
+  </script>
 
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculator Hub</title>
-  <meta name="description" content="Quick links to all calculators.">
+  <title>Estimators</title>
+  <meta name="description" content="Estimators hub with cause estimators, calculators, and information technology links.">
   <style>
     :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
@@ -16,27 +19,100 @@
     .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
     .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
     h1{margin:.2em 0 .2em;font-size:28px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:16px}
-    .tile{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
-    .tile h3{margin:0 0 4px 0}
+    h2{margin:26px 0 10px 0;font-size:20px;color:var(--muted)}
     .muted{color:var(--muted)}
-    .btn{display:inline-block;background:var(--accent);color:#07213d;font-weight:800;padding:10px 14px;border-radius:10px}
+    .topnav{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px}
+    .topnav a{white-space:nowrap}
+    .topnav{line-height:2;display:block}
+    @media (max-width:720px){
+      .topnav a{display:inline-block;margin-right:6px}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>Calculator Hub</h1>
-      <p class="muted">Pick a tool:</p>
-      <div class="grid">
-        <div class="tile"><h3>Mulch Calculator</h3><p class="muted">Bags & bulk.</p><a class="btn" href="mulch.html">Open</a></div>
-        <div class="tile"><h3>Cubic Yards</h3><p class="muted">Volume by shape.</p><a class="btn" href="cubicyards.html">Open</a></div>
-        <div class="tile"><h3>Square Footage</h3><p class="muted">Area + cost.</p><a class="btn" href="squarefootage.html">Open</a></div>
-        <div class="tile"><h3>Roadway Fill</h3><p class="muted">Volume & tonnage.</p><a class="btn" href="roadfill.html">Open</a></div>
-        <div class="tile"><h3>Tank Volume</h3><p class="muted">Capacity & filled.</p><a class="btn" href="tank.html">Open</a></div>
-        <div class="tile"><h3>BAC</h3><p class="muted">Blood alcohol content.</p><a class="btn" href="bac.html">Open</a></div>
-        <div class="tile"><h3>BMI</h3><p class="muted">Body Mass Index.</p><a class="btn" href="bmi.html">Open</a></div>
-        <div class="tile"><h3>Concrete</h3><p class="muted">Your existing page.</p><a class="btn" href="concrete.html">Open</a></div>
+      <h1>Estimators</h1>
+      <p class="muted">Quick links to medical cause estimators, calculators, and IT resources.</p>
+
+      <!-- 1) Cause Estimators -->
+      <h2>Cause Estimators</h2>
+      <div class="topnav muted">
+  <a href="./index.html">Diarrhea</a> •
+  <a href="./abdominal-distension.html">Abdominal Distension</a> •
+  <a href="./abdominal-pain.html">Abdominal Pain</a> •
+  <a href="./aerophagia.html">Aerophagia</a> •
+  <a href="./anemia.html">Anemia</a> •
+  <a href="./arthralgia.html">Arthralgia</a> •
+  <a href="./back-pain.html">Back Pain</a> •
+  <a href="./belching.html">Belching</a> •
+  <a href="./cholecystitis.html">Cholecystitis</a> •
+  <a href="./conjunctivitis.html">Conjunctivitis</a> •
+  <a href="./constipation.html">Constipation</a> •
+  <a href="./cough.html">Cough</a> •
+  <a href="./cyanosis.html">Cyanosis</a> •
+  <a href="./cystitis.html">Cystitis</a> •
+  <a href="./dehydration.html">Dehydration</a> •
+  <a href="./diplopia.html">Diplopia</a> •
+  <a href="./dyspepsia.html">Dyspepsia</a> •
+  <a href="./dyspnea.html">Dyspnea</a> •
+  <a href="./epistaxis.html">Epistaxis</a> •
+  <a href="./fatigue.html">Fatigue</a> •
+  <a href="./flatulence.html">Flatulence</a> •
+  <a href="./flushing.html">Flushing</a> •
+  <a href="./frequent-urination.html">Frequent Urination</a> •
+  <a href="./gastritis.html">Gastritis</a> •
+  <a href="./gastroenteritis.html">Gastroenteritis</a> •
+  <a href="./gerd.html">GERD</a> •
+  <a href="./headache.html">Headache</a> •
+  <a href="./hoarse-voice.html">Hoarse Voice</a> •
+  <a href="./hyperthyroidism.html">Hyperthyroidism</a> •
+  <a href="./hypothyroidism.html">Hypothyroidism</a> •
+  <a href="./jaundice.html">Jaundice</a> •
+  <a href="./laryngitis.html">Laryngitis</a> •
+  <a href="./lightheadedness.html">Lightheadedness</a> •
+  <a href="./nocturia.html">Nocturia</a> •
+  <a href="./otitis-externa.html">Otitis Externa</a> •
+  <a href="./otitis-media.html">Otitis Media</a> •
+  <a href="./palpitations.html">Palpitations</a> •
+  <a href="./pancreatitis.html">Pancreatitis</a> •
+  <a href="./peptic-ulcer-disease.html">Peptic Ulcer Disease</a> •
+  <a href="./photophobia.html">Photophobia</a> •
+  <a href="./photopsia.html">Photopsia</a> •
+  <a href="./pneumonia.html">Pneumonia</a> •
+  <a href="./polyuria.html">Polyuria</a> •
+  <a href="./pruritus.html">Pruritus</a> •
+  <a href="./pyelonephritis.html">Pyelonephritis</a> •
+  <a href="./rhinorrhea.html">Rhinorrhea</a> •
+  <a href="./sinusitis.html">Sinusitis</a> •
+  <a href="./sore-throat.html">Sore Throat</a> •
+  <a href="./syncope.html">Syncope</a> •
+  <a href="./tonsillitis.html">Tonsillitis</a> •
+  <a href="./toothache.html">Toothache</a> •
+  <a href="./tremor.html">Tremor</a> •
+  <a href="./urinary-retention.html">Urinary Retention</a> •
+  <a href="./uti.html">UTI</a> •
+  <a href="./vomiting.html">Vomiting</a> •
+  <a href="./xerostomia.html">Xerostomia</a>
+      </div>
+
+      <!-- 2) Calculators -->
+      <h2>Calculators</h2>
+      <div class="topnav muted">
+  <a href="./bac.html">BAC (Blood Alcohol Content) Calculator</a> •
+  <a href="./bmi.html">BMI Calculator</a> •
+  <a href="./concrete.html">Concrete Volume Calculator (Prototype)</a> •
+  <a href="./cubicyards.html">Cubic Yards Calculator</a> •
+  <a href="./feet-inches.html">Feet & Inches – Converter + Math (Prototype)</a> •
+  <a href="./mulch.html">Mulch Calculator</a> •
+  <a href="./roadfill.html">Roadway Fill Volume Calculator</a> •
+  <a href="./tank.html">Tank Volume Calculator</a> 
+      </div>
+
+      <!-- 3) Information Technology -->
+      <h2>Information Technology</h2>
+      <div class="topnav muted">
+        <a href="./diagram.html">BA Diagrams</a>
       </div>
     </div>
   </div>
