@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BMI Calculator</title>
+  <meta name="description" content="Body Mass Index (BMI) calculator with US & metric units, ft+in support, healthy weight range, and category. All math runs on a Cloudflare Worker.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    .bar{height:10px;border-radius:8px;background:rgba(255,255,255,.12);flex:1;overflow:hidden}
+    .bar>span{display:block;height:100%;background:var(--accent)}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 140px;gap:8px}
+    .three{display:grid;grid-template-columns:1fr 1fr 100px;gap:8px}
+    .field input,.field select{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;width:100%;box-sizing:border-box}
+    .radio{display:inline-flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>BMI Calculator</h1>
+    <p class="muted">Enter height and weight (US or metric). If you pick feet, you can add extra inches. We compute BMI, category, and a healthy weight range. All math runs on your Cloudflare Worker.</p>
+
+    <h2>1) Inputs</h2>
+    <div class="grid">
+      <div class="box">
+        <div class="field">
+          <label>Sex (optional)</label>
+          <div class="radio">
+            <label><input type="radio" name="bmi_sex" value="male" checked> Male</label>
+            <label><input type="radio" name="bmi_sex" value="female"> Female</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Age (years, optional)</label>
+          <input type="number" id="bmi_age" min="0" step="1" placeholder="25">
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="field">
+          <label>Height</label>
+          <div class="two">
+            <input type="number" id="bmi_h_val" placeholder="e.g. 5 or 180" min="0" step="0.01">
+            <select id="bmi_h_unit">
+              <option value="ft" selected>ft</option>
+              <option value="in">in</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+            </select>
+          </div>
+          <div class="three" id="bmi_inches_wrap" style="display:block;align-items:center">
+            <input type="number" id="bmi_h_in" placeholder="extra inches" min="0" step="0.01">
+            <div style="display:flex;align-items:center;justify-content:center;background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:#e7ebff">in</div>
+            <div></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Weight</label>
+          <div class="two">
+            <input type="number" id="bmi_w_val" placeholder="e.g. 160 or 65" min="0" step="0.01">
+            <select id="bmi_w_unit">
+              <option value="lb" selected>lb</option>
+              <option value="kg">kg</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+      <button class="btn" id="bmi_calc_btn">Next → Calculate</button>
+      <span class="muted" id="bmi_status"></span>
+    </div>
+
+    <h2>2) Results</h2>
+    <div id="bmi_results" class="result"></div>
+  </div>
+</div>
+
+<script>
+const BMI_API_URL_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev"; // ← set yours
+const BMI_DATASET_URL  = BMI_API_URL_BASE + "/bmi-dataset";
+const BMI_CALC_URL     = BMI_API_URL_BASE + "/calc-bmi";
+
+const bmi_h_unit = document.getElementById('bmi_h_unit');
+const bmi_inches_wrap = document.getElementById('bmi_inches_wrap');
+bmi_h_unit.addEventListener('change', ()=> {
+  bmi_inches_wrap.style.display = (bmi_h_unit.value === 'ft') ? 'grid' : 'none';
+});
+
+function bmi_render(resp){
+  const el = document.getElementById('bmi_results');
+  if (resp.error) { el.innerHTML = `<p class="muted">${resp.error}</p>`; return; }
+  const r = resp.result, notes = resp.notes || [];
+  el.innerHTML = `
+    <div class="row"><div style="min-width:240px"><strong>BMI</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.bmi.toFixed(1)}</strong>
+      <span class="muted"> (${r.category})</span></div></div>
+
+    <div class="row"><div style="min-width:240px"><strong>Healthy weight range</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.healthyWeight.lb.min.toFixed(1)}–${r.healthyWeight.lb.max.toFixed(1)} lb</strong>
+      <span class="muted"> (${r.healthyWeight.kg.min.toFixed(1)}–${r.healthyWeight.kg.max.toFixed(1)} kg)</span></div></div>
+
+    <div class="row"><div style="min-width:240px"><strong>Height</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.height.m.toFixed(3)} m</strong>
+      <span class="muted"> (${r.height.ft.toFixed(2)} ft)</span></div></div>
+
+    <div class="row"><div style="min-width:240px"><strong>Weight</strong></div>
+      <div class="bar"><span></span></div>
+      <div style="min-width:240px;text-align:right"><strong>${r.weight.lb.toFixed(1)} lb</strong>
+      <span class="muted"> (${r.weight.kg.toFixed(1)} kg)</span></div></div>
+
+    <div class="chips">${notes.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+  `;
+}
+
+async function bmi_calculate(){
+  document.getElementById('bmi_status').textContent = 'Calculating…';
+  document.getElementById('bmi_results').innerHTML = '<p class="muted">Working…</p>';
+
+  const sex = [...document.querySelectorAll('input[name="bmi_sex"]')].find(r=>r.checked)?.value || 'male';
+  const age = +document.getElementById('bmi_age').value || null;
+
+  const payload = {
+    sex, age,
+    height: {
+      value: +document.getElementById('bmi_h_val').value || 0,
+      unit: document.getElementById('bmi_h_unit').value,
+      inches: (document.getElementById('bmi_h_in').value !== "" ? +document.getElementById('bmi_h_in').value : null)
+    },
+    weight: {
+      value: +document.getElementById('bmi_w_val').value || 0,
+      unit: document.getElementById('bmi_w_unit').value
+    }
+  };
+
+  try{
+    const resp = await fetch(BMI_CALC_URL, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch { return {error:text||'Bad response'}; }})();
+    bmi_render(data);
+  }catch(e){ bmi_render({error:'Network or server error.'}); }
+  document.getElementById('bmi_status').textContent = '';
+}
+
+document.getElementById('bmi_calc_btn').addEventListener('click', bmi_calculate);
+
+// No dataset call needed for BMI; left in case you want to extend
+</script>
+
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+</html>
