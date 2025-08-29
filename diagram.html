@@ -134,41 +134,86 @@
       context: {
         lang: 'plantuml',
         code: `@startuml
-' Context Diagram (edit freely)
-!pragma teoz true
+' === Context Diagram — Minimal, Known-Good ===
 skinparam shadowing false
 skinparam defaultFontName Arial
+skinparam rectangleStyle rounded
+left to right direction
 
 actor \"Customer\" as C
-rectangle \"Our System\" as S
-C --> S : Uses
+actor \"Support Agent\" as SA
+rectangle \"BA Portal\n(Our System)\" as SYS
+cloud \"Payment Gateway\" as PG
+database \"CRM DB\" as CRM
+cloud \"Email/SMS\" as MSG
+rectangle \"Partner API\" as PARTNER
 
-rectangle \"Payment Gateway\" as PG
-rectangle \"Bank\" as BK
-S --> PG : API calls
-PG --> BK : Settlement
-
-cloud \"Partner API\" as P
-S --> P : REST
+C  --> SYS : Browse / Request
+SA --> SYS : Maintain Cases
+SYS --> PG      : Charge/Refund (HTTPS)
+SYS --> CRM     : CRUD
+SYS --> MSG     : Notify (REST)
+SYS --> PARTNER : Fetch (REST)
 
 @enduml`
-      }
       },
       functional: {
         lang: 'plantuml',
-        code: `@startuml\n' Functional Flow (Activity)\nskinparam shadowing false\nstart\n:Receive Request;\n:Validate Input;\nif (Valid?) then (yes)\n  :Process;\n  :Generate Output;\nelse (no)\n  :Show Error;\nendif\nstop\n@enduml`
+        code: `@startuml
+' Functional Flow (Activity)
+skinparam shadowing false
+start
+:Receive Request;
+:Validate Input;
+if (Valid?) then (yes)
+  :Process;
+  :Generate Output;
+else (no)
+  :Show Error;
+endif
+stop
+@enduml`
       },
       swimlane: {
         lang: 'plantuml',
-        code: `@startuml\n' Cross-functional Flow with Swimlanes\nskinparam shadowing false\ntitle Cross-functional Flow\n|Customer|\nstart\n:Submit Ticket;\n|Support|\n:Assess;\n|Engineering|\n:Investigate;\n|Support|\n:Respond;\nstop\n@enduml`
+        code: `@startuml
+' Cross-functional Flow with Swimlanes
+skinparam shadowing false
+title Cross-functional Flow
+|Customer|
+start
+:Submit Ticket;
+|Support|
+:Assess;
+|Engineering|
+:Investigate;
+|Support|
+:Respond;
+stop
+@enduml`
       },
       flowchart: {
         lang: 'mermaid',
-        code: `flowchart LR\n  A([Start]) --> B{Valid?}\n  B -- Yes --> C[Process]\n  B -- No --> D[Show Error]\n  C --> E([Finish])\n  D --> E`
+        code: `flowchart LR
+  A([Start]) --> B{Valid?}
+  B -- Yes --> C[Process]
+  B -- No --> D[Show Error]
+  C --> E([Finish])
+  D --> E`
       },
       bpmn: {
         lang: 'bpmn',
-        code: `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<bpmn:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n  xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" id=\"Definitions_1\">\n  <bpmn:process id=\"Process_1\" isExecutable=\"false\">\n    <bpmn:startEvent id=\"StartEvent_1\" name=\"Start\"/>\n    <bpmn:task id=\"Task_1\" name=\"Do work\"/>\n    <bpmn:endEvent id=\"EndEvent_1\" name=\"End\"/>\n    <bpmn:sequenceFlow id=\"Flow_1\" sourceRef=\"StartEvent_1\" targetRef=\"Task_1\"/>\n    <bpmn:sequenceFlow id=\"Flow_2\" sourceRef=\"Task_1\" targetRef=\"EndEvent_1\"/>\n  </bpmn:process>\n</bpmn:definitions>`
+        code: `<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<bpmn:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
+  xmlns:bpmn=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" id=\"Definitions_1\">
+  <bpmn:process id=\"Process_1\" isExecutable=\"false\">
+    <bpmn:startEvent id=\"StartEvent_1\" name=\"Start\"/>
+    <bpmn:task id=\"Task_1\" name=\"Do work\"/>
+    <bpmn:endEvent id=\"EndEvent_1\" name=\"End\"/>
+    <bpmn:sequenceFlow id=\"Flow_1\" sourceRef=\"StartEvent_1\" targetRef=\"Task_1\"/>
+    <bpmn:sequenceFlow id=\"Flow_2\" sourceRef=\"Task_1\" targetRef=\"EndEvent_1\"/>
+  </bpmn:process>
+</bpmn:definitions>`
       }
     };
 
@@ -207,26 +252,10 @@ S --> P : REST
       outcome.textContent = '';
     }
 
-    function detectEngine(code){
-      const head = code.trim().slice(0, 200).toLowerCase();
-      if (head.includes('<bpmn:definitions') || head.includes('<definitions') && head.includes('bpmn')) return 'bpmn';
-      if (head.includes('@startuml') || head.includes('@enduml')) return 'plantuml';
-      if (head.includes('flowchart ') || head.includes('graph ') || head.includes('sequenceDiagram'.toLowerCase())) return 'mermaid';
-      return null;
-    }
-
     async function render(format){
-      let lang = languageSel.value;
+      const lang = languageSel.value;
       const code = editor.value.trim();
       if(!code){ outcome.textContent = 'Editor is empty.'; return; }
-
-      // Auto-detect engine from code to prevent Mermaid/PlantUML mix-ups
-      const guessed = detectEngine(code);
-      if (guessed && guessed !== lang){
-        lang = guessed;
-        languageSel.value = guessed;
-        status.textContent = `Auto-detected language: ${guessed}`;
-      }
 
       outcome.textContent = 'Rendering…';
       preview.innerHTML = '';
@@ -234,7 +263,7 @@ S --> P : REST
       linkDownloadPng.hidden = true;
       try{
         const endpoint = `${KROKI_BASE}/${lang}/${format}`;
-        const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body: code });
+        const res = await fetch(endpoint, { method:'POST', headers:{'Content-Type':'text/plain'}, body: code });
         if(!res.ok){
           const text = await res.text();
           throw new Error(text || `HTTP ${res.status}`);
@@ -257,7 +286,7 @@ S --> P : REST
         }
       }catch(err){
         console.error(err);
-        outcome.textContent = 'Error: ' + (err.message || err);
+        outcome.innerHTML = 'Error: ' + (err.message || err) + '<br><span class="muted">Check that the selected Language matches your code.</span>';
       }
     }
 
