@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Comprehensive Scope Document — PDF Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Fill the comprehensive scope document, check the scoping checklist, and export a PDF." />
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121922; --text:#eaf0f7; --muted:#7d8aa1; --border:#273446; --accent:#75c6ff;
+    --paper:#ffffff; --ink:#111827; --sub:#374151;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b0f14,#0f1520);color:var(--text);font:15px/1.55 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{max-width:1200px;margin:18px auto 0;padding:0 16px}
+  h1{margin:0 0 6px;font-weight:700;font-size:24px}
+  .sub{margin:0 0 14px;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto 80px;padding:0 16px;display:grid;grid-template-columns: 1.05fr 1fr;gap:18px}
+  @media (max-width: 980px){ main{grid-template-columns:1fr} }
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  .pad{padding:14px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button{
+    padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#122033;color:var(--text);
+    cursor:pointer;transition:.15s transform ease
+  }
+  button:hover{transform:translateY(-1px)}
+  button.primary{background:linear-gradient(180deg,#24466d,#1b3553);border-color:#33537b}
+  button.ghost{background:transparent}
+  .small{font-size:12px;color:var(--muted)}
+  .section{border-top:1px dashed var(--border);padding-top:12px;margin-top:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  label{display:block;margin:8px 0 4px;color:#cfe0ff;font-size:13px}
+  input[type=text], input[type=date], textarea{
+    width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#0f1722;color:var(--text);
+  }
+  textarea{min-height:84px;resize:vertical}
+  .chkline{display:flex;align-items:flex-start;gap:8px;margin:6px 0}
+  .chkline input{margin-top:2px}
+  .scroll{max-height:65vh;overflow:auto;border-radius:0 0 14px 14px}
+  .sticky{position:sticky;top:0;background:var(--panel);z-index:3;border-bottom:1px solid var(--border)}
+  /* Printable area (paper) */
+  .paperHost{position:relative}
+  .paper{
+    background:var(--paper); color:var(--ink);
+    width:210mm; min-height:297mm; margin:12px auto;
+    box-shadow:0 8px 30px rgba(0,0,0,.35);
+    border-radius:6px; padding:18mm 16mm;
+  }
+  .doc-title{font-size:18pt;font-weight:700;margin:0 0 2mm}
+  .doc-sub{color:var(--sub);margin:0 0 8mm}
+  .h2{font-weight:700;font-size:13.5pt;margin:10mm 0 3mm}
+  .h3{font-weight:700;font-size:12pt;margin:4mm 0 2mm}
+  .kv{display:grid;grid-template-columns:42mm 1fr;gap:6px 10px;font-size:11pt;margin:1mm 0 2mm}
+  .kv b{white-space:nowrap}
+  .block{margin:2mm 0 4mm}
+  .box{border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;white-space:pre-wrap;min-height:12mm}
+  .list{margin:2mm 0 0;padding-left:4mm}
+  .checkboxline{display:flex;align-items:flex-start;gap:6px;margin:1mm 0}
+  .cb{display:inline-block;width:4mm;height:4mm;border:1px solid #111;border-radius:2px;text-align:center;line-height:4mm;font-size:8pt}
+  .pagebreak{page-break-before:always}
+  .footer-note{margin-top:8mm;font-size:9pt;color:#4b5563}
+  .siggrid{display:grid;grid-template-columns:1fr 1fr;gap:10mm}
+  .sigbox{border:1px solid #d1d5db;border-radius:6px;padding:6mm 6mm 10mm 6mm;height:30mm}
+  .siglbl{font-size:10pt;color:#374151;margin-bottom:2mm}
+</style>
+</head>
+<body>
+<header>
+  <h1>Comprehensive Scope Document — Web Form to PDF</h1>
+  <p class="sub">Fill the fields, tick the checklists, preview at right, then export a polished A4 PDF. Nothing is uploaded; all stays in your browser.</p>
+</header>
+
+<main>
+  <!-- ===== LEFT: INPUT FORM ===== -->
+  <section class="card">
+    <div class="pad sticky">
+      <div class="toolbar">
+        <button id="btnExport" class="primary">Generate PDF</button>
+        <button id="btnClear" class="ghost">Clear all</button>
+        <span class="small">Tip: your entries auto-mirror into the preview.</span>
+      </div>
+    </div>
+    <div class="pad scroll">
+      <!-- 1. Project Information -->
+      <div class="section">
+        <h3>1) Project Information</h3>
+        <div class="grid2">
+          <div><label>Project Name</label><input type="text" name="project_name" placeholder="e.g., Phoenix Revamp" /></div>
+          <div><label>Sponsor</label><input type="text" name="sponsor" /></div>
+          <div><label>Prepared By</label><input type="text" name="prepared_by" /></div>
+          <div><label>Date</label><input type="date" name="date" /></div>
+        </div>
+      </div>
+
+      <!-- 2. Scope Statement -->
+      <div class="section">
+        <h3>2) Scope Statement</h3>
+        <label>Project Goal and Objectives</label><textarea name="goal_objectives"></textarea>
+        <label>Project Boundaries (Within Scope)</label><textarea name="boundaries_in"></textarea>
+        <label>Project Boundaries (Out of Scope)</label><textarea name="boundaries_out"></textarea>
+        <label>Project Deliverables</label><textarea name="deliverables"></textarea>
+        <label>Success Criteria</label><textarea name="success_criteria"></textarea>
+        <label>Project Assumptions</label><textarea name="assumptions"></textarea>
+        <label>Project Constraints</label><textarea name="constraints"></textarea>
+      </div>
+
+      <!-- 3. Scope Dimensions -->
+      <div class="section">
+        <h3>3) Scope Dimensions</h3>
+
+        <div class="section">
+          <h4>3.1 Project Scope</h4>
+          <label>Project Objectives</label><textarea name="proj_scope_objectives"></textarea>
+          <label>Deliverables</label><textarea name="proj_scope_deliverables"></textarea>
+          <label>Tasks & Activities</label><textarea name="proj_scope_tasks"></textarea>
+          <label>Resources</label><textarea name="proj_scope_resources"></textarea>
+          <label>Milestones</label><textarea name="proj_scope_milestones"></textarea>
+          <label>Roles & Responsibilities</label><textarea name="proj_scope_roles"></textarea>
+        </div>
+
+        <div class="section">
+          <h4>3.2 Product Scope</h4>
+          <label>Product/Service Name</label><input type="text" name="product_name" />
+          <label>Product Objectives</label><textarea name="product_objectives"></textarea>
+          <label>Features & Functions</label><textarea name="product_features"></textarea>
+          <label>Success Criteria</label><textarea name="product_success"></textarea>
+          <label>Out of Scope</label><textarea name="product_out"></textarea>
+        </div>
+
+        <div class="section">
+          <h4>3.3 Functional Scope</h4>
+          <label>Functional Requirements</label><textarea name="func_reqs"></textarea>
+          <label>User Stories / Use Cases</label><textarea name="user_stories"></textarea>
+          <label>Business Rules</label><textarea name="biz_rules"></textarea>
+          <label>Acceptance Criteria</label><textarea name="acceptance_criteria"></textarea>
+          <label>Dependencies</label><textarea name="dependencies"></textarea>
+        </div>
+
+        <div class="section">
+          <h4>3.4 Technical Scope</h4>
+          <label>Systems Involved</label><textarea name="systems_involved"></textarea>
+          <label>Architecture & Platforms</label><textarea name="architecture"></textarea>
+          <label>Interfaces & APIs</label><textarea name="interfaces"></textarea>
+          <label>Data Requirements</label><textarea name="data_requirements"></textarea>
+          <label>Constraints</label><textarea name="tech_constraints"></textarea>
+        </div>
+
+        <div class="section">
+          <h4>3.5 Organizational Scope</h4>
+          <label>Impacted Units/Departments</label><textarea name="impacted_units"></textarea>
+          <label>Stakeholder Groups</label><textarea name="stakeholder_groups"></textarea>
+          <label>Locations</label><textarea name="locations"></textarea>
+          <label>Organizational Changes</label><textarea name="org_changes"></textarea>
+          <label>Training & Communication Needs</label><textarea name="training_comm"></textarea>
+        </div>
+      </div>
+
+      <!-- 4. Scope Creep Management -->
+      <div class="section">
+        <h3>4) Scope Creep Management</h3>
+        <label>Change Request Process</label><textarea name="change_process"></textarea>
+        <label>Impact Assessment</label><textarea name="impact_assessment"></textarea>
+        <label>Decision Authority</label><textarea name="decision_authority"></textarea>
+        <label>Positive Scope Change Handling</label><textarea name="positive_scope"></textarea>
+        <label>Trade-Offs</label><textarea name="tradeoffs"></textarea>
+      </div>
+
+      <!-- 5. Roles & Responsibilities -->
+      <div class="section">
+        <h3>5) Roles & Responsibilities</h3>
+        <label>Project Manager (PM) — Responsibilities</label><textarea name="pm_resp"></textarea>
+        <label>Business Analyst (BA) — Responsibilities</label><textarea name="ba_resp"></textarea>
+        <label>Technical Lead — Responsibilities</label><textarea name="techlead_resp"></textarea>
+        <label>Stakeholders — Responsibilities</label><textarea name="stakeholders_resp"></textarea>
+        <label>Governance Body (if any) — Responsibilities</label><textarea name="gov_body_resp"></textarea>
+      </div>
+
+      <!-- 6. Scoping Checklist -->
+      <div class="section">
+        <h3>6) Scoping Checklist</h3>
+        <div id="checklistForm"></div>
+      </div>
+
+      <!-- 7. Approval & Sign-off -->
+      <div class="section">
+        <h3>7) Approval & Sign-off</h3>
+        <div class="grid2">
+          <div>
+            <label>Project Manager — Name</label><input type="text" name="sig_pm_name" />
+            <label>Project Manager — Date</label><input type="date" name="sig_pm_date" />
+          </div>
+          <div>
+            <label>Business Analyst — Name</label><input type="text" name="sig_ba_name" />
+            <label>Business Analyst — Date</label><input type="date" name="sig_ba_date" />
+          </div>
+          <div>
+            <label>Technical Lead — Name</label><input type="text" name="sig_tl_name" />
+            <label>Technical Lead — Date</label><input type="date" name="sig_tl_date" />
+          </div>
+          <div>
+            <label>Business Sponsor — Name</label><input type="text" name="sig_bs_name" />
+            <label>Business Sponsor — Date</label><input type="date" name="sig_bs_date" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RIGHT: LIVE PREVIEW (PRINT LAYOUT) ===== -->
+  <section class="card paperHost">
+    <div id="paper" class="paper">
+      <div class="doc-title">Comprehensive Scope Document</div>
+      <div class="doc-sub">Generated from web form — <span data-field="date_print"></span></div>
+
+      <!-- 1 -->
+      <div class="h2">1. Project Information</div>
+      <div class="kv">
+        <b>Project Name</b><div class="box" data-field="project_name_out"></div>
+        <b>Sponsor</b><div class="box" data-field="sponsor_out"></div>
+        <b>Prepared By</b><div class="box" data-field="prepared_by_out"></div>
+        <b>Date</b><div class="box" data-field="date_out"></div>
+      </div>
+
+      <!-- 2 -->
+      <div class="h2">2. Scope Statement</div>
+      <div class="block"><div class="h3">Project Goal and Objectives</div><div class="box" data-field="goal_objectives_out"></div></div>
+      <div class="block"><div class="h3">Project Boundaries (Within Scope)</div><div class="box" data-field="boundaries_in_out"></div></div>
+      <div class="block"><div class="h3">Project Boundaries ( Out of Scope )</div><div class="box" data-field="boundaries_out_out"></div></div>
+      <div class="block"><div class="h3">Project Deliverables</div><div class="box" data-field="deliverables_out"></div></div>
+      <div class="block"><div class="h3">Success Criteria</div><div class="box" data-field="success_criteria_out"></div></div>
+      <div class="block"><div class="h3">Project Assumptions</div><div class="box" data-field="assumptions_out"></div></div>
+      <div class="block"><div class="h3">Project Constraints</div><div class="box" data-field="constraints_out"></div></div>
+
+      <!-- 3 -->
+      <div class="h2 pagebreak">3. Scope Dimensions</div>
+
+      <div class="block">
+        <div class="h3">3.1 Project Scope</div>
+        <div class="block"><b>Project Objectives</b><div class="box" data-field="proj_scope_objectives_out"></div></div>
+        <div class="block"><b>Deliverables</b><div class="box" data-field="proj_scope_deliverables_out"></div></div>
+        <div class="block"><b>Tasks & Activities</b><div class="box" data-field="proj_scope_tasks_out"></div></div>
+        <div class="block"><b>Resources</b><div class="box" data-field="proj_scope_resources_out"></div></div>
+        <div class="block"><b>Milestones</b><div class="box" data-field="proj_scope_milestones_out"></div></div>
+        <div class="block"><b>Roles & Responsibilities</b><div class="box" data-field="proj_scope_roles_out"></div></div>
+      </div>
+
+      <div class="block">
+        <div class="h3">3.2 Product Scope</div>
+        <div class="block"><b>Product/Service Name</b><div class="box" data-field="product_name_out"></div></div>
+        <div class="block"><b>Product Objectives</b><div class="box" data-field="product_objectives_out"></div></div>
+        <div class="block"><b>Features & Functions</b><div class="box" data-field="product_features_out"></div></div>
+        <div class="block"><b>Success Criteria</b><div class="box" data-field="product_success_out"></div></div>
+        <div class="block"><b>Out of Scope</b><div class="box" data-field="product_out_out"></div></div>
+      </div>
+
+      <div class="block">
+        <div class="h3">3.3 Functional Scope</div>
+        <div class="block"><b>Functional Requirements</b><div class="box" data-field="func_reqs_out"></div></div>
+        <div class="block"><b>User Stories / Use Cases</b><div class="box" data-field="user_stories_out"></div></div>
+        <div class="block"><b>Business Rules</b><div class="box" data-field="biz_rules_out"></div></div>
+        <div class="block"><b>Acceptance Criteria</b><div class="box" data-field="acceptance_criteria_out"></div></div>
+        <div class="block"><b>Dependencies</b><div class="box" data-field="dependencies_out"></div></div>
+      </div>
+
+      <div class="block">
+        <div class="h3">3.4 Technical Scope</div>
+        <div class="block"><b>Systems Involved</b><div class="box" data-field="systems_involved_out"></div></div>
+        <div class="block"><b>Architecture & Platforms</b><div class="box" data-field="architecture_out"></div></div>
+        <div class="block"><b>Interfaces & APIs</b><div class="box" data-field="interfaces_out"></div></div>
+        <div class="block"><b>Data Requirements</b><div class="box" data-field="data_requirements_out"></div></div>
+        <div class="block"><b>Constraints</b><div class="box" data-field="tech_constraints_out"></div></div>
+      </div>
+
+      <div class="block">
+        <div class="h3">3.5 Organizational Scope</div>
+        <div class="block"><b>Impacted Units/Departments</b><div class="box" data-field="impacted_units_out"></div></div>
+        <div class="block"><b>Stakeholder Groups</b><div class="box" data-field="stakeholder_groups_out"></div></div>
+        <div class="block"><b>Locations</b><div class="box" data-field="locations_out"></div></div>
+        <div class="block"><b>Organizational Changes</b><div class="box" data-field="org_changes_out"></div></div>
+        <div class="block"><b>Training & Communication Needs</b><div class="box" data-field="training_comm_out"></div></div>
+      </div>
+
+      <!-- 4 -->
+      <div class="h2 pagebreak">4. Scope Creep Management</div>
+      <div class="block"><b>Change Request Process</b><div class="box" data-field="change_process_out"></div></div>
+      <div class="block"><b>Impact Assessment</b><div class="box" data-field="impact_assessment_out"></div></div>
+      <div class="block"><b>Decision Authority</b><div class="box" data-field="decision_authority_out"></div></div>
+      <div class="block"><b>Positive Scope Change Handling</b><div class="box" data-field="positive_scope_out"></div></div>
+      <div class="block"><b>Trade-Offs</b><div class="box" data-field="tradeoffs_out"></div></div>
+
+      <!-- 5 -->
+      <div class="h2">5. Roles & Responsibilities</div>
+      <div class="block"><b>Project Manager (PM)</b><div class="box" data-field="pm_resp_out"></div></div>
+      <div class="block"><b>Business Analyst (BA)</b><div class="box" data-field="ba_resp_out"></div></div>
+      <div class="block"><b>Technical Lead</b><div class="box" data-field="techlead_resp_out"></div></div>
+      <div class="block"><b>Stakeholders</b><div class="box" data-field="stakeholders_resp_out"></div></div>
+      <div class="block"><b>Governance Body (if any)</b><div class="box" data-field="gov_body_resp_out"></div></div>
+
+      <!-- 6 -->
+      <div class="h2 pagebreak">6. Scoping Checklist</div>
+      <div id="checklistPreview"></div>
+
+      <!-- 7 -->
+      <div class="h2">7. Approval & Sign-off</div>
+      <div class="siggrid">
+        <div class="sigbox">
+          <div class="siglbl">Project Manager</div>
+          <div><b>Name:</b> <span data-field="sig_pm_name_out"></span></div>
+          <div><b>Date:</b> <span data-field="sig_pm_date_out"></span></div>
+        </div>
+        <div class="sigbox">
+          <div class="siglbl">Business Analyst</div>
+          <div><b>Name:</b> <span data-field="sig_ba_name_out"></span></div>
+          <div><b>Date:</b> <span data-field="sig_ba_date_out"></span></div>
+        </div>
+        <div class="sigbox">
+          <div class="siglbl">Technical Lead</div>
+          <div><b>Name:</b> <span data-field="sig_tl_name_out"></span></div>
+          <div><b>Date:</b> <span data-field="sig_tl_date_out"></span></div>
+        </div>
+        <div class="sigbox">
+          <div class="siglbl">Business Sponsor</div>
+          <div><b>Name:</b> <span data-field="sig_bs_name_out"></span></div>
+          <div><b>Date:</b> <span data-field="sig_bs_date_out"></span></div>
+        </div>
+      </div>
+
+      <div class="footer-note">This document was generated from a browser-based form. Keep a copy in your project repository.</div>
+    </div>
+  </section>
+</main>
+
+<!-- html2pdf bundle (html2canvas + jsPDF) -->
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<script>
+/* ---------- Checklist source (exact items from your document) ---------- */
+const CHECK_GROUPS = [
+  { title: "Context and Needs", items: [
+    "What is the problem/opportunity we are trying to solve?",
+    "Who are we trying to solve the problem/opportunity for?",
+    "How does this problem/opportunity impact the end customer?",
+    "How confident are we that we understand the root cause?",
+    "What options and alternatives have been discussed?",
+    "Is the project looking to change customer behaviors?",
+    "Is the project looking to change internal user behaviors?",
+  ]},
+  { title: "Value Analysis", items: [
+    "Are we looking to reduce costs? In what ways? And for whom?",
+    "How will it be measured?",
+    "Are we looking to increase revenue?",
+    "Are we looking to reduce risks? Which risks?",
+    "Are we looking to be more competitive? In what ways?",
+    "Are we looking to save someone time?",
+    "Are we looking to provide something to customers that they don’t currently have today?",
+    "Are we looking to improve the customer experience with the organization, service, or product? In what ways and how will it be measured?",
+    "Are we looking to simply meet a compliance requirement? Or meet it better than competitors? Or meet it while improving the touch point with customers?",
+    "What business outcomes are we looking to achieve?",
+  ]},
+  { title: "Ambiguity and Change", items: [
+    "What are the major assumptions we or the stakeholders are making?",
+    "What are the major risks from the perspective of the various teams involved?",
+    "What hypothesis do we have about the project goals?",
+    "What experiments need to be done to learn and reduce ambiguity?",
+    "What is most likely to change during the project? (For example, requirements, regulations, stakeholders, technology, strategy, external parties)",
+  ]},
+  { title: "Stakeholders", items: [
+    "Who is the sponsor? How engaged and available are they?",
+    "Is the sponsor’s vision clear?",
+    "What groups will be impacted and how? Where are they located?",
+    "What groups and users will need to change, and how?",
+    "What groups and users will see or experience something different as a result of the project?",
+    "What end-customer touch points may change or are at risk?",
+    "What external organizations, vendors, experts, and government bodies need to be consulted?",
+  ]},
+  { title: "Users", items: [
+    "Will any users see or experience differences in their interactions with the technology or process?",
+    "List the users and the specific changes.",
+  ]},
+  { title: "Business Processes", items: [
+    "What business processes are impacted, and how?",
+    "What users and user interactions/goals will change?",
+    "What technologies are known to be part of these business processes?",
+    "Are there new rules that will impact the process?",
+    "Are job descriptions or responsibilities changing for anyone?",
+  ]},
+  { title: "Data", items: [
+    "Is there any new data needed to make the process successful?",
+    "Is any new data needed to be transmitted outside the organization?",
+    "Is any new data coming into the organization?",
+    "Are there any expected changes to existing data?",
+  ]},
+];
+
+/* ---------- Build checklist UI (left) and preview (right) ---------- */
+const checklistForm = document.getElementById('checklistForm');
+const checklistPreview = document.getElementById('checklistPreview');
+
+function buildChecklist(){
+  // Left form
+  CHECK_GROUPS.forEach((grp, gi)=>{
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    const title = document.createElement('h4');
+    title.textContent = grp.title;
+    sec.appendChild(title);
+    grp.items.forEach((txt, ii)=>{
+      const id = `cl_${gi}_${ii}`;
+      const div = document.createElement('div');
+      div.className = 'chkline';
+      div.innerHTML = `<input type="checkbox" id="${id}" data-cl-key="${id}"><label for="${id}">${txt}</label>`;
+      sec.appendChild(div);
+    });
+    checklistForm.appendChild(sec);
+  });
+
+  // Right preview skeleton
+  CHECK_GROUPS.forEach((grp, gi)=>{
+    const block = document.createElement('div');
+    block.className = 'block';
+    const h = document.createElement('div');
+    h.className = 'h3';
+    h.textContent = grp.title;
+    block.appendChild(h);
+
+    grp.items.forEach((txt, ii)=>{
+      const id = `cl_${gi}_${ii}`;
+      const row = document.createElement('div');
+      row.className = 'checkboxline';
+      row.innerHTML = `<span class="cb" data-cb="${id}"></span> <div>${txt}</div>`;
+      block.appendChild(row);
+    });
+    checklistPreview.appendChild(block);
+  });
+}
+buildChecklist();
+
+/* ---------- Bind inputs to preview fields ---------- */
+const bindMap = [
+  // 1
+  ["project_name","project_name_out"],["sponsor","sponsor_out"],["prepared_by","prepared_by_out"],["date","date_out"],
+  // 2
+  ["goal_objectives","goal_objectives_out"],["boundaries_in","boundaries_in_out"],["boundaries_out","boundaries_out_out"],
+  ["deliverables","deliverables_out"],["success_criteria","success_criteria_out"],["assumptions","assumptions_out"],["constraints","constraints_out"],
+  // 3.1
+  ["proj_scope_objectives","proj_scope_objectives_out"],["proj_scope_deliverables","proj_scope_deliverables_out"],
+  ["proj_scope_tasks","proj_scope_tasks_out"],["proj_scope_resources","proj_scope_resources_out"],
+  ["proj_scope_milestones","proj_scope_milestones_out"],["proj_scope_roles","proj_scope_roles_out"],
+  // 3.2
+  ["product_name","product_name_out"],["product_objectives","product_objectives_out"],["product_features","product_features_out"],
+  ["product_success","product_success_out"],["product_out","product_out_out"],
+  // 3.3
+  ["func_reqs","func_reqs_out"],["user_stories","user_stories_out"],["biz_rules","biz_rules_out"],
+  ["acceptance_criteria","acceptance_criteria_out"],["dependencies","dependencies_out"],
+  // 3.4
+  ["systems_involved","systems_involved_out"],["architecture","architecture_out"],["interfaces","interfaces_out"],
+  ["data_requirements","data_requirements_out"],["tech_constraints","tech_constraints_out"],
+  // 3.5
+  ["impacted_units","impacted_units_out"],["stakeholder_groups","stakeholder_groups_out"],["locations","locations_out"],
+  ["org_changes","org_changes_out"],["training_comm","training_comm_out"],
+  // 4
+  ["change_process","change_process_out"],["impact_assessment","impact_assessment_out"],["decision_authority","decision_authority_out"],
+  ["positive_scope","positive_scope_out"],["tradeoffs","tradeoffs_out"],
+  // 5
+  ["pm_resp","pm_resp_out"],["ba_resp","ba_resp_out"],["techlead_resp","techlead_resp_out"],
+  ["stakeholders_resp","stakeholders_resp_out"],["gov_body_resp","gov_body_resp_out"],
+  // 7 signatures
+  ["sig_pm_name","sig_pm_name_out"],["sig_pm_date","sig_pm_date_out"],
+  ["sig_ba_name","sig_ba_name_out"],["sig_ba_date","sig_ba_date_out"],
+  ["sig_tl_name","sig_tl_name_out"],["sig_tl_date","sig_tl_date_out"],
+  ["sig_bs_name","sig_bs_name_out"],["sig_bs_date","sig_bs_date_out"],
+];
+
+function setField(outKey, value){
+  const el = document.querySelector(`[data-field="${outKey}"]`);
+  if(!el) return;
+  if(outKey.endsWith('_out')){
+    // respect line breaks
+    el.textContent = value || '';
+  }else{
+    el.textContent = value || '';
+  }
+}
+
+function syncAll(){
+  // date stamp
+  document.querySelector('[data-field="date_print"]').textContent =
+    new Date().toLocaleString();
+  bindMap.forEach(([src, dst])=>{
+    const input = document.querySelector(`[name="${src}"]`);
+    let val = (input && input.value) ? input.value : '';
+    if(input && input.type === 'date' && val){
+      try { val = new Date(val+"T00:00:00").toLocaleDateString(); } catch(e){}
+    }
+    setField(dst, val);
+  });
+  // checklist checkmarks
+  document.querySelectorAll('[data-cb]').forEach(cb=>{
+    const key = cb.getAttribute('data-cb');
+    const checked = document.querySelector(`[data-cl-key="${key}"]`)?.checked;
+    cb.textContent = checked ? "✓" : "";
+  });
+}
+syncAll();
+
+// Listen changes
+document.addEventListener('input', (e)=>{
+  if(e.target.matches('input, textarea')) syncAll();
+});
+document.addEventListener('change', (e)=>{
+  if(e.target.matches('input[type="checkbox"]')) syncAll();
+});
+
+/* ---------- Export PDF ---------- */
+const btnExport = document.getElementById('btnExport');
+btnExport.addEventListener('click', ()=>{
+  syncAll();
+  const element = document.getElementById('paper');
+  const opt = {
+    margin:       [10, 10],   // mm (handled inside by html2pdf)
+    filename:     'Comprehensive_Scope_Document.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['css','legacy'] }
+  };
+  html2pdf().set(opt).from(element).save();
+});
+
+/* ---------- Clear ---------- */
+document.getElementById('btnClear').addEventListener('click', ()=>{
+  if(!confirm('Clear all fields?')) return;
+  document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(el=>el.value="");
+  document.querySelectorAll('#checklistForm input[type="checkbox"]').forEach(ch=>ch.checked=false);
+  syncAll();
+});
+</script>
+</body>
+</html>
