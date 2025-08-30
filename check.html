@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CheckForge — Print‑Ready Check Generator</title>
+<meta name="description" content="Create and print bank checks with professional layout. Multiple profiles, MICR line preview with optional MICR font upload, watermark, encrypted local storage, history, and print‑to‑PDF. Offline‑capable single page." />
+<style>
+  :root{
+    --bg:#0b1020; --panel:#11183a; --panel2:#0f1534; --border:#233158; --text:#eaf0ff; --muted:#9db2db; --chip:#1a2555; --accent:#67d2ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:radial-gradient(1200px 700px at 70% -10%,#16205b 0,#0b1020 60%,#0b1020 100%);color:var(--text)}
+  header{position:sticky;top:0;z-index:20;background:#0c1334e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{margin:6px 0 0;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto;padding:14px;display:grid;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1.1fr 1fr}
+  @media(max-width:980px){ .two{grid-template-columns:1fr} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+  input,select,button,textarea{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  textarea{min-height:76px}
+  button{cursor:pointer}
+  .btn{background:linear-gradient(180deg,#67d2ff,#2aa4ef);border:none;color:#00111e;font-weight:700}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  .right{margin-left:auto}
+  .small{font-size:12px;color:var(--muted)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .danger{color:var(--bad)}
+  .ok{color:var(--ok)}
+  /* Preview & print area */
+  .previewWrap{background:#0a122f;border:1px solid var(--border);border-radius:12px;padding:12px}
+  .check{position:relative;background:#fff;color:#000;width:7.375in;height:3.25in;border:1px solid #0003;border-radius:6px;box-shadow:0 4px 24px #0005;overflow:hidden}
+  .check .pad{position:absolute;inset:0.2in 0.25in 0.35in 0.35in}
+  .hline{height:1px;background:#0002;margin:4px 0}
+  .bank{font-weight:700}
+  .watermark{position:absolute;inset:0;opacity:0.08;pointer-events:none;background-size:contain;background-repeat:no-repeat;background-position:center}
+  .micr{position:absolute;left:0.35in;right:0.35in;bottom:0.12in;font-size:14pt;letter-spacing:0.04in}
+  /* MICR font will be applied dynamically if uploaded */
+
+  /* Print stylesheet */
+  @media print{
+    body{background:#fff}
+    header, .controls, .notes, .history, .noprint{display:none !important}
+    .previewWrap{border:none;padding:0}
+    .check{box-shadow:none;margin:0 auto}
+    @page { size: letter; margin: 0.5in; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>CheckForge — Print‑Ready Check Generator</h1>
+  <p class="tag">Generate professional US‑style checks with MICR line preview. Multiple profiles, watermark, encrypted local storage, printable/PDF export. <span class="small">You are responsible for bank/regulatory compliance.</span></p>
+</header>
+
+<main class="grid two">
+  <section class="card">
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+      <div>
+        <label>Profile</label>
+        <div class="row">
+          <select id="profileSel" style="flex:1 1 auto"></select>
+          <button id="newProfile" class="ghost">＋ New</button>
+          <button id="deleteProfile" class="ghost danger">🗑 Delete</button>
+        </div>
+      </div>
+      <div>
+        <label>Lock / Unlock</label>
+        <div class="row">
+          <input id="pass" type="password" placeholder="Passphrase to encrypt" />
+          <button id="unlock" class="ghost">Unlock</button>
+          <button id="lock" class="ghost">Lock</button>
+        </div>
+        <div class="small">Data is encrypted locally with your passphrase (AES‑GCM). Don’t forget it.</div>
+      </div>
+    </div>
+
+    <div class="controls card" style="background:var(--panel2)">
+      <div class="row">
+        <div style="flex:1 1 260px">
+          <label>Account holder name</label>
+          <input id="p_name" placeholder="ACME LLC" />
+        </div>
+        <div style="flex:1 1 260px">
+          <label>Bank name</label>
+          <input id="p_bank" placeholder="Your Bank, N.A." />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1 1 260px">
+          <label>Routing number (ABA 9‑digit)</label>
+          <input id="p_routing" placeholder="123456789" class="mono" />
+        </div>
+        <div style="flex:1 1 260px">
+          <label>Account number</label>
+          <input id="p_account" placeholder="000123456789" class="mono" />
+        </div>
+        <div style="width:160px">
+          <label>Starting check #</label>
+          <input id="p_chknum" type="number" value="1001" class="mono" />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1 1 260px">
+          <label>Fractional routing (optional)</label>
+          <input id="p_fraction" placeholder="12-345/6789" />
+        </div>
+        <div style="flex:1 1 320px">
+          <label>Address (for check)</label>
+          <input id="p_addr" placeholder="123 Main St • City, ST 12345" />
+        </div>
+        <div style="width:220px">
+          <label>Logo (optional)</label>
+          <input id="p_logo" type="file" accept="image/*" />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1 1 320px">
+          <label>Watermark (optional)</label>
+          <input id="p_mark" type="file" accept="image/*" />
+        </div>
+        <div style="width:200px">
+          <label>Watermark opacity</label>
+          <input id="p_mark_op" type="range" min="2" max="20" value="8" />
+        </div>
+        <div style="width:260px">
+          <label>Upload MICR font (TTF/OTF) <span class="small">optional</span></label>
+          <input id="p_micr_font" type="file" accept="font/*,.ttf,.otf" />
+        </div>
+      </div>
+      <div class="row">
+        <button id="saveProfile" class="btn">💾 Save profile</button>
+        <span id="routingStatus" class="chip">Routing: —</span>
+        <span class="right small">Tip: Use MICR toner + check stock for best bank compatibility.</span>
+      </div>
+    </div>
+
+    <div class="card" style="background:var(--panel2)">
+      <div class="row">
+        <div style="flex:1 1 260px">
+          <label>Pay to the order of</label>
+          <input id="c_payee" placeholder="John Smith" />
+        </div>
+        <div style="width:200px">
+          <label>Date</label>
+          <input id="c_date" type="date" />
+        </div>
+        <div style="width:200px">
+          <label>Amount (e.g., 123.45)</label>
+          <input id="c_amount" class="mono" />
+        </div>
+        <div style="width:160px">
+          <label>Check #</label>
+          <input id="c_number" type="number" class="mono" />
+        </div>
+      </div>
+      <div class="row">
+        <div style="flex:1 1 520px">
+          <label>Amount in words (auto)</label>
+          <input id="c_words" />
+        </div>
+        <div style="flex:1 1 320px">
+          <label>Memo</label>
+          <input id="c_memo" placeholder="Memo" />
+        </div>
+      </div>
+      <div class="row">
+        <button id="previewBtn" class="btn">🔍 Preview</button>
+        <button id="printBtn" class="ghost">🖨 Print / Save PDF</button>
+        <button id="recordBtn" class="ghost">🧾 Record check</button>
+        <span class="right small">No servers. Everything runs in your browser.</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="previewWrap">
+      <div id="check" class="check">
+        <div id="wm" class="watermark"></div>
+        <div class="pad">
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div>
+              <div id="v_holder" style="font-weight:700;font-size:14px">ACME LLC</div>
+              <div id="v_addr" style="font-size:11px;color:#222">123 Main St • City, ST 12345</div>
+            </div>
+            <div style="text-align:right">
+              <div class="small" id="v_fraction">12-345/6789</div>
+              <div class="mono" id="v_number" style="font-size:14px">No. 1001</div>
+            </div>
+          </div>
+          <div class="hline"></div>
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <div class="bank" id="v_bank">Your Bank, N.A.</div>
+            <div class="small" id="v_date">Date: —</div>
+          </div>
+          <div class="hline"></div>
+          <div class="row" style="align-items:center;gap:8px">
+            <div style="min-width:140px">Pay to the order of</div>
+            <div id="v_payee" style="flex:1 1 auto;border-bottom:1px solid #0004;height:26px"></div>
+            <div style="min-width:160px;border:1px solid #0004;border-radius:6px;padding:4px 8px;text-align:right" class="mono" id="v_amount">$0.00</div>
+          </div>
+          <div class="row" style="align-items:center;gap:8px;margin-top:8px">
+            <div id="v_words" style="flex:1 1 auto;border-bottom:1px solid #0004;height:22px"></div>
+            <div class="small">Dollars</div>
+          </div>
+          <div class="row" style="margin-top:10px;align-items:center;justify-content:space-between">
+            <div class="small">Memo:</div>
+            <div id="v_memo" style="flex:1 1 auto;border-bottom:1px solid #0004;height:20px;margin:0 8px"></div>
+            <div style="width:220px;border-bottom:1px solid #0004;height:22px"></div>
+            <div class="small" style="width:120px;text-align:right">Authorized signature</div>
+          </div>
+        </div>
+        <div id="v_micr" class="micr mono">MICR PREVIEW</div>
+      </div>
+    </div>
+
+    <div class="card history">
+      <div class="row"><b>History</b><span class="small">(local, encrypted)</span><button id="exportHist" class="ghost right">⬇ Export CSV</button></div>
+      <div style="overflow:auto;max-height:260px;margin-top:8px">
+        <table id="histTbl" style="width:100%;border-collapse:separate;border-spacing:0">
+          <thead><tr><th>Date</th><th>Check #</th><th>Payee</th><th>Amount</th><th>Memo</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card notes noprint">
+      <details open>
+        <summary>Important notes on MICR & compliance</summary>
+        <div class="small">
+          <ul>
+            <li>This tool formats the MICR line correctly. To print bank‑compatible checks, use a real <b>MICR E‑13B font</b> (upload above) and preferably <b>MICR toner</b> on check stock.</li>
+            <li><b>Routing number</b> must be 9 digits with a valid checksum. The app validates this.</li>
+            <li>Many banks accept high‑quality laser prints without magnetic ink, but <b>your bank’s policy rules</b>. Test with your bank.</li>
+            <li>No data leaves your browser. Profiles & history are encrypted locally using your passphrase (AES‑GCM via Web Crypto).</li>
+            <li>You are responsible for ensuring compliance with <b>UCC/ANSI X9</b> guidelines and your bank’s requirements.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>How to export a PDF</summary>
+        <div class="small">
+          Click <b>Print / Save PDF</b> → choose <b>Save as PDF</b> in your browser’s print dialog. This produces a vector PDF sized to Letter paper with proper margins.
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const $$ = s=>document.querySelector(s);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const todayISO = ()=> new Date().toISOString().slice(0,10);
+  const fmtUSD = n=> '$'+Number(n||0).toFixed(2);
+  const b64 = a=> btoa(String.fromCharCode(...new Uint8Array(a)));
+  const ubuf = b=> Uint8Array.from(atob(b), c=>c.charCodeAt(0));
+
+  // Amount to words (English)
+  function numToWords(n){
+    n = Number(n);
+    if(!isFinite(n)) return '';
+    const small=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function chunk(num){
+      if(num<20) return small[num];
+      if(num<100){ return tens[Math.floor(num/10)] + (num%10? ' '+small[num%10]:''); }
+      return small[Math.floor(num/100)]+' Hundred'+(num%100? ' '+chunk(num%100):'');
+    }
+    function big(num){
+      const units=['',' Thousand',' Million',' Billion'];
+      let i=0, out=[]; while(num>0){ const part=num%1000; if(part) out.unshift(chunk(part)+units[i]); num=Math.floor(num/1000); i++; }
+      return out.join(' ');
+    }
+    const dollars = Math.floor(n);
+    const cents = Math.round((n - dollars)*100);
+    return (dollars? big(dollars):'Zero') + ' and ' + String(cents).padStart(2,'0') + '/100';
+  }
+
+  // ABA routing checksum (mod 10 weighting)
+  function validRouting(aba){
+    if(!/^\d{9}$/.test(aba)) return false;
+    const d=aba.split('').map(Number);
+    const sum = 3*(d[0]+d[3]+d[6]) + 7*(d[1]+d[4]+d[7]) + (d[2]+d[5]+d[8]);
+    return sum % 10 === 0;
+  }
+
+  function updateRoutingChip(){
+    const ok = validRouting($$('#p_routing').value.trim());
+    const el = $$('#routingStatus');
+    el.textContent = 'Routing: ' + (ok? 'OK' : 'Invalid');
+    el.style.color = ok? 'var(--ok)' : 'var(--bad)';
+    el.style.borderColor = ok? 'var(--ok)' : 'var(--bad)';
+  }
+
+  // ---------- Local encrypted storage ----------
+  const STORE_KEY = 'checkforge.v1';
+  let unlocked = false; let masterKey = null; let store = { profiles:{}, history:[] };
+
+  async function deriveKey(pass, salt){
+    const enc = new TextEncoder();
+    const key = await crypto.subtle.importKey('raw', enc.encode(pass), {name:'PBKDF2'}, false, ['deriveKey']);
+    return crypto.subtle.deriveKey({name:'PBKDF2', salt, iterations:120000, hash:'SHA-256'}, key, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']);
+  }
+  async function save(){
+    if(!masterKey){ alert('Lock/Unlock with a passphrase first.'); return; }
+    const enc = new TextEncoder(); const iv = crypto.getRandomValues(new Uint8Array(12)); const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey($$('#pass').value, salt);
+    const data = enc.encode(JSON.stringify(store));
+    const cipher = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, data);
+    const pkg = {iv:b64(iv), salt:b64(salt), data:b64(cipher)};
+    localStorage.setItem(STORE_KEY, JSON.stringify(pkg));
+  }
+  async function load(pass){
+    const pkg = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+    if(!pkg){ unlocked=true; masterKey={}; return; }
+    try{
+      const salt = ubuf(pkg.salt), iv = ubuf(pkg.iv); const key = await deriveKey(pass, salt);
+      const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ubuf(pkg.data));
+      store = JSON.parse(new TextDecoder().decode(plain)); unlocked=true; masterKey={};
+      return true;
+    }catch(e){ return false; }
+  }
+
+  // ---------- Profiles ----------
+  function genId(){ return 'p_'+Math.random().toString(36).slice(2,10); }
+  function currentProfileId(){ return $$('#profileSel').value; }
+  function populateProfileList(){
+    const sel = $$('#profileSel'); sel.innerHTML='';
+    const ids = Object.keys(store.profiles);
+    ids.forEach(id=> sel.appendChild($t('option',{value:id,textContent:store.profiles[id].name || '(unnamed)'})) );
+    if(ids.length===0){ const id=genId(); store.profiles[id]={name:'Default', bank:'', routing:'', account:'', fraction:'', addr:'', chknum:1001}; sel.appendChild($t('option',{value:id,textContent:'Default'})); sel.value=id; }
+    else sel.value = ids[0];
+    loadProfileToForm();
+  }
+  function loadProfileToForm(){
+    const p = store.profiles[currentProfileId()]; if(!p) return;
+    $$('#p_name').value = p.name||''; $$('#p_bank').value = p.bank||''; $$('#p_routing').value = p.routing||''; $$('#p_account').value = p.account||''; $$('#p_fraction').value = p.fraction||''; $$('#p_addr').value = p.addr||''; $$('#p_chknum').value = p.chknum||1001;
+    updateRoutingChip();
+    // Update preview header
+    $$('#v_holder').textContent = p.name||''; $$('#v_addr').textContent = p.addr||''; $$('#v_bank').textContent = p.bank||''; $$('#v_fraction').textContent = p.fraction||''; $$('#v_number').textContent = 'No. ' + ($$('#c_number').value || p.chknum||'');
+  }
+  function readProfileFromForm(){
+    return {
+      name: $$('#p_name').value.trim(), bank: $$('#p_bank').value.trim(), routing: $$('#p_routing').value.trim(), account: $$('#p_account').value.trim(), fraction: $$('#p_fraction').value.trim(), addr: $$('#p_addr').value.trim(), chknum: Number($$('#p_chknum').value||1001)
+    };
+  }
+
+  // ---------- MICR font upload ----------
+  $$('#p_micr_font').addEventListener('change', async (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const buf = await f.arrayBuffer(); const face = new FontFace('MICRLocal', buf);
+    await face.load(); document.fonts.add(face);
+    document.documentElement.style.setProperty('--micr-loaded','1');
+    $$('#v_micr').style.fontFamily = 'MICRLocal, ui-monospace, monospace';
+    alert('MICR font loaded for this session.');
+  });
+
+  // ---------- Logo / Watermark ----------
+  $$('#p_logo').addEventListener('change', async e=>{
+    const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f);
+    $$('#v_holder').style.background = `url(${url}) left/28px 28px no-repeat`; $$('#v_holder').style.paddingLeft='34px';
+  });
+  $$('#p_mark').addEventListener('change', async e=>{
+    const f=e.target.files[0]; if(!f) return; const url=URL.createObjectURL(f); $$('#wm').style.backgroundImage = `url(${url})`;
+  });
+  $$('#p_mark_op').addEventListener('input', e=>{ const op = (Number(e.target.value)||8)/100; $$('#wm').style.opacity = String(op); });
+
+  // ---------- Check form defaults ----------
+  $$('#c_date').value = todayISO();
+  $$('#c_number').value = Number($$('#p_chknum').value||1001);
+  $$('#c_amount').addEventListener('input', ()=>{ const v=Number($$('#c_amount').value||0); $$('#c_words').value = numToWords(v); });
+
+  // ---------- Render preview ----------
+  function buildMicrLine(routing, account, chk){
+    // MICR E‑13B symbols vary by font mapping; we use placeholders common to free fonts: 
+    // Transit ⑆ often 't', On‑Us ⑈ often 'u', Amount ⑇ often 'a'. Adjust in your font if needed.
+    const T='t', U='u'; // Amount field usually omitted on personal checks
+    const r = routing.replace(/[^0-9]/g,'');
+    const a = account.replace(/[^0-9]/g,'');
+    const c = String(chk).replace(/[^0-9]/g,'');
+    return `${T}${r}${T} ${a}${U}${c}${U}`;
+  }
+
+  function renderPreview(){
+    const p = readProfileFromForm(); const pay=$$('#c_payee').value.trim(); const amt=Number($$('#c_amount').value||0); const words=$$('#c_words').value || numToWords(amt); const memo=$$('#c_memo').value.trim(); const date=$$('#c_date').value; const chk=Number($$('#c_number').value||p.chknum||1001);
+    $$('#v_holder').textContent = p.name||''; $$('#v_addr').textContent = p.addr||''; $$('#v_bank').textContent = p.bank||''; $$('#v_fraction').textContent = p.fraction||''; $$('#v_number').textContent = 'No. '+chk;
+    $$('#v_payee').textContent = pay; $$('#v_amount').textContent = fmtUSD(amt); $$('#v_words').textContent = words; $$('#v_memo').textContent = memo; $$('#v_date').textContent = 'Date: ' + (date||'');
+    const micr = buildMicrLine(p.routing||'', p.account||'', chk);
+    $$('#v_micr').textContent = micr;
+  }
+
+  // ---------- History ----------
+  function pushHistory(item){ store.history.unshift(item); renderHistory(); save(); }
+  function renderHistory(){
+    const tb = $$('#histTbl tbody'); tb.innerHTML='';
+    for(const h of store.history){ const tr=$t('tr'); ['date','number','payee','amount','memo'].forEach(k=> tr.appendChild($t('td',{textContent: k==='amount'? fmtUSD(h[k]) : String(h[k]||'')}))); tb.appendChild(tr); }
+  }
+  $$('#exportHist').addEventListener('click', ()=>{
+    const rows = [['date','number','payee','amount','memo']].concat(store.history.map(h=>[h.date,h.number,h.payee,h.amount,h.memo]));
+    const csv = rows.map(r=> r.map(v=>{ v=String(v??''); return /[",\n]/.test(v)? '"'+v.replace(/"/g,'""')+'"': v; }).join(',')).join('\n');
+    const a = $t('a',{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})), download:'checks.csv'}); document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // ---------- Events ----------
+  $$('#previewBtn').addEventListener('click', ()=>{ if(!validRouting($$('#p_routing').value.trim())){ alert('Routing number is invalid.'); } renderPreview(); });
+  $$('#printBtn').addEventListener('click', ()=>{ renderPreview(); setTimeout(()=>window.print(), 50); });
+  $$('#recordBtn').addEventListener('click', ()=>{
+    const p = readProfileFromForm(); const amt = Number($$('#c_amount').value||0); const chk=Number($$('#c_number').value||p.chknum||1001);
+    pushHistory({date: $$('#c_date').value||todayISO(), number: chk, payee: $$('#c_payee').value.trim(), amount: amt, memo: $$('#c_memo').value.trim()});
+    // Auto‑increment check number in profile & form
+    p.chknum = chk+1; $$('#c_number').value = p.chknum; store.profiles[currentProfileId()] = p; save(); loadProfileToForm();
+  });
+
+  $$('#saveProfile').addEventListener('click', ()=>{ if(!unlocked){ alert('Unlock storage first.'); return; } const id = currentProfileId(); store.profiles[id] = readProfileFromForm(); save(); renderPreview(); });
+  $$('#newProfile').addEventListener('click', ()=>{ if(!unlocked){ alert('Unlock first.'); return; } const id=genId(); store.profiles[id]={name:'New Profile', chknum:1001}; $$('#profileSel').appendChild($t('option',{value:id,textContent:'New Profile'})); $$('#profileSel').value=id; loadProfileToForm(); save(); });
+  $$('#deleteProfile').addEventListener('click', ()=>{ if(!unlocked){ alert('Unlock first.'); return; } const id=currentProfileId(); if(confirm('Delete this profile?')){ delete store.profiles[id]; save(); populateProfileList(); }});
+  $$('#profileSel').addEventListener('change', loadProfileToForm);
+  $$('#p_routing').addEventListener('input', updateRoutingChip);
+
+  // Lock/Unlock
+  $$('#unlock').addEventListener('click', async ()=>{ const ok = await load($$('#pass').value); if(ok || store){ unlocked=true; populateProfileList(); renderHistory(); alert('Unlocked.'); } else alert('Passphrase incorrect or data missing.'); });
+  $$('#lock').addEventListener('click', async ()=>{ await save(); unlocked=false; alert('Locked & saved.'); });
+
+  // ---------- Start ----------
+  (async function init(){
+    if(!localStorage.getItem(STORE_KEY)) { unlocked=true; masterKey={}; store={profiles:{}, history:[]}; const id=genId(); store.profiles[id]={name:'Default', chknum:1001}; localStorage.setItem(STORE_KEY, ''); populateProfileList(); }
+    else { /* wait for unlock */ }
+    renderPreview();
+  })();
+})();
+</script>
+</body>
+</html>
