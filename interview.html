@@ -57,11 +57,12 @@
 </header>
 
 <main>
-  <div class="tabs">
-    <button class="tab active" data-tab="check">Checklist</button>
-    <button class="tab" data-tab="flash">Flashcards</button>
-    <button class="tab" data-tab="mock">Mock Interview</button>
-  </div>
+<div class="tabs">
+  <button class="tab active" data-tab="check" type="button">Checklist</button>
+  <button class="tab" data-tab="flash" type="button">Flashcards</button>
+  <button class="tab" data-tab="mock"  type="button">Mock Interview</button>
+</div>
+
 
   <div class="wrap">
     <!-- LEFT: dynamic panel -->
@@ -139,11 +140,28 @@ const BANK = [
 /* ========= Tabs ========= */
 const panel = document.getElementById('panel');
 const tabs = document.querySelectorAll('.tab');
-tabs.forEach(t => t.addEventListener('click', () => {
-  tabs.forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  render(t.dataset.tab);
-}));
+// --- Tabs: delegate clicks & handle initial render safely ---
+function setActiveTab(tabName){
+  document.querySelectorAll('.tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tabName);
+  });
+  render(tabName); // calls renderChecklist / renderFlashcards / renderMock
+}
+
+// Clicks (works for dynamically added buttons too)
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button.tab');
+  if(!btn) return;
+  e.preventDefault();
+  setActiveTab(btn.dataset.tab);
+});
+
+// Initial render after DOM is ready (covers script anywhere on page)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => setActiveTab('check'));
+} else {
+  setActiveTab('check');
+}
 function render(which){
   if(which === 'check') renderChecklist();
   else if(which === 'flash') renderFlashcards();
