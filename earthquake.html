@@ -148,6 +148,21 @@
   </section>
 
   <section class="card">
+    <h3 style="margin:0">Diagnostics</h3>
+    <p class="small">If data doesn’t load, run these quick checks or enable <b>Summary‑only mode</b> (bypasses the FDSN query filters).</p>
+    <div class="row">
+      <button id="runDiag" class="ghost">🩺 Run diagnostics</button>
+      <label class="chip" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="forceSummary"> Summary‑only mode</label>
+    </div>
+    <div style="overflow:auto;max-height:220px;margin-top:8px">
+      <table id="diagTable">
+        <thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
     <details>
       <summary>Help & About</summary>
       <div class="grid two">
@@ -209,13 +224,23 @@
   const qs = new URLSearchParams(location.search);
 
   // ---------- Map ----------
-  const map = L.map('map', { zoomControl:true, worldCopyJump:true }).setView([20,0], 2);
-  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-
-  let markers = L.layerGroup().addTo(map);
+  let map = null, markers = null;
+  const mapEl = document.getElementById('map');
   function magColor(m){ if(m>=6) return '#ff5151'; if(m>=5) return '#ff8c42'; if(m>=3) return '#ffd166'; return '#43d17a'; }
+  if (window.L && mapEl){
+    try{
+      map = L.map('map', { zoomControl:true, worldCopyJump:true }).setView([20,0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      markers = L.layerGroup().addTo(map);
+    }catch(e){
+      console.warn('Leaflet failed to init:', e);
+      mapEl.innerHTML = '<div class="small">Map failed to load; showing list only.</div>';
+    }
+  } else if (mapEl){
+    mapEl.innerHTML = '<div class="small">Map library not available; showing list only. (CDN blocked?)</div>';
+  }
 
   // ---------- State ----------
   const state = {
@@ -274,8 +299,68 @@
     const hours = Number(timeWindow.value);
     const start = new Date(Date.now() - hours*3600*1000).toISOString();
     const minmag = Number(minMag.value);
+    const useSummaryOnly = !!(document.querySelector('#forceSummary')?.checked);
 
-    let url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&starttime=${encodeURIComponent(start)}&minmagnitude=${minmag}&limit=200`;
+    const statusEl = document.querySelector('#status');
+    const setStatus = m => { if(statusEl) statusEl.textContent = m; };
+
+    refreshBtn.disabled = true; setStatus('Fetching…');
+    try{
+      if (useSummaryOnly){
+        const feed = chooseSummaryFeed(hours, minmag);
+        const resS = await fetch(feed, { headers: { 'accept':'application/geo+json, application/json' } });
+        if(!resS.ok) throw new Error('Summary HTTP '+resS.status);
+        const dataS = await resS.json();
+        renderQuakes(dataS);
+        updatedEl.textContent = new Date().toLocaleTimeString();
+        setStatus('Summary OK');
+        return;
+      }
+
+      let url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&starttime=${encodeURIComponent(start)}&minmagnitude=${minmag}&limit=200`;
+      if(area.value!=='global'){
+        let lat, lon;
+        if(area.value==='near'){
+          if(state.myLoc){ lat = state.myLoc.lat; lon = state.myLoc.lon; }
+        } else if(area.value==='custom'){
+          const parts = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
+          if(parts.length===2 && parts.every(n=>!isNaN(n))){ lat = parts[0]; lon = parts[1]; }
+        }
+        const r = Number(radius.value||500);
+        if (typeof lat === 'number' && typeof lon === 'number'){
+          url += `&latitude=${lat}&longitude=${lon}&maxradiuskm=${r}`;
+        }
+      }
+
+      try{
+        const res = await fetch(url, { headers: { 'accept':'application/geo+json, application/json' } });
+        if(!res.ok) throw new Error('FDSN HTTP '+res.status);
+        const data = await res.json();
+        if(!data || !Array.isArray(data.features)) throw new Error('Bad JSON');
+        renderQuakes(data);
+        updatedEl.textContent = new Date().toLocaleTimeString();
+        rememberIds(data);
+        maybeNotify(data);
+        history.replaceState(null,'', buildShareUrl());
+        setStatus('OK');
+      }catch(e){
+        console.warn('FDSN fetch failed, trying summary feed', e);
+        setStatus('FDSN failed → trying fallback');
+        const feed = chooseSummaryFeed(hours, minmag);
+        const res2 = await fetch(feed, { headers: { 'accept':'application/geo+json, application/json' } });
+        const data2 = await res2.json();
+        renderQuakes(data2);
+        updatedEl.textContent = new Date().toLocaleTimeString();
+        setStatus('Fallback feed OK');
+      }
+    }catch(e){
+      console.error('Fetch failed', e);
+      setStatus('Fetch failed');
+      alert('Failed to fetch earthquake data (FDSN and fallback). Check your network or try again.');
+    }finally{
+      refreshBtn.disabled = false;
+    }
+  }&minmagnitude=${minmag}&limit=200`;
 
     if(area.value!=='global'){
       let lat, lon;
@@ -385,50 +470,45 @@
   }
 
   function renderQuakes(data){
-    // Clear layers & list
-    markers.clearLayers();
-    const tbody = $$('#list tbody');
+    if(!data || !Array.isArray(data.features)){ alert('No data returned'); return; }
+    const tbody = document.querySelector('#list tbody');
     tbody.innerHTML = '';
 
-    state.features = data.features || [];
-    countEl.textContent = String(state.features.length);
+    const feats = data.features; state.features = feats; countEl.textContent = String(feats.length);
 
-    let bounds = [];
-    for(const f of state.features){
+    if (markers) { try{ markers.clearLayers(); }catch{} }
+    const bounds = [];
+
+    for(const f of feats){
       const p = f.properties||{}; const g = f.geometry||{}; const c = g.coordinates||[0,0,0];
       const lon=c[0], lat=c[1], depth=c[2];
-      const m = p.mag;
-      const color = magColor(m);
-      const r = Math.max(4, Math.min(18, (m||0)*2 + 4));
-      const dist = getDistanceKm(lat,lon);
+      const m = p.mag; const dist = getDistanceKm(lat,lon);
 
-      // marker
-      const marker = L.circleMarker([lat,lon], {radius:r, color:'#000', weight:1, fillColor:color, fillOpacity:0.85});
-      const html = `
-        <div class="mono">
-          <b>M${fmtNum(m,1)}</b> • ${p.place||''}<br>
-          <span class="small">${fmtDate(p.time)} • Depth ${fmtNum(depth,0)} km${typeof dist==='number'? ' • '+km(dist)+' km away':''}</span><br>
-          <a href="${p.url}" target="_blank" rel="noopener">Details</a>
-        </div>`;
-      marker.bindPopup(html);
-      marker.addTo(markers);
-      bounds.push([lat,lon]);
+      let marker = null;
+      if (markers && typeof lat==='number' && typeof lon==='number'){
+        const color = magColor(m);
+        const r = Math.max(4, Math.min(18, (m||0)*2 + 4));
+        marker = L.circleMarker([lat,lon], {radius:r, color:'#000', weight:1, fillColor:color, fillOpacity:0.85}).addTo(markers);
+        const html = `
+          <div class="mono">
+            <b>M${fmtNum(m,1)}</b> • ${p.place||''}<br>
+            <span class="small">${fmtDate(p.time)} • Depth ${fmtNum(depth,0)} km${typeof dist==='number'? ' • '+km(dist)+' km away':''}</span><br>
+            <a href="${p.url}" target="_blank" rel="noopener">Details</a>
+          </div>`;
+        marker.bindPopup(html);
+        bounds.push([lat,lon]);
+      }
 
-      // list row
       const tr = $t('tr');
       const link = $t('a',{href:p.url,target:'_blank', rel:'noopener', textContent:'USGS'});
       [fmtDate(p.time), fmtNum(m,1), p.place||'', fmtNum(depth,0), (typeof dist==='number'? km(dist):'—'), ''].forEach((val,i)=>{
-        const td = $t('td');
-        if(i===5) td.appendChild(link); else td.textContent = String(val);
-        tr.appendChild(td);
+        const td = $t('td'); if(i===5) td.appendChild(link); else td.textContent = String(val); tr.appendChild(td);
       });
-      tr.addEventListener('click', ()=>{ marker.openPopup(); map.panTo([lat,lon]); });
+      if(marker){ tr.addEventListener('click', ()=>{ marker.openPopup(); if(map) map.panTo([lat,lon]); }); }
       tbody.appendChild(tr);
     }
 
-    if(bounds.length){
-      try{ map.fitBounds(bounds, {padding:[20,20]}); }catch{}
-    }
+    if(map && bounds.length){ try{ map.fitBounds(bounds, {padding:[20,20]}); }catch{} }
   }
 
   function getDistanceKm(lat,lon){
@@ -438,6 +518,8 @@
       const parts = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
       if(parts.length===2 && parts.every(n=>!isNaN(n))) center = {lat:parts[0], lon:parts[1]};
     }
+    return center? haversineKm(center.lat, center.lon, lat, lon) : null;
+  }
     return center? haversineKm(center.lat, center.lon, lat, lon) : null;
   }
 
@@ -498,6 +580,28 @@
     return `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${magBand}_${windowBand}.geojson`;
   }
 })();
+
+  // Helper to choose USGS summary feed
+  function chooseSummaryFeed(hours, minmag){
+    const magBand = (m=> m>=6? '6.0' : m>=4.5? '4.5' : m>=2.5? '2.5' : m>=1.0? '1.0' : 'all')(minmag||0);
+    const windowBand = (h=> h<=1? 'hour' : h<=24? 'day' : h<=168? 'week' : 'month')(hours||24);
+    return `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${magBand}_${windowBand}.geojson`;
+  }
+
+  // Diagnostics
+  async function runDiagnostics(){
+    const tbody = document.querySelector('#diagTable tbody'); if(!tbody) return;
+    tbody.innerHTML='';
+    const row=(name,ok,details)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:name})); const st=$t('td'); st.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(st); tr.appendChild($t('td',{textContent:String(details||'')})); tbody.appendChild(tr); };
+
+    row('HTTPS', (location.protocol==='https:'|| location.hostname==='localhost'), location.protocol);
+    row('Map library (Leaflet)', !!window.L, window.L? 'Loaded' : 'Not loaded (CDN blocked?)');
+    try{ const r = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson', {headers:{'accept':'application/geo+json, application/json'}}); row('USGS summary fetch', r.ok, 'HTTP '+r.status); }catch(e){ row('USGS summary fetch', false, e.message); }
+    try{ const start = new Date(Date.now()-24*3600*1000).toISOString(); const u = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&limit=1&starttime='+encodeURIComponent(start); const r = await fetch(u,{headers:{'accept':'application/geo+json, application/json'}}); row('USGS FDSN fetch', r.ok, 'HTTP '+r.status); }catch(e){ row('USGS FDSN fetch', false, e.message); }
+    if(navigator.permissions){ try{ const s = await navigator.permissions.query({name:'geolocation'}); row('Geolocation permission', true, s.state); }catch(e){ row('Geolocation permission', false, e.message); } } else { row('Geolocation permission', true, 'n/a'); }
+    row('Notifications API', ('Notification' in window), (window.Notification? Notification.permission : 'n/a'));
+  }
+  document.querySelector('#runDiag')?.addEventListener('click', runDiagnostics);
 </script>
 </body>
 </html>
