@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PrayerTimes — Daily Prayers & Key Islamic Dates</title>
+<meta name="description" content="Single‑page web app: daily Muslim prayer times for any location, next Friday (Jumu'ah), Ramadan + Eid al‑Fitr/Eid al‑Adha start/end, and key nights (Raghaib, Isra & Mi'raj, Mid‑Sha'ban, Laylat al‑Qadr, Mawlid). English names only. GitHub Pages‑ready." />
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#11183a; --panel2:#0f1534; --border:#233158; --text:#eaf0ff; --muted:#9db2db; --chip:#1a2555; --accent:#67d2ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:radial-gradient(1200px 700px at 70% -10%,#16205b 0,#0b1020 60%,#0b1020 100%);color:var(--text)}
+  header{position:sticky;top:0;z-index:20;background:#0c1334e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{margin:6px 0 0;color:var(--muted)}
+  main{max-width:1100px;margin:0 auto;padding:14px;display:grid;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1.1fr 1fr}
+  @media(max-width:980px){ .two{grid-template-columns:1fr} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+  input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  button{cursor:pointer}
+  .btn{background:linear-gradient(180deg,#67d2ff,#2aa4ef);border:none;color:#00111e;font-weight:700}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  .right{margin-left:auto}
+  .small{font-size:12px;color:var(--muted)}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+  thead th{position:sticky;top:0;background:#121a45;z-index:1}
+  tbody tr:hover{background:#0f183b}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+  .status.ok{color:var(--ok)} .status.bad{color:var(--bad)} .status.warn{color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <h1>PrayerTimes — Daily Prayers & Key Islamic Dates</h1>
+  <p class="tag">Search a place and get today’s prayers, next Friday (Jumu'ah), Ramadan & Eids, and key nights — all in English.</p>
+</header>
+
+<main class="grid two">
+  <section class="card">
+    <div class="row">
+      <div style="flex:1 1 360px;min-width:260px">
+        <label>Location</label>
+        <div class="row" style="gap:6px">
+          <input id="place" placeholder="Istanbul, TR" />
+          <button id="useLoc" class="ghost">📍 Use my location</button>
+        </div>
+        <div id="suggest" class="small" style="margin-top:4px"></div>
+      </div>
+      <div style="width:160px">
+        <label>Date</label>
+        <input id="date" type="date" />
+      </div>
+      <div style="width:220px">
+        <label>Calculation method</label>
+        <select id="method"></select>
+      </div>
+      <div style="width:160px">
+        <label>Asr juristic method</label>
+        <select id="madhab">
+          <option value="shafi" selected>Shafi / Maliki</option>
+          <option value="hanafi">Hanafi</option>
+        </select>
+      </div>
+      <div style="width:140px">
+        <label>&nbsp;</label>
+        <button id="refresh" class="btn">↻ Update</button>
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <span class="chip">Lat/Lon: <b id="latlon">—</b></span>
+      <span class="chip">Timezone: <b id="tz">—</b></span>
+      <span class="chip">Updated: <b id="updated">—</b></span>
+      <span class="chip">Status: <b id="status">Idle</b></span>
+      <span class="right small">Offline calc via Adhan; dates by tabular Hijri (±1 day possible).</span>
+    </div>
+
+    <div class="card" style="background:var(--panel2);margin-top:10px">
+      <div class="row"><b>Today’s Prayer Times</b><span class="right" id="todayLabel" class="small"></span></div>
+      <table id="ptbl">
+        <thead><tr><th>Prayer</th><th>Time</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="card" style="background:var(--panel2)">
+      <div class="row"><b>Next Friday Prayer (Jumu'ah)</b><span class="right small" id="friLabel">—</span></div>
+      <div class="row mono" id="friTime" style="font-size:18px">—</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <div class="row"><b>Key Islamic Dates — <span id="yearLabel">—</span></b><span class="right small">(predicted, tabular Hijri)</span></div>
+      <table id="holidayTbl">
+        <thead><tr><th>Event</th><th>Date</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="small" style="margin-top:6px">Notes: Actual dates may shift by local moon‑sighting. “Eid al‑Fitr” is also called Ramadan Bayram; “Eid al‑Adha” is Kurban Bayram.</div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin:0">Diagnostics</h3>
+      <div class="row"><button id="diagBtn" class="ghost">🩺 Run diagnostics</button></div>
+      <div style="overflow:auto;max-height:220px;margin-top:8px">
+        <table id="diagTable"><thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <details>
+        <summary>Help & About</summary>
+        <div class="grid" style="grid-template-columns:1fr;gap:10px">
+          <div class="small">
+            <ul>
+              <li>Prayer times are calculated fully on‑device using the Adhan method you choose. No API key required.</li>
+              <li>Friday prayer (Jumu'ah) time is shown as the local <b>Dhuhr</b> time on Friday.</li>
+              <li>Islamic dates (Ramadan, Eids, nights) use the civil/tabular Hijri calendar; your country’s official dates can differ by ±1 day.</li>
+              <li>English names only are used on this page.</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+
+<!-- Adhan (prayer time calculations) -->
+<script src="https://unpkg.com/adhan@4.4.0/dist/Adhan.js"></script>
+<script>
+(function(){
+  // ----- Shortcuts -----
+  const $$ = s=>document.querySelector(s);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const tzGuess = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const todayISO = ()=> new Date().toISOString().slice(0,10);
+  const toLocalHM = (d, tz)=> d? new Date(d).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit', timeZone: tz || undefined}) : '—';
+
+  // ----- State -----
+  const state = { lat:41.0082, lon:28.9784, tz: tzGuess, when: new Date(), method:'MWL', madhab:'shafi' };
+
+  // Populate controls
+  $$('#date').value = todayISO();
+  $$('#place').value = 'Istanbul, TR';
+  $$('#latlon').textContent = `${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`;
+  $$('#tz').textContent = state.tz;
+
+  // Methods list
+  const methods = [
+    ['MWL','Muslim World League'],
+    ['Egyptian','Egyptian General Authority'],
+    ['Karachi','University of Islamic Sciences, Karachi'],
+    ['UmmAlQura','Umm al‑Qura (Makkah)'],
+    ['Qatar','Qatar'],
+    ['Kuwait','Kuwait'],
+    ['Dubai','Dubai'],
+    ['MoonsightingCommittee','Moonsighting Committee'],
+    ['NorthAmerica','North America (ISNA)'],
+    ['Singapore','Singapore'],
+    ['Tehran','Tehran']
+  ];
+  const methodSel = $$('#method');
+  methods.forEach(([v,l])=> methodSel.appendChild($t('option',{value:v,textContent:l})));
+  methodSel.value = state.method;
+
+  // ----- Geocoding (Open‑Meteo, no key) -----
+  let suggestTimer=null; const place=$$('#place');
+  place.addEventListener('input', ()=>{ clearTimeout(suggestTimer); suggestTimer=setTimeout(lookupPlace, 350); });
+  async function lookupPlace(){
+    const q=place.value.trim(); if(!q){ $$('#suggest').textContent=''; return; }
+    try{
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`;
+      const r = await fetch(url); const j = await r.json();
+      const hits = (j.results||[]).map(it=>({ name:`${it.name}, ${it.country_code}${it.admin1? ' • '+it.admin1:''}`, lat:it.latitude, lon:it.longitude, tz:it.timezone }));
+      const span = document.createElement('span'); span.className='small';
+      if(!hits.length){ span.textContent='No matches'; }
+      hits.forEach(h=>{ const b=$t('button',{className:'ghost', textContent:h.name, style:'margin:4px 6px 0 0'}); b.addEventListener('click',()=>{ state.lat=h.lat; state.lon=h.lon; state.tz=h.tz||state.tz; $$('#latlon').textContent=`${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; $$('#tz').textContent=state.tz; $$('#suggest').textContent=''; refreshAll(); }); span.appendChild(b); });
+      $$('#suggest').innerHTML=''; $$('#suggest').appendChild(span);
+    }catch(e){ $$('#suggest').textContent='Lookup failed'; }
+  }
+  $$('#useLoc').addEventListener('click', ()=>{
+    if(!navigator.geolocation) return alert('Geolocation not supported');
+    navigator.geolocation.getCurrentPosition(pos=>{ state.lat=pos.coords.latitude; state.lon=pos.coords.longitude; $$('#latlon').textContent=`${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; $$('#suggest').textContent=''; refreshAll(); }, err=> alert('Could not get location: '+err.message), {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  });
+
+  // ----- Prayer times via Adhan -----
+  function adhanParams(){
+    let p;
+    switch($$('#method').value){
+      case 'Egyptian': p = adhan.CalculationMethod.Egyptian(); break;
+      case 'Karachi': p = adhan.CalculationMethod.Karachi(); break;
+      case 'UmmAlQura': p = adhan.CalculationMethod.UmmAlQura(); break;
+      case 'Qatar': p = adhan.CalculationMethod.Qatar(); break;
+      case 'Kuwait': p = adhan.CalculationMethod.Kuwait(); break;
+      case 'Dubai': p = adhan.CalculationMethod.Dubai(); break;
+      case 'MoonsightingCommittee': p = adhan.CalculationMethod.MoonsightingCommittee(); break;
+      case 'NorthAmerica': p = adhan.CalculationMethod.NorthAmerica(); break;
+      case 'Singapore': p = adhan.CalculationMethod.Singapore(); break;
+      case 'Tehran': p = adhan.CalculationMethod.Tehran(); break;
+      default: p = adhan.CalculationMethod.MuslimWorldLeague(); break;
+    }
+    p.madhab = ($$('#madhab').value==='hanafi')? adhan.Madhab.Hanafi : adhan.Madhab.Shafi;
+    p.highLatitudeRule = adhan.HighLatitudeRule.TwilightAngle;
+    return p;
+  }
+
+  function computeTimes(date){
+    const coords = new adhan.Coordinates(state.lat, state.lon);
+    const pt = new adhan.PrayerTimes(coords, date, adhanParams());
+    return {
+      Fajr: pt.fajr,
+      Sunrise: pt.sunrise,
+      Dhuhr: pt.dhuhr,
+      Asr: pt.asr,
+      Maghrib: pt.maghrib,
+      Isha: pt.isha
+    };
+  }
+
+  function renderToday(){
+    const date = new Date($$('#date').value || todayISO());
+    const times = computeTimes(date);
+    const tz = state.tz; const tbody = $$('#ptbl tbody'); tbody.innerHTML='';
+    Object.entries(times).forEach(([name, t])=>{
+      const tr=$t('tr'); tr.appendChild($t('td',{textContent:name})); tr.appendChild($t('td',{textContent: toLocalHM(t, tz)})); tbody.appendChild(tr);
+    });
+    $$('#todayLabel').textContent = date.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz});
+  }
+
+  function renderFriday(){
+    const tz = state.tz; const d0 = new Date($$('#date').value || todayISO());
+    const day = d0.getDay(); // 0=Sun ... 5=Fri
+    const add = (5 - day + 7) % 7; // days to next Friday (0 if Friday)
+    const fri = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()+add);
+    const t = computeTimes(fri);
+    $$('#friTime').textContent = 'Jumu\'ah = Dhuhr at ' + toLocalHM(t.Dhuhr, tz);
+    $$('#friLabel').textContent = fri.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz});
+  }
+
+  // ----- Hijri calendar (tabular) -----
+  // Based on the civil Islamic calendar from "Calendrical Calculations" (approximate, may differ ±1 day).
+  const ISLAMIC_EPOCH = 1948439.5;
+  const GREGORIAN_EPOCH = 1721425.5;
+  function gregorianToJD(year, month, day){
+    // months 1-12
+    return (GREGORIAN_EPOCH -1) + 365* (year -1) + Math.floor((year -1)/4) - Math.floor((year -1)/100) + Math.floor((year -1)/400) + Math.floor((367*month - 362)/12 + (month <= 2 ? 0 : (isGregorianLeap(year)? -1 : -2)) + day);
+  }
+  function jdToGregorian(jd){
+    const wjd = Math.floor(jd - 0.5) + 0.5; const depoch = wjd - GREGORIAN_EPOCH; const quadricent = Math.floor(depoch / 146097); const dqc = depoch % 146097; const cent = Math.floor(dqc / 36524); const dcent = dqc % 36524; const quad = Math.floor(dcent / 1461); const dquad = dcent % 1461; const yindex = Math.floor(dquad / 365);
+    let year = quadricent*400 + cent*100 + quad*4 + yindex;
+    if(!(cent === 4 || yindex === 4)) year++;
+    const yearday = wjd - gregorianToJD(year,1,1) +1; const leap = isGregorianLeap(year)? 1:0; const month = yearday <= 31+28+leap? Math.floor((12*(yearday-1) + 373)/367) : Math.floor((12*(yearday - 59 - leap) + 306)/367) + 3;
+    const day = wjd - gregorianToJD(year, month, 1) + 1; return {y:year,m:month,d:day};
+  }
+  function isGregorianLeap(y){ return (y%4===0 && y%100!==0) || (y%400===0); }
+  function islamicToJD(year, month, day){ return (day + Math.ceil(29.5*(month-1)) + (year-1)*354 + Math.floor((3+11*year)/30) + ISLAMIC_EPOCH) -1; }
+  function jdToIslamic(jd){ const jd0 = Math.floor(jd)+0.5; const year = Math.floor((30*(jd0 - ISLAMIC_EPOCH) + 10646)/10631); const month = Math.min(12, Math.ceil((jd0 - (29 + islamicToJD(year,1,1)))/29.5) + 1); const day = jd0 - islamicToJD(year, month, 1) + 1; return {y:year,m:month,d:day}; }
+  function islamicToGregorian(y,m,d){ const jd = islamicToJD(y,m,d); const g = jdToGregorian(jd); return new Date(Date.UTC(g.y, g.m-1, g.d)); }
+  function gregorianToIslamic(date){ const jd = Math.floor(date.getTime()/86400000) + 2440587.5; const h = jdToIslamic(jd); return h; }
+
+  function keyDatesForYear(gy){
+    // Find Hijri year close to Jan 1 of gy
+    const hJan = gregorianToIslamic(new Date(Date.UTC(gy,0,1)));
+    const HY = hJan.y; const candYears = [HY-1, HY, HY+1];
+    const entries = [];
+    function add(name, date){ if(date.getUTCFullYear()===gy) entries.push([name, date]); }
+
+    for(const hy of candYears){
+      // Ramadan start & end via 1 Ramadan .. day before 1 Shawwal
+      const ramStart = islamicToGregorian(hy, 9, 1);
+      const shawwal1 = islamicToGregorian(hy, 10, 1);
+      const ramEnd = new Date(shawwal1.getTime() - 86400000);
+      add('Ramadan starts', ramStart);
+      add('Ramadan ends', ramEnd);
+      // Eid al‑Fitr (1–3 Shawwal)
+      add('Eid al‑Fitr begins', shawwal1);
+      add('Eid al‑Fitr ends', islamicToGregorian(hy, 10, 3));
+      // Eid al‑Adha (10–13 Dhu al‑Hijjah)
+      add('Eid al‑Adha begins', islamicToGregorian(hy, 12, 10));
+      add('Eid al‑Adha ends', islamicToGregorian(hy, 12, 13));
+      // Key nights (kandils in English names)
+      // Raghaib Night = night before first Friday of Rajab (we show calendar day of that Thursday)
+      const rajab1 = islamicToGregorian(hy, 7, 1);
+      // compute first Friday date in Rajab
+      let friDay = null; for(let d=1; d<=7; d++){ const g = islamicToGregorian(hy, 7, d); if(g.getUTCDay()===5){ friDay=d; break; } }
+      if(friDay){ const th = islamicToGregorian(hy,7,friDay-1); add('Raghaib Night (eve of first Friday of Rajab)', th); }
+      add('Isra and Mi\'raj (27 Rajab)', islamicToGregorian(hy, 7, 27));
+      add('Mid‑Sha\'ban Night (15 Sha\'ban)', islamicToGregorian(hy, 8, 15));
+      add('Laylat al‑Qadr (27 Ramadan)', islamicToGregorian(hy, 9, 27));
+      add('Mawlid al‑Nabi (12 Rabi al‑awal)', islamicToGregorian(hy, 3, 12));
+    }
+
+    // sort
+    entries.sort((a,b)=> a[1]-b[1]);
+    return entries;
+  }
+
+  function renderHolidays(){
+    const gy = (new Date($$('#date').value||todayISO())).getFullYear();
+    $$('#yearLabel').textContent = String(gy);
+    const list = keyDatesForYear(gy);
+    const tz = state.tz; const tb = $$('#holidayTbl tbody'); tb.innerHTML='';
+    list.forEach(([name, d])=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:name})); tr.appendChild($t('td',{textContent: d.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz}) })); tb.appendChild(tr); });
+  }
+
+  // ----- Diagnostics -----
+  $$('#diagBtn').addEventListener('click', runDiagnostics);
+  async function runDiagnostics(){
+    const tbody=$$('#diagTable tbody'); tbody.innerHTML='';
+    const row=(n,ok,det)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:n})); const s=$t('td'); s.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(s); tr.appendChild($t('td',{textContent:String(det||'')})); tbody.appendChild(tr); };
+    row('Adhan library', !!window.adhan, window.adhan? 'Loaded' : 'CDN blocked?');
+    try{ const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=istanbul&count=1'); row('Geocoding API', r.ok, 'HTTP '+r.status); }catch(e){ row('Geocoding API', false, e.message); }
+  }
+
+  // ----- Orchestration -----
+  function refreshAll(){ setStatus('Working…'); renderToday(); renderFriday(); renderHolidays(); setStatus('OK'); }
+  function setStatus(s){ $$('#status').textContent = s; $$('#updated').textContent = new Date().toLocaleTimeString(); }
+
+  $$('#refresh').addEventListener('click', refreshAll);
+  $$('#method').addEventListener('change', refreshAll);
+  $$('#madhab').addEventListener('change', refreshAll);
+  $$('#date').addEventListener('change', refreshAll);
+
+  // Start
+  window.addEventListener('load', refreshAll);
+})();
+</script>
+</body>
+</html>
