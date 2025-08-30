@@ -1,16 +1,15 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Kapsam Dokümanı — PDF & Word Üretici</title>
+<title>Comprehensive Scope — PDF & Word (Text Only)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="Formu doldur, checklistleri işaretle, A4 PDF veya DOCX olarak indir." />
+<meta name="description" content="Fill the scope form, tick checklists, export clean text-only PDF or DOCX (no tables/boxes)." />
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
-
 <style>
   :root{
-    --bg:#0b0f14; --panel:#121922; --text:#eaf0f7; --muted:#7d8aa1; --border:#273446; --accent:#75c6ff;
-    --paper:#ffffff; --ink:#111827; --sub:#374151;
+    --bg:#0b0f14; --panel:#121922; --text:#eaf0f7; --muted:#8da0b8; --border:#273446;
+    --paper:#ffffff; --ink:#111827; --sub:#465468;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -42,53 +41,48 @@
   .chkline input{margin-top:2px}
   .scroll{max-height:65vh;overflow:auto;border-radius:0 0 14px 14px}
   .sticky{position:sticky;top:0;background:var(--panel);z-index:3;border-bottom:1px solid var(--border)}
-  /* Sağdaki yazdırılabilir önizleme */
+
+  /* Printable preview (RIGHT) — TEXT ONLY, no boxes or tables */
   .paperHost{position:relative}
   .paper{
     background:var(--paper); color:var(--ink);
     width:210mm; min-height:297mm; margin:12px auto;
     box-shadow:0 8px 30px rgba(0,0,0,.35);
-    border-radius:6px; padding:18mm 16mm 26mm; /* alt ped arttı */
+    border-radius:6px; padding:18mm 16mm 28mm;
   }
-  .doc-title{font-size:18pt;font-weight:700;margin:0 0 2mm}
-  .doc-sub{color:var(--sub);margin:0 0 8mm}
-  .h2{font-weight:700;font-size:13.5pt;margin:10mm 0 3mm}
-  .h3{font-weight:700;font-size:12pt;margin:4mm 0 2mm}
-  .kv{display:grid;grid-template-columns:42mm 1fr;gap:6px 10px;font-size:11pt;margin:1mm 0 2mm}
-  .kv b{white-space:nowrap}
-  .block{margin:2mm 0 4mm}
-  .box{border:1px solid #d1d5db;border-radius:6px;padding:6px 8px;white-space:pre-wrap;min-height:12mm}
-  .list{margin:2mm 0 0;padding-left:4mm}
-  .checkboxline{display:flex;align-items:flex-start;gap:6px;margin:1mm 0}
-  .cb{display:inline-block;width:4mm;height:4mm;border:1px solid #111;border-radius:2px;text-align:center;line-height:4mm;font-size:8pt}
-  .pagebreak{page-break-before:always; break-before: page;}
-  .footer-note{margin-top:8mm;font-size:9pt;color:#4b5563}
-  .siggrid{display:grid;grid-template-columns:1fr 1fr;gap:10mm}
-  .sigbox{border:1px solid #d1d5db;border-radius:6px;padding:6mm 6mm 10mm 6mm;height:30mm}
-  .siglbl{font-size:10pt;color:#374151;margin-bottom:2mm}
-  /* --- Kesilmeleri önle --- */
-  .block, .kv, .box, .siggrid, .sigbox { break-inside: avoid; page-break-inside: avoid; }
+  .title{font-size:18pt;font-weight:800;margin:0}
+  .subtitle{color:var(--sub);margin:.5mm 0 8mm}
+  .h2{font-weight:800;font-size:13.5pt;margin:9mm 0 2.5mm}
+  .h3{font-weight:700;font-size:12pt;margin:4.5mm 0 2mm}
+  .pair{margin:1mm 0 1mm; font-size:11pt}
+  .pair b{font-weight:700}
+  .para{margin:1.5mm 0 3mm; white-space:pre-wrap; font-size:11pt}
+  .checkrow{display:flex;gap:6px;align-items:flex-start;margin:1mm 0;font-size:11pt}
+  .checkmark{width:12px;text-align:center;display:inline-block}
+  .pagebreak{page-break-before:always; break-before:page;}
+  /* keep elements together at page ends */
+  .pair, .para, .h3, .checkrow { break-inside: avoid; page-break-inside: avoid; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Kapsam Dokümanı — Web Formu → PDF/DOCX</h1>
-  <p class="sub">Formu doldur, sağdan önizle, sonra A4 PDF veya DOCX indir. Veriler tarayıcıdan dışarı çıkmaz.</p>
+  <h1>Comprehensive Scope — Form ➜ PDF/DOCX (Text-Only)</h1>
+  <p class="sub">Fill on the left, clean text layout on the right. Export PDF or DOCX without tables/boxes.</p>
 </header>
 
 <main>
-  <!-- Sol: Form -->
+  <!-- LEFT: FORM -->
   <section class="card">
     <div class="pad sticky">
       <div class="toolbar">
-        <button id="btnPdf" class="primary">PDF Oluştur</button>
-        <button id="btnWord" class="primary">Word (.docx) Oluştur</button>
-        <button id="btnClear" class="ghost">Temizle</button>
-        <span class="small">İpuçu: Alanlar sağ önizlemeye anında yansır.</span>
+        <button id="btnPdf" class="primary">Export PDF</button>
+        <button id="btnWord" class="primary">Export Word (.docx)</button>
+        <button id="btnClear" class="ghost">Clear</button>
+        <span class="small">Your inputs mirror to the preview instantly.</span>
       </div>
     </div>
     <div class="pad scroll">
-      <!-- 1. Proje Bilgileri -->
+
       <div class="section">
         <h3>1) Project Information</h3>
         <div class="grid2">
@@ -99,7 +93,6 @@
         </div>
       </div>
 
-      <!-- 2. Scope Statement -->
       <div class="section">
         <h3>2) Scope Statement</h3>
         <label>Project Goal and Objectives</label><textarea name="goal_objectives"></textarea>
@@ -111,7 +104,6 @@
         <label>Project Constraints</label><textarea name="constraints"></textarea>
       </div>
 
-      <!-- 3. Dimensions -->
       <div class="section">
         <h3>3) Scope Dimensions</h3>
 
@@ -162,7 +154,6 @@
         </div>
       </div>
 
-      <!-- 4 -->
       <div class="section">
         <h3>4) Scope Creep Management</h3>
         <label>Change Request Process</label><textarea name="change_process"></textarea>
@@ -172,7 +163,6 @@
         <label>Trade-Offs</label><textarea name="tradeoffs"></textarea>
       </div>
 
-      <!-- 5 -->
       <div class="section">
         <h3>5) Roles & Responsibilities</h3>
         <label>Project Manager (PM) — Responsibilities</label><textarea name="pm_resp"></textarea>
@@ -182,13 +172,11 @@
         <label>Governance Body (if any) — Responsibilities</label><textarea name="gov_body_resp"></textarea>
       </div>
 
-      <!-- 6 -->
       <div class="section">
         <h3>6) Scoping Checklist</h3>
         <div id="checklistForm"></div>
       </div>
 
-      <!-- 7 -->
       <div class="section">
         <h3>7) Approval & Sign-off</h3>
         <div class="grid2">
@@ -210,124 +198,105 @@
           </div>
         </div>
       </div>
+
     </div>
   </section>
 
-  <!-- Sağ: PDF önizleme düzeni -->
+  <!-- RIGHT: PRINT PREVIEW (TEXT ONLY) -->
   <section class="card paperHost">
     <div id="paper" class="paper">
-      <div class="doc-title">Comprehensive Scope Document</div>
-      <div class="doc-sub">Generated: <span data-field="date_print"></span></div>
+      <h2 class="title">Comprehensive Scope Document</h2>
+      <div class="subtitle">Generated: <span data-field="date_print"></span></div>
 
       <div class="h2">1. Project Information</div>
-      <div class="kv">
-        <b>Project Name</b><div class="box" data-field="project_name_out"></div>
-        <b>Sponsor</b><div class="box" data-field="sponsor_out"></div>
-        <b>Prepared By</b><div class="box" data-field="prepared_by_out"></div>
-        <b>Date</b><div class="box" data-field="date_out"></div>
-      </div>
+      <div class="pair"><b>Project Name:</b> <span data-field="project_name_out"></span></div>
+      <div class="pair"><b>Sponsor:</b> <span data-field="sponsor_out"></span></div>
+      <div class="pair"><b>Prepared By:</b> <span data-field="prepared_by_out"></span></div>
+      <div class="pair"><b>Date:</b> <span data-field="date_out"></span></div>
 
       <div class="h2">2. Scope Statement</div>
-      <div class="block"><div class="h3">Project Goal and Objectives</div><div class="box" data-field="goal_objectives_out"></div></div>
-      <div class="block"><div class="h3">Project Boundaries (Within Scope)</div><div class="box" data-field="boundaries_in_out"></div></div>
-      <div class="block"><div class="h3">Project Boundaries (Out of Scope)</div><div class="box" data-field="boundaries_out_out"></div></div>
-      <div class="block"><div class="h3">Project Deliverables</div><div class="box" data-field="deliverables_out"></div></div>
-      <div class="block"><div class="h3">Success Criteria</div><div class="box" data-field="success_criteria_out"></div></div>
-      <div class="block"><div class="h3">Project Assumptions</div><div class="box" data-field="assumptions_out"></div></div>
-      <div class="block"><div class="h3">Project Constraints</div><div class="box" data-field="constraints_out"></div></div>
+      <div class="h3">Project Goal and Objectives</div><div class="para" data-field="goal_objectives_out"></div>
+      <div class="h3">Project Boundaries (Within Scope)</div><div class="para" data-field="boundaries_in_out"></div>
+      <div class="h3">Project Boundaries (Out of Scope)</div><div class="para" data-field="boundaries_out_out"></div>
+      <div class="h3">Project Deliverables</div><div class="para" data-field="deliverables_out"></div>
+      <div class="h3">Success Criteria</div><div class="para" data-field="success_criteria_out"></div>
+      <div class="h3">Project Assumptions</div><div class="para" data-field="assumptions_out"></div>
+      <div class="h3">Project Constraints</div><div class="para" data-field="constraints_out"></div>
 
       <div class="h2 pagebreak">3. Scope Dimensions</div>
-      <div class="block"><div class="h3">3.1 Project Scope</div>
-        <div class="block"><b>Project Objectives</b><div class="box" data-field="proj_scope_objectives_out"></div></div>
-        <div class="block"><b>Deliverables</b><div class="box" data-field="proj_scope_deliverables_out"></div></div>
-        <div class="block"><b>Tasks & Activities</b><div class="box" data-field="proj_scope_tasks_out"></div></div>
-        <div class="block"><b>Resources</b><div class="box" data-field="proj_scope_resources_out"></div></div>
-        <div class="block"><b>Milestones</b><div class="box" data-field="proj_scope_milestones_out"></div></div>
-        <div class="block"><b>Roles & Responsibilities</b><div class="box" data-field="proj_scope_roles_out"></div></div>
-      </div>
+      <div class="h3">3.1 Project Scope</div>
+      <div class="para" data-field="proj_scope_objectives_out"></div>
+      <div class="para" data-field="proj_scope_deliverables_out"></div>
+      <div class="para" data-field="proj_scope_tasks_out"></div>
+      <div class="para" data-field="proj_scope_resources_out"></div>
+      <div class="para" data-field="proj_scope_milestones_out"></div>
+      <div class="para" data-field="proj_scope_roles_out"></div>
 
-      <div class="block"><div class="h3">3.2 Product Scope</div>
-        <div class="block"><b>Product/Service Name</b><div class="box" data-field="product_name_out"></div></div>
-        <div class="block"><b>Product Objectives</b><div class="box" data-field="product_objectives_out"></div></div>
-        <div class="block"><b>Features & Functions</b><div class="box" data-field="product_features_out"></div></div>
-        <div class="block"><b>Success Criteria</b><div class="box" data-field="product_success_out"></div></div>
-        <div class="block"><b>Out of Scope</b><div class="box" data-field="product_out_out"></div></div>
-      </div>
+      <div class="h3">3.2 Product Scope</div>
+      <div class="pair"><b>Product/Service Name:</b> <span data-field="product_name_out"></span></div>
+      <div class="para" data-field="product_objectives_out"></div>
+      <div class="para" data-field="product_features_out"></div>
+      <div class="para" data-field="product_success_out"></div>
+      <div class="para" data-field="product_out_out"></div>
 
-      <div class="block"><div class="h3">3.3 Functional Scope</div>
-        <div class="block"><b>Functional Requirements</b><div class="box" data-field="func_reqs_out"></div></div>
-        <div class="block"><b>User Stories / Use Cases</b><div class="box" data-field="user_stories_out"></div></div>
-        <div class="block"><b>Business Rules</b><div class="box" data-field="biz_rules_out"></div></div>
-        <div class="block"><b>Acceptance Criteria</b><div class="box" data-field="acceptance_criteria_out"></div></div>
-        <div class="block"><b>Dependencies</b><div class="box" data-field="dependencies_out"></div></div>
-      </div>
+      <div class="h3">3.3 Functional Scope</div>
+      <div class="para" data-field="func_reqs_out"></div>
+      <div class="para" data-field="user_stories_out"></div>
+      <div class="para" data-field="biz_rules_out"></div>
+      <div class="para" data-field="acceptance_criteria_out"></div>
+      <div class="para" data-field="dependencies_out"></div>
 
-      <div class="block"><div class="h3">3.4 Technical Scope</div>
-        <div class="block"><b>Systems Involved</b><div class="box" data-field="systems_involved_out"></div></div>
-        <div class="block"><b>Architecture & Platforms</b><div class="box" data-field="architecture_out"></div></div>
-        <div class="block"><b>Interfaces & APIs</b><div class="box" data-field="interfaces_out"></div></div>
-        <div class="block"><b>Data Requirements</b><div class="box" data-field="data_requirements_out"></div></div>
-        <div class="block"><b>Constraints</b><div class="box" data-field="tech_constraints_out"></div></div>
-      </div>
+      <div class="h3">3.4 Technical Scope</div>
+      <div class="para" data-field="systems_involved_out"></div>
+      <div class="para" data-field="architecture_out"></div>
+      <div class="para" data-field="interfaces_out"></div>
+      <div class="para" data-field="data_requirements_out"></div>
+      <div class="para" data-field="tech_constraints_out"></div>
 
-      <div class="block"><div class="h3">3.5 Organizational Scope</div>
-        <div class="block"><b>Impacted Units/Departments</b><div class="box" data-field="impacted_units_out"></div></div>
-        <div class="block"><b>Stakeholder Groups</b><div class="box" data-field="stakeholder_groups_out"></div></div>
-        <div class="block"><b>Locations</b><div class="box" data-field="locations_out"></div></div>
-        <div class="block"><b>Organizational Changes</b><div class="box" data-field="org_changes_out"></div></div>
-        <div class="block"><b>Training & Communication Needs</b><div class="box" data-field="training_comm_out"></div></div>
-      </div>
+      <div class="h3">3.5 Organizational Scope</div>
+      <div class="para" data-field="impacted_units_out"></div>
+      <div class="para" data-field="stakeholder_groups_out"></div>
+      <div class="para" data-field="locations_out"></div>
+      <div class="para" data-field="org_changes_out"></div>
+      <div class="para" data-field="training_comm_out"></div>
 
       <div class="h2 pagebreak">4. Scope Creep Management</div>
-      <div class="block"><b>Change Request Process</b><div class="box" data-field="change_process_out"></div></div>
-      <div class="block"><b>Impact Assessment</b><div class="box" data-field="impact_assessment_out"></div></div>
-      <div class="block"><b>Decision Authority</b><div class="box" data-field="decision_authority_out"></div></div>
-      <div class="block"><b>Positive Scope Change Handling</b><div class="box" data-field="positive_scope_out"></div></div>
-      <div class="block"><b>Trade-Offs</b><div class="box" data-field="tradeoffs_out"></div></div>
+      <div class="para" data-field="change_process_out"></div>
+      <div class="para" data-field="impact_assessment_out"></div>
+      <div class="para" data-field="decision_authority_out"></div>
+      <div class="para" data-field="positive_scope_out"></div>
+      <div class="para" data-field="tradeoffs_out"></div>
 
       <div class="h2">5. Roles & Responsibilities</div>
-      <div class="block"><b>Project Manager (PM)</b><div class="box" data-field="pm_resp_out"></div></div>
-      <div class="block"><b>Business Analyst (BA)</b><div class="box" data-field="ba_resp_out"></div></div>
-      <div class="block"><b>Technical Lead</b><div class="box" data-field="techlead_resp_out"></div></div>
-      <div class="block"><b>Stakeholders</b><div class="box" data-field="stakeholders_resp_out"></div></div>
-      <div class="block"><b>Governance Body (if any)</b><div class="box" data-field="gov_body_resp_out"></div></div>
+      <div class="para" data-field="pm_resp_out"></div>
+      <div class="para" data-field="ba_resp_out"></div>
+      <div class="para" data-field="techlead_resp_out"></div>
+      <div class="para" data-field="stakeholders_resp_out"></div>
+      <div class="para" data-field="gov_body_resp_out"></div>
 
       <div class="h2 pagebreak">6. Scoping Checklist</div>
       <div id="checklistPreview"></div>
 
       <div class="h2">7. Approval & Sign-off</div>
-      <div class="siggrid">
-        <div class="sigbox"><div class="siglbl">Project Manager</div>
-          <div><b>Name:</b> <span data-field="sig_pm_name_out"></span></div>
-          <div><b>Date:</b> <span data-field="sig_pm_date_out"></span></div>
-        </div>
-        <div class="sigbox"><div class="siglbl">Business Analyst</div>
-          <div><b>Name:</b> <span data-field="sig_ba_name_out"></span></div>
-          <div><b>Date:</b> <span data-field="sig_ba_date_out"></span></div>
-        </div>
-        <div class="sigbox"><div class="siglbl">Technical Lead</div>
-          <div><b>Name:</b> <span data-field="sig_tl_name_out"></span></div>
-          <div><b>Date:</b> <span data-field="sig_tl_date_out"></span></div>
-        </div>
-        <div class="sigbox"><div class="siglbl">Business Sponsor</div>
-          <div><b>Name:</b> <span data-field="sig_bs_name_out"></span></div>
-          <div><b>Date:</b> <span data-field="sig_bs_date_out"></span></div>
-        </div>
-      </div>
-
-      <div class="footer-note">Bu doküman tarayıcıda oluşturulmuştur. Proje havuzunuza kaydedin.</div>
+      <div class="pair"><b>Project Manager — Name:</b> <span data-field="sig_pm_name_out"></span></div>
+      <div class="pair"><b>Project Manager — Date:</b> <span data-field="sig_pm_date_out"></span></div>
+      <div class="pair"><b>Business Analyst — Name:</b> <span data-field="sig_ba_name_out"></span></div>
+      <div class="pair"><b>Business Analyst — Date:</b> <span data-field="sig_ba_date_out"></span></div>
+      <div class="pair"><b>Technical Lead — Name:</b> <span data-field="sig_tl_name_out"></span></div>
+      <div class="pair"><b>Technical Lead — Date:</b> <span data-field="sig_tl_date_out"></span></div>
+      <div class="pair"><b>Business Sponsor — Name:</b> <span data-field="sig_bs_name_out"></span></div>
+      <div class="pair"><b>Business Sponsor — Date:</b> <span data-field="sig_bs_date_out"></span></div>
     </div>
   </section>
 </main>
 
-<!-- Kütüphaneler -->
+<!-- libs -->
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-<!-- docx UMD (tarayıcı için) -->
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 
 <script>
-/* ---------- Checklist grupları ---------- */
+/* Checklist groups (same items) */
 const CHECK_GROUPS = [
   { title: "Context and Needs", items: [
     "What is the problem/opportunity we are trying to solve?",
@@ -385,18 +354,15 @@ const CHECK_GROUPS = [
   ]},
 ];
 
-/* ---------- Checklist UI (sol) + önizleme (sağ) ---------- */
 const checklistForm = document.getElementById('checklistForm');
 const checklistPreview = document.getElementById('checklistPreview');
 
 function buildChecklist(){
-  // Sol form
+  // form side
   CHECK_GROUPS.forEach((grp, gi)=>{
     const sec = document.createElement('div');
     sec.className = 'section';
-    const title = document.createElement('h4');
-    title.textContent = grp.title;
-    sec.appendChild(title);
+    const title = document.createElement('h4'); title.textContent = grp.title; sec.appendChild(title);
     grp.items.forEach((txt, ii)=>{
       const id = `cl_${gi}_${ii}`;
       const div = document.createElement('div');
@@ -407,28 +373,20 @@ function buildChecklist(){
     checklistForm.appendChild(sec);
   });
 
-  // Sağ preview
+  // preview side
   CHECK_GROUPS.forEach((grp, gi)=>{
-    const block = document.createElement('div');
-    block.className = 'block';
-    const h = document.createElement('div');
-    h.className = 'h3';
-    h.textContent = grp.title;
-    block.appendChild(h);
-
+    const h = document.createElement('div'); h.className = 'h3'; h.textContent = grp.title; checklistPreview.appendChild(h);
     grp.items.forEach((txt, ii)=>{
       const id = `cl_${gi}_${ii}`;
-      const row = document.createElement('div');
-      row.className = 'checkboxline';
-      row.innerHTML = `<span class="cb" data-cb="${id}"></span> <div>${txt}</div>`;
-      block.appendChild(row);
+      const row = document.createElement('div'); row.className = 'checkrow';
+      row.innerHTML = `<span class="checkmark" data-cb="${id}"></span><div>${txt}</div>`;
+      checklistPreview.appendChild(row);
     });
-    checklistPreview.appendChild(block);
   });
 }
 buildChecklist();
 
-/* ---------- Form → Preview bağlama ---------- */
+/* Bind inputs -> preview text spans */
 const bindMap = [
   ["project_name","project_name_out"],["sponsor","sponsor_out"],["prepared_by","prepared_by_out"],["date","date_out"],
   ["goal_objectives","goal_objectives_out"],["boundaries_in","boundaries_in_out"],["boundaries_out","boundaries_out_out"],
@@ -471,216 +429,144 @@ function syncAll(){
   });
   document.querySelectorAll('[data-cb]').forEach(cb=>{
     const key = cb.getAttribute('data-cb');
-    cb.textContent = document.querySelector(`[data-cl-key="${key}"]`)?.checked ? "✓" : "";
+    cb.textContent = document.querySelector(`[data-cl-key="${key}"]`)?.checked ? "✓" : "□";
   });
 }
 syncAll();
 document.addEventListener('input', e=>{ if(e.target.matches('input, textarea')) syncAll(); });
 document.addEventListener('change', e=>{ if(e.target.matches('input[type="checkbox"]')) syncAll(); });
 
-/* ---------- PDF oluştur ---------- */
+/* PDF (text-only) */
 document.getElementById('btnPdf').addEventListener('click', ()=>{
   syncAll();
   const el = document.getElementById('paper');
-  const opt = {
+  html2pdf().set({
     margin: [10, 10],
     filename: 'Comprehensive_Scope_Document.pdf',
     image: { type:'jpeg', quality:0.98 },
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit:'mm', format:'a4', orientation:'portrait' },
     pagebreak: { mode:['css','legacy'] }
-  };
-  html2pdf().set(opt).from(el).save();
+  }).from(el).save();
 });
 
-/* ---------- DOCX (Word) oluştur ---------- */
-function v(name){
+/* WORD (headings + paragraphs only) */
+function val(name){
   const el = document.querySelector(`[name="${name}"]`);
   return (el && el.type==='date' && el.value)
     ? new Date(el.value+"T00:00:00").toLocaleDateString()
     : (el?.value || '');
 }
-
-function checkRows(){
-  const rows = [];
+function checklistRows(){
+  const out = [];
   CHECK_GROUPS.forEach((grp, gi)=>{
+    out.push({ type:'h3', text: grp.title });
     grp.items.forEach((txt, ii)=>{
       const key = `cl_${gi}_${ii}`;
       const checked = document.querySelector(`[data-cl-key="${key}"]`)?.checked;
-      rows.push({ text: txt, checked: !!checked });
+      out.push({ type:'check', text: txt, checked });
     });
   });
-  return rows;
+  return out;
 }
 
 document.getElementById('btnWord').addEventListener('click', async ()=>{
   syncAll();
-  const {
-    Document, Packer, Paragraph, TextRun, HeadingLevel,
-    Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType
-  } = docx;
+  const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
 
-  const title = new Paragraph({
-    text: "Comprehensive Scope Document",
-    heading: HeadingLevel.TITLE,
-    spacing: { after: 200 }
+  const p = (text="") => new Paragraph({ children:[ new TextRun(text) ], spacing:{ after: 120 } });
+  const strongLine = (label, text="") => new Paragraph({
+    children:[ new TextRun({text: label + ": ", bold:true}), new TextRun(text) ],
+    spacing:{ after: 120 }
   });
-  const generated = new Paragraph({
-    children: [
-      new TextRun({ text: "Generated: ", bold: true }),
-      new TextRun(new Date().toLocaleString())
-    ],
-    spacing: { after: 300 }
-  });
-
-  function H2(t){ return new Paragraph({ text:t, heading:HeadingLevel.HEADING_2, spacing:{ before:240, after:120 } }); }
-  function H3(t){ return new Paragraph({ text:t, heading:HeadingLevel.HEADING_3, spacing:{ before:160, after:80 } }); }
-  function P(t){ return new Paragraph({ children:[ new TextRun(t||"") ] }); }
-  function Box(t){
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      borders: {
-        top: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        bottom: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        left: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        right: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" }
-      },
-      rows: [ new TableRow({
-        children: [ new TableCell({
-          children: [ P(t||"") ],
-          margins: { top: 200, bottom: 200, left: 200, right: 200 }
-        }) ]
-      }) ]
-    });
-  }
-  function KV(label, value){
-    return new TableRow({
-      children: [
-        new TableCell({ children:[ P(label) ], margins:{ top:120, bottom:120, left:200, right:200 } }),
-        new TableCell({ children:[ P(value||"") ], margins:{ top:120, bottom:120, left:200, right:200 } })
-      ]
-    });
-  }
-
-  const infoTable = new Table({
-    width: { size: 100, type: WidthType.PERCENTAGE },
-    rows: [
-      KV("Project Name", v("project_name")),
-      KV("Sponsor", v("sponsor")),
-      KV("Prepared By", v("prepared_by")),
-      KV("Date", v("date")),
-    ]
-  });
+  const H2 = t => new Paragraph({ text:t, heading:HeadingLevel.HEADING_2, spacing:{ before:240, after:120 } });
+  const H3 = t => new Paragraph({ text:t, heading:HeadingLevel.HEADING_3, spacing:{ before:160, after:90 } });
 
   const doc = new Document({
     sections: [{
       properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, // ~2cm
       children: [
-        title, generated,
-        H2("1. Project Information"), infoTable,
+        new Paragraph({ text: "Comprehensive Scope Document", heading: HeadingLevel.TITLE, spacing:{ after: 200 } }),
+        strongLine("Generated", new Date().toLocaleString()),
+
+        H2("1. Project Information"),
+        strongLine("Project Name", val("project_name")),
+        strongLine("Sponsor", val("sponsor")),
+        strongLine("Prepared By", val("prepared_by")),
+        strongLine("Date", val("date")),
 
         H2("2. Scope Statement"),
-        H3("Project Goal and Objectives"), Box(v("goal_objectives")),
-        H3("Project Boundaries (Within Scope)"), Box(v("boundaries_in")),
-        H3("Project Boundaries (Out of Scope)"), Box(v("boundaries_out")),
-        H3("Project Deliverables"), Box(v("deliverables")),
-        H3("Success Criteria"), Box(v("success_criteria")),
-        H3("Project Assumptions"), Box(v("assumptions")),
-        H3("Project Constraints"), Box(v("constraints")),
+        H3("Project Goal and Objectives"), p(val("goal_objectives")),
+        H3("Project Boundaries (Within Scope)"), p(val("boundaries_in")),
+        H3("Project Boundaries (Out of Scope)"), p(val("boundaries_out")),
+        H3("Project Deliverables"), p(val("deliverables")),
+        H3("Success Criteria"), p(val("success_criteria")),
+        H3("Project Assumptions"), p(val("assumptions")),
+        H3("Project Constraints"), p(val("constraints")),
 
         H2("3. Scope Dimensions"),
         H3("3.1 Project Scope"),
-        P("Project Objectives"), Box(v("proj_scope_objectives")),
-        P("Deliverables"), Box(v("proj_scope_deliverables")),
-        P("Tasks & Activities"), Box(v("proj_scope_tasks")),
-        P("Resources"), Box(v("proj_scope_resources")),
-        P("Milestones"), Box(v("proj_scope_milestones")),
-        P("Roles & Responsibilities"), Box(v("proj_scope_roles")),
-
+          p(val("proj_scope_objectives")),
+          p(val("proj_scope_deliverables")),
+          p(val("proj_scope_tasks")),
+          p(val("proj_scope_resources")),
+          p(val("proj_scope_milestones")),
+          p(val("proj_scope_roles")),
         H3("3.2 Product Scope"),
-        P("Product/Service Name"), Box(v("product_name")),
-        P("Product Objectives"), Box(v("product_objectives")),
-        P("Features & Functions"), Box(v("product_features")),
-        P("Success Criteria"), Box(v("product_success")),
-        P("Out of Scope"), Box(v("product_out")),
-
+          strongLine("Product/Service Name", val("product_name")),
+          p(val("product_objectives")),
+          p(val("product_features")),
+          p(val("product_success")),
+          p(val("product_out")),
         H3("3.3 Functional Scope"),
-        P("Functional Requirements"), Box(v("func_reqs")),
-        P("User Stories / Use Cases"), Box(v("user_stories")),
-        P("Business Rules"), Box(v("biz_rules")),
-        P("Acceptance Criteria"), Box(v("acceptance_criteria")),
-        P("Dependencies"), Box(v("dependencies")),
-
+          p(val("func_reqs")),
+          p(val("user_stories")),
+          p(val("biz_rules")),
+          p(val("acceptance_criteria")),
+          p(val("dependencies")),
         H3("3.4 Technical Scope"),
-        P("Systems Involved"), Box(v("systems_involved")),
-        P("Architecture & Platforms"), Box(v("architecture")),
-        P("Interfaces & APIs"), Box(v("interfaces")),
-        P("Data Requirements"), Box(v("data_requirements")),
-        P("Constraints"), Box(v("tech_constraints")),
-
+          p(val("systems_involved")),
+          p(val("architecture")),
+          p(val("interfaces")),
+          p(val("data_requirements")),
+          p(val("tech_constraints")),
         H3("3.5 Organizational Scope"),
-        P("Impacted Units/Departments"), Box(v("impacted_units")),
-        P("Stakeholder Groups"), Box(v("stakeholder_groups")),
-        P("Locations"), Box(v("locations")),
-        P("Organizational Changes"), Box(v("org_changes")),
-        P("Training & Communication Needs"), Box(v("training_comm")),
+          p(val("impacted_units")),
+          p(val("stakeholder_groups")),
+          p(val("locations")),
+          p(val("org_changes")),
+          p(val("training_comm")),
 
         H2("4. Scope Creep Management"),
-        P("Change Request Process"), Box(v("change_process")),
-        P("Impact Assessment"), Box(v("impact_assessment")),
-        P("Decision Authority"), Box(v("decision_authority")),
-        P("Positive Scope Change Handling"), Box(v("positive_scope")),
-        P("Trade-Offs"), Box(v("tradeoffs")),
+          p(val("change_process")),
+          p(val("impact_assessment")),
+          p(val("decision_authority")),
+          p(val("positive_scope")),
+          p(val("tradeoffs")),
 
         H2("5. Roles & Responsibilities"),
-        P("Project Manager (PM) — Responsibilities"), Box(v("pm_resp")),
-        P("Business Analyst (BA) — Responsibilities"), Box(v("ba_resp")),
-        P("Technical Lead — Responsibilities"), Box(v("techlead_resp")),
-        P("Stakeholders — Responsibilities"), Box(v("stakeholders_resp")),
-        P("Governance Body (if any) — Responsibilities"), Box(v("gov_body_resp")),
+          p(val("pm_resp")),
+          p(val("ba_resp")),
+          p(val("techlead_resp")),
+          p(val("stakeholders_resp")),
+          p(val("gov_body_resp")),
 
         H2("6. Scoping Checklist"),
-        ...checkRows().map(row => new Paragraph({
-          children: [
-            new TextRun({ text: row.checked ? "☑ " : "☐ " }),
-            new TextRun({ text: row.text })
-          ]
-        })),
+          ...checklistRows().flatMap(r => {
+            if(r.type === 'h3') return [ H3(r.text) ];
+            if(r.type === 'check') return [ p((r.checked ? "☑ " : "☐ ") + r.text) ];
+            return [];
+          }),
 
         H2("7. Approval & Sign-off"),
-        new Paragraph({
-          alignment: AlignmentType.LEFT,
-          spacing: { after: 100 }
-        }),
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: [
-            new TableRow({
-              children: [
-                new TableCell({ children:[ P("Project Manager — Name: " + v("sig_pm_name")) ] }),
-                new TableCell({ children:[ P("Business Analyst — Name: " + v("sig_ba_name")) ] }),
-              ]
-            }),
-            new TableRow({
-              children: [
-                new TableCell({ children:[ P("Project Manager — Date: " + v("sig_pm_date")) ] }),
-                new TableCell({ children:[ P("Business Analyst — Date: " + v("sig_ba_date")) ] }),
-              ]
-            }),
-            new TableRow({
-              children: [
-                new TableCell({ children:[ P("Technical Lead — Name: " + v("sig_tl_name")) ] }),
-                new TableCell({ children:[ P("Business Sponsor — Name: " + v("sig_bs_name")) ] }),
-              ]
-            }),
-            new TableRow({
-              children: [
-                new TableCell({ children:[ P("Technical Lead — Date: " + v("sig_tl_date")) ] }),
-                new TableCell({ children:[ P("Business Sponsor — Date: " + v("sig_bs_date")) ] }),
-              ]
-            }),
-          ]
-        })
+          strongLine("Project Manager — Name", val("sig_pm_name")),
+          strongLine("Project Manager — Date", val("sig_pm_date")),
+          strongLine("Business Analyst — Name", val("sig_ba_name")),
+          strongLine("Business Analyst — Date", val("sig_ba_date")),
+          strongLine("Technical Lead — Name", val("sig_tl_name")),
+          strongLine("Technical Lead — Date", val("sig_tl_date")),
+          strongLine("Business Sponsor — Name", val("sig_bs_name")),
+          strongLine("Business Sponsor — Date", val("sig_bs_date")),
       ]
     }]
   });
@@ -689,9 +575,9 @@ document.getElementById('btnWord').addEventListener('click', async ()=>{
   saveAs(blob, "Comprehensive_Scope_Document.docx");
 });
 
-/* ---------- Temizle ---------- */
+/* Clear */
 document.getElementById('btnClear').addEventListener('click', ()=>{
-  if(!confirm('Tüm alanlar silinsin mi?')) return;
+  if(!confirm('Clear all fields?')) return;
   document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(el=>el.value="");
   document.querySelectorAll('#checklistForm input[type="checkbox"]').forEach(ch=>ch.checked=false);
   syncAll();
