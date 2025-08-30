@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RainTimer — When will it rain?</title>
+<meta name="description" content="Single‑page web app that estimates minutes until rain at your exact location. Uses RainViewer radar nowcast + Open‑Meteo forecast. Radar map, animated frames, minute updates. GitHub Pages‑ready." />
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#11183a; --panel2:#0f1534; --border:#233158; --text:#eaf0ff; --muted:#9db2db; --chip:#1a2555; --accent:#67d2ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:radial-gradient(1200px 700px at 70% -10%,#16205b 0,#0b1020 60%,#0b1020 100%);color:var(--text)}
+  header{position:sticky;top:0;z-index:20;background:#0c1334e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{margin:6px 0 0;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto;padding:14px;display:grid;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1fr}
+  @media(min-width:980px){ .two{grid-template-columns:1.1fr 1fr} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+  input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  button{cursor:pointer}
+  .btn{background:linear-gradient(180deg,#67d2ff,#2aa4ef);border:none;color:#00111e;font-weight:700}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  .right{margin-left:auto}
+  .small{font-size:12px;color:var(--muted)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  #map{height:56vh;border-radius:12px;border:1px solid var(--border);overflow:hidden}
+  .clock{width:240px;height:240px;border-radius:50%;background:conic-gradient(from -90deg, #1c2a63 0deg, #1c2a63 360deg); position:relative; box-shadow:inset 0 0 0 2px #22336b, 0 10px 40px #0004}
+  .clock .dial{position:absolute; inset:18px; border-radius:50%; background:radial-gradient(120px 80px at 65% 30%,#24336e,#0f1638); box-shadow:inset 0 0 0 1px #22336b}
+  .clock .tick{position:absolute;left:50%;top:50%;width:2px;height:10px;background:#415596;transform-origin:0 0}
+  .clock .hand{position:absolute;left:50%;top:50%;width:2px;height:46%;background:#fff;border-radius:2px;transform-origin:bottom center}
+  .clock .label{position:absolute; bottom:10px; left:0; right:0; text-align:center; font-weight:700}
+  .legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.b{background:#67d2ff}.dot.g{background:#18c964}.dot.y{background:#ffd166}.dot.r{background:#ff6b6b}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+  .status.ok{color:var(--ok)} .status.warn{color:var(--warn)} .status.bad{color:var(--bad)}
+</style>
+</head>
+<body>
+<header>
+  <h1>RainTimer — When will it rain?</h1>
+  <p class="tag">Stop wondering, start knowing. Minute‑by‑minute radar nowcast + local forecast. “Rain in 1h 30m” style timing, up to ~3h out. Updates every minute.</p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="grid" style="grid-template-columns:1fr;gap:10px">
+      <div class="row">
+        <div style="min-width:200px;max-width:320px;flex:1 1 auto">
+          <label>Location</label>
+          <div class="row" style="gap:6px">
+            <input id="place" placeholder="Istanbul, TR" />
+            <button id="useLoc" class="ghost">📍 Use my location</button>
+          </div>
+          <div id="suggest" class="small" style="margin-top:4px"></div>
+        </div>
+        <div style="min-width:180px;max-width:260px">
+          <label>Detection zoom (radar)</label>
+          <select id="zoom">
+            <option value="8">City (z=8)</option>
+            <option value="9" selected>Metro (z=9)</option>
+            <option value="10">Neighborhood (z=10)</option>
+          </select>
+        </div>
+        <div style="min-width:180px">
+          <label>Intensity threshold</label>
+          <select id="thresh">
+            <option value="5">Drizzle (5/255)</option>
+            <option value="15" selected>Light rain (15/255)</option>
+            <option value="35">Moderate (35/255)</option>
+            <option value="60">Heavy (60/255)</option>
+          </select>
+        </div>
+        <div style="min-width:160px">
+          <label>&nbsp;</label>
+          <button id="refresh" class="btn">↻ Update</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="chip">Lat/Lon: <b id="latlon">—</b></span>
+        <span class="chip">Updated: <b id="updated">—</b></span>
+        <span class="chip">Status: <b id="status">Idle</b></span>
+        <span class="right small">Sources: RainViewer radar • Open‑Meteo forecast</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <div class="row" style="gap:12px;align-items:center">
+        <div class="clock" id="clock">
+          <div class="dial"></div>
+          <div class="hand" id="hand" style="transform:rotate(-90deg)"></div>
+          <div class="label mono" id="etaLabel">—</div>
+        </div>
+        <div style="flex:1 1 320px">
+          <div class="row" style="gap:10px;align-items:center">
+            <b>Rain Clock</b>
+            <span class="small">Counts down until precipitation at your exact spot. When the color band reaches 12 o’clock → rain.</span>
+          </div>
+          <div class="legend" style="margin-top:6px">
+            <span class="dot g"></span><span class="small">Dry next 3h</span>
+            <span class="dot y"></span><span class="small">Rain within 2h</span>
+            <span class="dot r"></span><span class="small">Rain within 1h</span>
+          </div>
+          <div class="card" style="background:var(--panel2);margin-top:10px">
+            <div class="row"><b>Next 12 hours (forecast)</b><span class="right small">Chance & intensity</span></div>
+            <div id="bars" class="row" style="gap:6px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div id="map"></div>
+      <div class="row" style="margin-top:8px">
+        <button id="play" class="ghost">▶ Play radar</button>
+        <button id="prev" class="ghost">⟨ Prev</button>
+        <button id="next" class="ghost">Next ⟩</button>
+        <span class="chip">Frame: <b id="frameTime">—</b></span>
+        <span class="chip">Mode: <b id="frameMode">—</b></span>
+        <span class="right small">Powered by RainViewer tiles</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0">Diagnostics</h3>
+    <div class="row">
+      <button id="diagBtn" class="ghost">🩺 Run diagnostics</button>
+    </div>
+    <div style="overflow:auto;max-height:220px;margin-top:8px">
+      <table id="diagTable"><thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Help & Notes</summary>
+      <div class="grid two">
+        <div>
+          <h3>How it works</h3>
+          <ul class="small">
+            <li><b>Rain Clock:</b> samples radar tiles (10‑min frames) at your exact lat/lon across the next ~2–3 hours to estimate ETA. If radar sampling is blocked by CORS, it falls back to a local precipitation forecast.</li>
+            <li><b>Radar:</b> global composite tiles (RainViewer). Use ▶ to animate, or step frames.</li>
+            <li><b>Forecast bars:</b> Open‑Meteo 12‑hour precipitation probability & intensity near your point.</li>
+          </ul>
+          <p class="small">Times are estimates and can change as weather evolves. Very light drizzle or rapidly forming cells may be missed by radar.</p>
+        </div>
+        <div>
+          <h3>Tips</h3>
+          <ul class="small">
+            <li>Use a tighter <b>Detection zoom</b> (z=10) for city‑block precision; z=9 is a good balance.</li>
+            <li>Adjust the <b>Intensity threshold</b> to ignore sprinkles or include drizzle.</li>
+            <li>The app auto‑refreshes every minute. Click ↻ to refresh on demand.</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  // ---------- Helpers ----------
+  const $$ = s=>document.querySelector(s);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const toRad = x=>x*Math.PI/180; const toDeg = x=>x*180/Math.PI;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const pad = n=>String(n).padStart(2,'0');
+  const fmtHM = d=> d? new Date(d).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}):'—';
+  const now = ()=> Date.now();
+  function setStatus(s){ $$('#status').textContent = s; $$('#updated').textContent = new Date().toLocaleTimeString(); }
+
+  // WebMercator tile math (Slippy Map)
+  function lonLatToTile(lon, lat, z){
+    const n = 2**z; const x = (lon + 180) / 360 * n; const y = (1 - Math.log(Math.tan(toRad(lat)) + 1/Math.cos(toRad(lat))) / Math.PI) / 2 * n; return {xt:Math.floor(x), yt:Math.floor(y), xf:(x%1), yf:(y%1)};
+  }
+
+  // ---------- State ----------
+  const state = { lat:41.0082, lon:28.9784, radar:{frames:[], idx:0, layer:null}, map:null, radarLayer:null, playTimer:null };
+  $$('#latlon').textContent = `${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`;
+
+  // ---------- Geocoding (Open‑Meteo) ----------
+  let suggestTimer=null; const place=$$('#place'); place.value='Istanbul, TR';
+  place.addEventListener('input', ()=>{ clearTimeout(suggestTimer); suggestTimer=setTimeout(lookupPlace, 350); });
+  async function lookupPlace(){
+    const q=place.value.trim(); if(!q){ $$('#suggest').textContent=''; return; }
+    try{
+      const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`);
+      const j=await r.json(); const hits=(j.results||[]).map(it=>({name:`${it.name}, ${it.country_code}${it.admin1? ' • '+it.admin1:''}`, lat:it.latitude, lon:it.longitude}));
+      const span=document.createElement('span'); span.className='small'; span.textContent = hits.length? '' : 'No matches'; span.innerHTML='';
+      hits.forEach(h=>{ const b=$t('button',{className:'ghost',textContent:h.name,style:'margin:4px 6px 0 0'}); b.addEventListener('click',()=>{ state.lat=h.lat; state.lon=h.lon; $$('#latlon').textContent=`${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; $$('#suggest').textContent=''; refreshAll(); }); span.appendChild(b); });
+      $$('#suggest').innerHTML=''; $$('#suggest').appendChild(span);
+    }catch(e){ $$('#suggest').textContent='Lookup failed'; }
+  }
+  $$('#useLoc').addEventListener('click', ()=>{
+    if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(pos=>{ state.lat=pos.coords.latitude; state.lon=pos.coords.longitude; $$('#latlon').textContent=`${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; refreshAll(); }, err=> alert('Could not get location: '+err.message), {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  });
+
+  // ---------- Leaflet map + radar overlay ----------
+  try{
+    state.map = L.map('map').setView([state.lat, state.lon], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenStreetMap contributors' }).addTo(state.map);
+  }catch(e){ document.getElementById('map').innerHTML='<div class="small">Map library failed to load. List view only.</div>'; }
+
+  async function loadRadarMeta(){
+    const j = await fetch('https://tilecache.rainviewer.com/v2/radar/nowcast.json').then(r=>r.json());
+    const frames = (j && (j.nowcast || j.radar || [])).filter(Boolean);
+    state.radar.frames = frames; state.radar.idx = Math.max(0, frames.findIndex(f=> f.path? f.path.includes('/nowcast/'): true));
+    if(!frames.length) throw new Error('No radar frames');
+  }
+
+  function frameUrl(frame, z, x, y){
+    const t = frame.time || frame; // some responses use number only
+    return `https://tilecache.rainviewer.com/v2/radar/${t}/256/${z}/${x}/${y}/2/1_1.png`;
+  }
+
+  function setRadarFrame(idx){
+    if(!state.map || !state.radar.frames.length) return;
+    idx = (idx + state.radar.frames.length) % state.radar.frames.length; state.radar.idx = idx;
+    const f = state.radar.frames[idx]; const t = (f.time || f)*1000; const isNowcast = (idx >= state.radar.frames.findIndex(ff=> ff===f));
+    if(state.radarLayer){ state.map.removeLayer(state.radarLayer); state.radarLayer=null; }
+    state.radarLayer = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${f.time}/256/{z}/{x}/{y}/2/1_1.png`, {opacity:0.7, attribution:'RainViewer radar'}).addTo(state.map);
+    $$('#frameTime').textContent = new Date(t).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    $$('#frameMode').textContent = (t > Date.now()? 'Forecast' : 'Past');
+  }
+
+  $$('#prev').addEventListener('click', ()=> setRadarFrame(state.radar.idx-1));
+  $$('#next').addEventListener('click', ()=> setRadarFrame(state.radar.idx+1));
+  $$('#play').addEventListener('click', ()=>{
+    if(state.playTimer){ clearInterval(state.playTimer); state.playTimer=null; $$('#play').textContent='▶ Play radar'; return; }
+    $$('#play').textContent='⏸ Pause'; state.playTimer = setInterval(()=> setRadarFrame(state.radar.idx+1), 600);
+  });
+
+  // ---------- Rain ETA via radar pixel sampling ----------
+  async function radarETA(){
+    const z = Number($$('#zoom').value||9); const {xt, yt, xf, yf} = lonLatToTile(state.lon, state.lat, z);
+    const px = Math.floor(256*xf), py = Math.floor(256*yf);
+    const frames = state.radar.frames;
+    if(!frames || !frames.length) return null;
+    const threshold = Number($$('#thresh').value||15);
+
+    for(const f of frames){
+      const url = frameUrl(f, z, xt, yt);
+      try{
+        const img = await loadImage(url);
+        const val = await samplePixel(img, px, py);
+        if(val.a>0 && (val.r+val.g+val.b)/3 >= threshold){
+          const t = (f.time || f) * 1000;
+          return { when:t, minutes: Math.max(0, Math.round((t - now())/60000)) };
+        }
+      }catch(e){ /* CORS or load error; continue */ }
+    }
+    return null; // no precip detected in frames
+  }
+
+  function loadImage(url){
+    return new Promise((resolve,reject)=>{ const img=new Image(); img.crossOrigin='anonymous'; img.onload=()=>resolve(img); img.onerror=reject; img.src=url; });
+  }
+  function samplePixel(img, x, y){
+    return new Promise((resolve,reject)=>{
+      try{
+        const c = document.createElement('canvas'); c.width=img.width; c.height=img.height; const g=c.getContext('2d'); g.drawImage(img,0,0); const d=g.getImageData(x,y,1,1).data; resolve({r:d[0],g:d[1],b:d[2],a:d[3]});
+      }catch(e){ reject(e); }
+    });
+  }
+
+  // ---------- Forecast bars (Open‑Meteo) ----------
+  async function renderForecastBars(){
+    const lat=state.lat, lon=state.lon; const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=precipitation_probability,precipitation,weathercode&forecast_hours=12&timezone=auto`;
+    try{
+      const j = await fetch(url).then(r=>r.json());
+      const H = j.hourly || {}; const times = H.time || []; const prob = H.precipitation_probability || []; const inten = H.precipitation || [];
+      const bars = $$('#bars'); bars.innerHTML='';
+      for(let i=0;i<Math.min(12,times.length);i++){
+        const p = prob[i] ?? 0; const mm = inten[i] ?? 0; const t = new Date(times[i]);
+        const el = $t('div',{className:'chip mono', title:`${t.toLocaleString([], {hour:'2-digit',minute:'2-digit'})} — ${p}% • ${mm} mm`});
+        el.textContent = `${t.toLocaleTimeString([], {hour:'2-digit'})} ${String(p).padStart(2,' ')}% ${mm.toFixed(1)}mm`;
+        el.style.borderColor = p>=70? 'var(--bad)' : (p>=40? 'var(--warn)' : 'var(--ok)');
+        el.style.color = p>=70? 'var(--bad)' : (p>=40? 'var(--warn)' : 'var(--ok)');
+        bars.appendChild(el);
+      }
+    }catch(e){ const bars=$$('#bars'); bars.innerHTML=''; bars.appendChild($t('span',{className:'small',textContent:'Forecast unavailable'})); }
+  }
+
+  // ---------- Rain Clock drawing ----------
+  function drawTicks(){
+    const clock=$$('#clock'); for(let i=0;i<36;i++){ const d=$t('div',{className:'tick'}); const a=i*(360/36)-90; const r=108; d.style.transform=`rotate(${a}deg) translate(${r}px,-5px)`; clock.appendChild(d); }
+  }
+  function setClockETA(minutes){
+    const hand=$$('#hand'); const label=$$('#etaLabel');
+    const max=180; const m = Math.max(0, Math.min(max, minutes));
+    const deg = -90 + (m/max)*360; hand.style.transform = `rotate(${deg}deg)`;
+    label.textContent = (minutes==null)? '—' : (minutes<=0? 'Raining now' : `${minutes} min`);
+    const clock=$$('#clock');
+    let col = 'conic-gradient(from -90deg, #1c2a63 0deg, #1c2a63 360deg)';
+    if(minutes==null){ col = 'conic-gradient(from -90deg, #1c2a63 0deg, #1c2a63 360deg)'; }
+    else if(minutes<=60){ col = 'conic-gradient(from -90deg, #ff6b6b 0deg, #ff6b6b 360deg)'; }
+    else if(minutes<=120){ col = 'conic-gradient(from -90deg, #ffd166 0deg, #ffd166 360deg)'; }
+    else { col = 'conic-gradient(from -90deg, #18c964 0deg, #18c964 360deg)'; }
+    clock.style.background = col;
+  }
+
+  // ---------- Diagnostics ----------
+  $$('#diagBtn').addEventListener('click', runDiagnostics);
+  async function runDiagnostics(){
+    const tbody=$$('#diagTable tbody'); tbody.innerHTML='';
+    const row=(n,ok,det)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:n})); const s=$t('td'); s.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(s); tr.appendChild($t('td',{textContent:String(det||'')})); tbody.appendChild(tr); };
+    row('HTTPS', (location.protocol==='https:'||location.hostname==='localhost'), location.protocol);
+    row('Leaflet', !!window.L, window.L? 'Loaded' : 'CDN blocked?');
+    try{ const r = await fetch('https://tilecache.rainviewer.com/v2/radar/nowcast.json'); row('Radar meta', r.ok, 'HTTP '+r.status); }catch(e){ row('Radar meta', false, e.message); }
+    try{ const u=`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&hourly=precipitation_probability&forecast_hours=1`; const r = await fetch(u); row('Open‑Meteo', r.ok, 'HTTP '+r.status); }catch(e){ row('Open‑Meteo', false, e.message); }
+  }
+
+  // ---------- Orchestration ----------
+  async function refreshAll(){
+    try{
+      setStatus('Working…');
+      drawTicks();
+      // Map center
+      if(state.map){ try{ state.map.setView([state.lat, state.lon], 9); L.circleMarker([state.lat,state.lon],{radius:5,color:'#fff', weight:1, fillColor:'#67d2ff', fillOpacity:0.95}).addTo(state.map); }catch{} }
+      // Radar meta & overlay
+      await loadRadarMeta(); setRadarFrame(state.radar.idx);
+      // ETA
+      let eta = await radarETA();
+      if(!eta){ // fallback to forecast
+        await renderForecastBars();
+        const fb = await fallbackETAFromForecast();
+        eta = fb; // may still be null
+      } else {
+        renderForecastBars();
+      }
+      if(eta && typeof eta.minutes==='number'){ setClockETA(eta.minutes); } else { setClockETA(null); }
+      setStatus('OK');
+    }catch(e){ console.error(e); setStatus('Fetch failed'); }
+  }
+
+  async function fallbackETAFromForecast(){
+    try{
+      const lat=state.lat, lon=state.lon; const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&minutely_15=precipitation&hourly=precipitation,precipitation_probability&forecast_hours=6&timezone=auto`;
+      const j = await fetch(url).then(r=>r.json());
+      // Prefer minutely_15 if available
+      const M = j.minutely_15 || {}; if(M.time && M.precipitation){
+        for(let i=0;i<M.time.length;i++){ const mm = M.precipitation[i] || 0; if(mm>0.05){ const t=new Date(M.time[i]); return {when:t.getTime(), minutes: Math.max(0, Math.round((t - now())/60000))}; } }
+      }
+      // Fallback hourly
+      const H = j.hourly || {}; if(H.time && H.precipitation){
+        for(let i=0;i<Math.min(6,H.time.length);i++){ const mm = H.precipitation[i] || 0; if(mm>0.05){ const t=new Date(H.time[i]); return {when:t.getTime(), minutes: Math.max(0, Math.round((t - now())/60000))}; } }
+      }
+    }catch(e){ /* ignore */ }
+    return null;
+  }
+
+  // Auto‑refresh every minute
+  setInterval(()=>{ refreshAll(); }, 60*1000);
+  $$('#refresh').addEventListener('click', refreshAll);
+
+  // Initial
+  refreshAll();
+})();
+</script>
+</body>
+</html>
