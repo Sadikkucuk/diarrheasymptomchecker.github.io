@@ -207,16 +207,57 @@ function addBlock(blockId, htmlOverride) {
   });
 
   // *** SADECE İÇERİK BURADA ***
-  const content = document.createElement('div');
-  content.className = 'content';
-  content.innerHTML = htmlOverride || def.html;
-  content.querySelectorAll('[data-edit]').forEach(n=> n.setAttribute('contenteditable','true'));
+const content = document.createElement('div');
+content.className = 'content';
+content.innerHTML = htmlOverride || def.html;
+
+// Tüm düzenlenebilirleri aktif et + link tıklamasını engelle
+content.querySelectorAll('[data-edit]').forEach(el=>{
+  el.setAttribute('contenteditable','true');
+  el.addEventListener('click', ev=>{
+    const a = ev.target.closest('a');
+    if (a) ev.preventDefault();          // # linki tepmesin, metni düzenleyebilelim
+    selectedEditable = ev.target.closest('[data-edit]');
+    document.querySelectorAll('.selected-edit').forEach(n=>n.classList.remove('selected-edit'));
+    selectedEditable?.classList.add('selected-edit');
+  });
+});
+
+// Bloktaki tüm img'ler değiştirilebilir olsun
+content.querySelectorAll('img').forEach(n=> n.setAttribute('data-img',''));
+
   // tüm img’ler değiştirilebilir olsun
   content.querySelectorAll('img').forEach(n=> n.setAttribute('data-img',''));
 
   wrapper.append(controls, content);
   canvas.appendChild(wrapper);
 }
+
+function applyColor(scope, color){
+  const set = el => color ? (el.style.color = color) : el.style.removeProperty('color');
+
+  if (scope === 'selection') {
+    if (!selectedEditable) return alert('Önce düzenlenecek metni seç.');
+    set(selectedEditable); return;
+  }
+  if (scope === 'block') {
+    if (!selectedEditable) return alert('Önce blok içinden bir metin seç.');
+    selectedEditable.closest('.placed').querySelectorAll('[data-edit]').forEach(set); return;
+  }
+  // page
+  canvas.querySelectorAll('[data-edit]').forEach(set);
+}
+
+// UI butonları
+document.getElementById('applyTextColor')?.addEventListener('click', ()=>{
+  const color = document.getElementById('textColor').value || '#000000';
+  const scope = document.getElementById('colorScope').value || 'selection';
+  applyColor(scope, color);
+});
+document.getElementById('resetTextColor')?.addEventListener('click', ()=>{
+  const scope = document.getElementById('colorScope').value || 'selection';
+  applyColor(scope, null);
+});
 
   
 function replaceImage(wrapper){
