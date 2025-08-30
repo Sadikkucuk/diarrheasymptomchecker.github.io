@@ -438,17 +438,26 @@ document.addEventListener('change', e=>{ if(e.target.matches('input[type="checkb
 
 /* PDF (text-only) */
 document.getElementById('btnPdf').addEventListener('click', ()=>{
+  // Önce önizlemeyi senkronla
   syncAll();
+
+  // Boş sayfa sebebi olan pagebreak sınıflarını export öncesi temizle
+  document.querySelectorAll('.pagebreak').forEach(n => n.classList.remove('pagebreak'));
+
   const el = document.getElementById('paper');
+
   html2pdf().set({
-    margin: [10, 10],
+    // tek değer (mm) verelim; üst-alt-sol-sağ aynı olsun
+    margin: 10,
     filename: 'Comprehensive_Scope_Document.pdf',
     image: { type:'jpeg', quality:0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
     jsPDF: { unit:'mm', format:'a4', orientation:'portrait' },
-    pagebreak: { mode:['css','legacy'] }
+    // 'legacy' modunu kaldır → baştaki boş sayfaları tetikliyordu
+    pagebreak: { mode: ['css'], avoid: ['.para','.pair','.h3','.checkrow'] }
   }).from(el).save();
 });
+
 
 /* WORD (headings + paragraphs only) */
 function val(name){
