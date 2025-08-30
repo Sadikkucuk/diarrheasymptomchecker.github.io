@@ -99,7 +99,8 @@
     // ======== CONFIG ========
     // Set this to your deployed Cloudflare Worker base URL (no trailing slash)
     // Example: https://builder-templates.yourname.workers.dev
-    const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev";
+    // 1) Set your Worker base here or pass ?worker=https://your.worker.workers.dev in the page URL
+const CF_WORKER_BASE = (new URLSearchParams(location.search).get('worker')) || "https://builder-templates.sadik-kucuk3739342.workers.dev";
 
     // ======== STATE ========
     const state = {
@@ -116,40 +117,59 @@
     const hint = document.getElementById('hint');
 
     // Utility: sanitize (very simple; for real apps consider DOMPurify)
-    const esc = (s)=>String(s).replace(/[&<>"]g, t=>({"&":"&amp;","<":"&lt;",
+    // HTML escape util (fixed regex)
+    const esc = (s)=>String(s).replace(/[&<>\"]/g, t=>({"&":"&amp;","<":"&lt;",
                                            ">":"&gt;","\"":"&quot;"}[t]));
 
     // ======== FETCH TEMPLATES & BLOCKS from Worker ========
+    // Fallback demo data to keep the UI usable if Worker is misconfigured
+    const FALLBACK = {
+      blocks: {
+        'header-basic': { id:'header-basic', name:'Header (Basic)', html:'<header style="padding:18px 0;border-bottom:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;padding:0 20px"><strong data-edit>My Brand</strong><nav><a data-edit href="#">Home</a></nav></div></header>' },
+        'hero-simple': { id:'hero-simple', name:'Hero (Simple)', html:'<section style="padding:60px 20px;background:#f7fbff"><div class="container" style="max-width:1100px;margin:0 auto;text-align:center"><h1 data-edit>It works without Worker</h1><p data-edit>Set CF_WORKER_BASE or use ?worker=… to load remote templates.</p></div></section>' },
+        'footer-simple': { id:'footer-simple', name:'Footer (Simple)', html:'<footer style="padding:24px 20px;border-top:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto"><span data-edit>© 2025 Your Name</span></div></footer>' }
+      },
+      templates: [{ id:'fallback', name:'Fallback template', blocks:['header-basic','hero-simple','footer-simple'] }]
+    };
+
     async function bootstrap() {
       try {
-        const res = await fetch(`${CF_WORKER_BASE}/templates`, { mode:'cors' });
-        if (!res.ok) throw new Error('Failed to load templates');
+        const url = `${CF_WORKER_BASE}/templates`;
+        console.log('[builder] Fetching templates from', url);
+        const res = await fetch(url, { mode:'cors' });
+        if (!res.ok) throw new Error(`Failed to load templates: ${res.status}`);
         const data = await res.json();
-        // blocks: {id:{id,name,html}}, templates:[{id,name,blocks:[]}, ...]
-        state.blocks = data.blocks || {};
-        state.templates = data.templates || [];
-
-        // Palette
-        palette.innerHTML = '';
-        Object.values(state.blocks).forEach(b => {
-          const el = document.createElement('div');
-          el.className = 'block-card';
-          el.draggable = true;
-          el.dataset.blockId = b.id;
-          el.innerHTML = `<strong>${esc(b.name)}</strong><div style="opacity:.75;font-size:.9em;margin-top:.25rem">${esc(b.id)}</div>`;
-          el.addEventListener('dragstart', (e)=>{
-            e.dataTransfer.setData('text/plain', b.id);
-          });
-          el.addEventListener('dblclick', ()=> addBlock(b.id));
-          palette.appendChild(el);
-        });
-
-        // Template selector
-        templateSelect.innerHTML = state.templates.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+        hydrateUI(data);
       } catch (e) {
-        templateSelect.innerHTML = `<option>Error loading templates</option>`;
-        console.error(e);
+        console.warn('[builder] Worker unreachable, using fallback. Reason:', e);
+        hydrateUI(FALLBACK);
+        // Surface a small notice in the UI
+        const note = document.createElement('div');
+        note.className = 'hint';
+        note.innerHTML = '⚠️ Templates service not reachable. Using local fallback. Set <code>CF_WORKER_BASE</code> or open with <code>?worker=YOUR_URL</code>.';
+        document.querySelector('.palette').prepend(note);
       }
+    }
+
+    function hydrateUI(data){
+      state.blocks = data.blocks || {};
+      state.templates = data.templates || [];
+
+      // Palette
+      palette.innerHTML = '';
+      Object.values(state.blocks).forEach(b => {
+        const el = document.createElement('div');
+        el.className = 'block-card';
+        el.draggable = true;
+        el.dataset.blockId = b.id;
+        el.innerHTML = `<strong>${esc(b.name)}</strong><div style="opacity:.75;font-size:.9em;margin-top:.25rem">${esc(b.id)}</div>`;
+        el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', b.id); });
+        el.addEventListener('dblclick', ()=> addBlock(b.id));
+        palette.appendChild(el);
+      });
+
+      // Template selector
+      templateSelect.innerHTML = state.templates.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
     }
 
     // ======== CANVAS DND ========
@@ -274,6 +294,16 @@ ${bodyHtml}
       if (!res.ok) throw new Error('Render failed');
       return await res.text();
     }
+
+    // Simple global error banner so you see issues without DevTools
+    window.addEventListener('error', (e)=>{
+      const note = document.createElement('div');
+      note.className = 'hint';
+      note.style.border = '1px solid #7a1c1c';
+      note.style.background = '#3e0e0e';
+      note.textContent = 'JavaScript error: ' + (e.message || 'Unknown');
+      document.querySelector('.palette').prepend(note);
+    });
 
     // Start
     bootstrap();
