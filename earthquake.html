@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QuakeWatch — Earthquake Alerts (Web)</title>
+<meta name="description" content="Single‑page web app showing recent earthquakes on a map and list. Uses USGS FDSN GeoJSON. Filters by magnitude, time, distance. Optional notifications." />
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="anonymous">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#12193a; --border:#233158; --text:#e9eefb; --muted:#9bb0d8; --chip:#1a2250; --accent:#4fd1ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+    --map-h: 54vh;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#0e1430 70%);color:var(--text)}
+  header{position:sticky;top:0;z-index:10;background:#0d1430e6;backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{color:var(--muted);margin:4px 0 0}
+  main{max-width:1200px;margin:0 auto;padding:16px;display:grid;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px}
+  .controls{display:grid;grid-template-columns:1fr;gap:10px}
+  @media (min-width:900px){ .controls{grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr; align-items:end} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px}
+  input,select,button{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  button{cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:linear-gradient(180deg,#4fd1ff,#2aa4ef);border:none;color:#00111e;font-weight:600}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  #map{height:var(--map-h);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1fr}
+  @media (min-width:900px){ .two{grid-template-columns:1fr 1fr} }
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+  thead th{position:sticky;top:0;background:#121a45;z-index:1}
+  tbody tr:hover{background:#0f183b}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .right{margin-left:auto}
+  .legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.g{background:#43d17a}.dot.y{background:#ffd166}.dot.o{background:#ff8c42}.dot.r{background:#ff5151}
+  .small{font-size:12px;color:var(--muted)}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>QuakeWatch — Earthquake Alerts (Web)</h1>
+  <p class="tag">Live global earthquakes from USGS • Map + list • Filters • Optional notifications </p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="controls">
+      <div>
+        <label>Time window</label>
+        <select id="timeWindow">
+          <option value="1">Past 1 hour</option>
+          <option value="24" selected>Past 24 hours</option>
+          <option value="168">Past 7 days</option>
+          <option value="720">Past 30 days</option>
+        </select>
+      </div>
+      <div>
+        <label>Min magnitude</label>
+        <select id="minMag">
+          <option value="0">All</option>
+          <option value="1">M1.0+</option>
+          <option value="2">M2.0+</option>
+          <option value="3">M3.0+</option>
+          <option value="4">M4.0+</option>
+          <option value="5">M5.0+</option>
+          <option value="6">M6.0+</option>
+        </select>
+      </div>
+      <div>
+        <label>Area</label>
+        <select id="area">
+          <option value="global" selected>Global</option>
+          <option value="near">Near me</option>
+          <option value="custom">Custom center</option>
+        </select>
+      </div>
+      <div>
+        <label>Radius (km) — when Near/Custom</label>
+        <select id="radius">
+          <option>100</option>
+          <option>300</option>
+          <option selected>500</option>
+          <option>1000</option>
+          <option>2000</option>
+          <option>3000</option>
+        </select>
+      </div>
+      <div>
+        <label>Custom center (lat,lon)</label>
+        <input id="customCenter" placeholder="41.0082, 28.9784" value="" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button id="refresh" class="btn">▶ Fetch</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <span class="chip">Loaded: <b id="count">0</b></span>
+      <span class="chip">Updated: <b id="updated">—</b></span>
+      <span class="chip">Auto‑refresh: <select id="auto" style="background:transparent;border:none;color:var(--text)"><option value="0">Off</option><option value="60">1 min</option><option value="120">2 min</option><option value="300">5 min</option></select></span>
+      <span class="chip">Notifications ≥ <select id="notifMag" style="background:transparent;border:none;color:var(--text)"><option value="4">4.0</option><option value="5" selected>5.0</option><option value="6">6.0</option></select> <button id="askNotif" class="ghost">Enable</button></span>
+      <span class="right small">Data: USGS FDSN GeoJSON</span>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <div id="map"></div>
+      <div class="legend" style="margin-top:10px">
+        <span class="small">Marker color by magnitude:</span>
+        <span class="dot g"></span><span class="small">&lt; 3</span>
+        <span class="dot y"></span><span class="small">3–4.9</span>
+        <span class="dot o"></span><span class="small">5–5.9</span>
+        <span class="dot r"></span><span class="small">≥ 6</span>
+      </div>
+    </div>
+    <div class="card" style="max-height:calc(var(--map-h) + 50px);overflow:auto">
+      <table id="list">
+        <thead>
+          <tr><th>Time</th><th>Mag</th><th>Place</th><th>Depth km</th><th>Dist km</th><th>Link</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row">
+      <button id="exportGeo" class="ghost">⬇ Export JSON</button>
+      <button id="exportCsv" class="ghost">⬇ Export CSV</button>
+      <button id="share" class="ghost">🔗 Share state</button>
+      <span class="right small">OpenStreetMap tiles via CDN · Please be kind to the servers</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Help & About</summary>
+      <div class="grid two">
+        <div>
+          <h3>What is this?</h3>
+          <p>A single‑page web app inspired by popular earthquake alert apps. It shows recent quakes from the USGS <span class="mono">fdsnws/event</span> API and lets you filter by time, magnitude, and distance.</p>
+          <ul class="small">
+            <li>Click a marker or row for details; use the <b>Fetch</b> button or set <b>Auto‑refresh</b>.</li>
+            <li>Enable <b>Notifications</b> to get alerts for new events ≥ your selected magnitude while the tab is open.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Limitations</h3>
+          <ul class="small">
+            <li>Notifications only work while this page is open/active .</li>
+            <li>All data is from USGS; other agencies (EMSC, JMA, etc.) may differ slightly.</li>
+            <li>Geocoding of place names is not included; you can use coordinates or "Near me".</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+  </section>
+
+
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-vZTG03KQ8U3bWfQ8b57i0W2LQYdkWXNoKGdzRbMZLecH0zYacR3nG8ZTXmdg2gYB4YB2gZQ2n5rGdR3r0Lr3rQ==" crossorigin="anonymous"></script>
+<script>
+(function(){
+  // ---------- Helpers ----------
+  const $$ = sel => document.querySelector(sel);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const fmtDate = ms => new Date(ms).toLocaleString();
+  const fmtNum = (n, d=1) => (n==null? '—' : Number(n).toFixed(d));
+  const toCsv = rows => rows.map(r => r.map(v => {
+    v = v==null? '' : String(v);
+    return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }).join(',')).join('\n');
+  const km = d => Math.round(d);
+  const haversineKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; const toRad = x => x*Math.PI/180;
+    const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  };
+  const qs = new URLSearchParams(location.search);
+
+  // ---------- Map ----------
+  const map = L.map('map', { zoomControl:true, worldCopyJump:true }).setView([20,0], 2);
+  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  let markers = L.layerGroup().addTo(map);
+  function magColor(m){ if(m>=6) return '#ff5151'; if(m>=5) return '#ff8c42'; if(m>=3) return '#ffd166'; return '#43d17a'; }
+
+  // ---------- State ----------
+  const state = {
+    lastIds: new Set(),
+    myLoc: null,
+    features: []
+  };
+
+  // ---------- UI Refs ----------
+  const timeWindow = $$('#timeWindow');
+  const minMag = $$('#minMag');
+  const area = $$('#area');
+  const radius = $$('#radius');
+  const customCenter = $$('#customCenter');
+  const refreshBtn = $$('#refresh');
+  const countEl = $$('#count');
+  const updatedEl = $$('#updated');
+  const autoSel = $$('#auto');
+  const askNotifBtn = $$('#askNotif');
+  const notifMagSel = $$('#notifMag');
+
+  // ---------- Notifications ----------
+  function requestNotif(){
+    try { Notification.requestPermission().then(()=>{}); } catch(e){}
+  }
+  askNotifBtn.addEventListener('click', requestNotif);
+
+  let autoTimer = null;
+  autoSel.addEventListener('change', ()=>{
+    if(autoTimer) { clearInterval(autoTimer); autoTimer=null; }
+    const s = Number(autoSel.value||0);
+    if(s>0){ autoTimer = setInterval(fetchQuakes, s*1000); }
+  });
+
+  // ---------- Geolocation for "Near me" ----------
+  if (area.value === 'near' || qs.get('area')==='near') {
+    getMyLocation();
+  }
+  area.addEventListener('change', ()=>{
+    if(area.value==='near') getMyLocation();
+  });
+  function getMyLocation(){
+    if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(pos=>{
+      state.myLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+      map.setView([state.myLoc.lat, state.myLoc.lon], 5);
+    }, err=>{
+      console.warn('Geolocation error', err);
+      alert('Could not get your location. You can enter a custom center (lat,lon).');
+      area.value='custom';
+    }, { enableHighAccuracy:true, timeout:10000, maximumAge:60000 });
+  }
+
+  // ---------- Fetch earthquakes ----------
+  async function fetchQuakes(){
+    const hours = Number(timeWindow.value);
+    const start = new Date(Date.now() - hours*3600*1000).toISOString();
+    const minmag = Number(minMag.value);
+
+    let url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&starttime=${encodeURIComponent(start)}&minmagnitude=${minmag}&limit=200`;
+
+    if(area.value!=='global'){
+      let lat, lon;
+      if(area.value==='near'){
+        if(!state.myLoc){ /* will fetch global until we have location */ }
+        else { lat = state.myLoc.lat; lon = state.myLoc.lon; }
+      } else if(area.value==='custom'){
+        const parts = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
+        if(parts.length===2 && parts.every(n=>!isNaN(n))){ lat = parts[0]; lon = parts[1]; }
+      }
+      const r = Number(radius.value||500);
+      if (typeof lat === 'number' && typeof lon === 'number'){
+        url += `&latitude=${lat}&longitude=${lon}&maxradiuskm=${r}`;
+      }
+    }
+
+    refreshBtn.disabled = true;
+    try{
+      const res = await fetch(url, { headers: { 'accept':'application/geo+json, application/json' } });
+      const data = await res.json();
+      renderQuakes(data);
+      updatedEl.textContent = new Date().toLocaleTimeString();
+      rememberIds(data);
+      maybeNotify(data);
+      history.replaceState(null,'', buildShareUrl());
+    }catch(e){
+      console.error(e);
+      alert('Failed to fetch earthquake data.');
+    }finally{
+      refreshBtn.disabled = false;
+    }
+  }
+
+  function rememberIds(data){
+    const ids = new Set();
+    for(const f of (data.features||[])){ ids.add(f.id); }
+    state.lastIds = ids;
+  }
+
+  function maybeNotify(data){
+    if(!('Notification' in window)) return;
+    if(Notification.permission!=='granted') return;
+    const threshold = Number(notifMagSel.value||5);
+
+    // Show notifications only for quakes newer than last fetch and over threshold
+    const now = Date.now();
+    for(const f of (data.features||[])){
+      const p = f.properties||{};
+      if(p.mag>=threshold && (now - p.time) < 5*60*1000){ // within last 5 minutes
+        if(!state._notified) state._notified = new Set();
+        if(state._notified.has(f.id)) continue;
+        state._notified.add(f.id);
+        const title = `M${p.mag.toFixed(1)} — ${p.place||'Earthquake'}`;
+        const body = `${new Date(p.time).toLocaleString()} • depth ${fmtNum(f.geometry?.coordinates?.[2],0)} km`;
+        try{ new Notification(title, { body }); }catch(e){}
+      }
+    }
+  }
+
+  function renderQuakes(data){
+    // Clear layers & list
+    markers.clearLayers();
+    const tbody = $$('#list tbody');
+    tbody.innerHTML = '';
+
+    state.features = data.features || [];
+    countEl.textContent = String(state.features.length);
+
+    let bounds = [];
+    for(const f of state.features){
+      const p = f.properties||{}; const g = f.geometry||{}; const c = g.coordinates||[0,0,0];
+      const lon=c[0], lat=c[1], depth=c[2];
+      const m = p.mag;
+      const color = magColor(m);
+      const r = Math.max(4, Math.min(18, (m||0)*2 + 4));
+      const dist = getDistanceKm(lat,lon);
+
+      // marker
+      const marker = L.circleMarker([lat,lon], {radius:r, color:'#000', weight:1, fillColor:color, fillOpacity:0.85});
+      const html = `
+        <div class="mono">
+          <b>M${fmtNum(m,1)}</b> • ${p.place||''}<br>
+          <span class="small">${fmtDate(p.time)} • Depth ${fmtNum(depth,0)} km${typeof dist==='number'? ' • '+km(dist)+' km away':''}</span><br>
+          <a href="${p.url}" target="_blank" rel="noopener">Details</a>
+        </div>`;
+      marker.bindPopup(html);
+      marker.addTo(markers);
+      bounds.push([lat,lon]);
+
+      // list row
+      const tr = $t('tr');
+      const link = $t('a',{href:p.url,target:'_blank', rel:'noopener', textContent:'USGS'});
+      [fmtDate(p.time), fmtNum(m,1), p.place||'', fmtNum(depth,0), (typeof dist==='number'? km(dist):'—'), ''].forEach((val,i)=>{
+        const td = $t('td');
+        if(i===5) td.appendChild(link); else td.textContent = String(val);
+        tr.appendChild(td);
+      });
+      tr.addEventListener('click', ()=>{ marker.openPopup(); map.panTo([lat,lon]); });
+      tbody.appendChild(tr);
+    }
+
+    if(bounds.length){
+      try{ map.fitBounds(bounds, {padding:[20,20]}); }catch{}
+    }
+  }
+
+  function getDistanceKm(lat,lon){
+    let center=null;
+    if(area.value==='near' && state.myLoc){ center = state.myLoc; }
+    else if(area.value==='custom'){
+      const parts = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
+      if(parts.length===2 && parts.every(n=>!isNaN(n))) center = {lat:parts[0], lon:parts[1]};
+    }
+    return center? haversineKm(center.lat, center.lon, lat, lon) : null;
+  }
+
+  // ---------- Export & Share ----------
+  function exportJson(){
+    const blob = new Blob([JSON.stringify({generatedAt:new Date().toISOString(), features:state.features}, null, 2)], {type:'application/json'});
+    const a = $t('a', {href:URL.createObjectURL(blob), download:'earthquakes.json'});
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+  function exportCsv(){
+    const header = ['id','time','mag','place','lat','lon','depth_km','url'];
+    const rows = [header].concat(state.features.map(f=>{
+      const p=f.properties||{}, c=f.geometry?.coordinates||[null,null,null];
+      return [f.id, new Date(p.time).toISOString(), p.mag, p.place||'', c[1], c[0], c[2], p.url||''];
+    }));
+    const a = $t('a', {href:URL.createObjectURL(new Blob([toCsv(rows)],{type:'text/csv'})), download:'earthquakes.csv'});
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  function buildShareUrl(){
+    const params = new URLSearchParams({
+      tw: timeWindow.value,
+      min: minMag.value,
+      area: area.value,
+      r: radius.value,
+      cc: customCenter.value
+    });
+    return location.pathname + '?' + params.toString();
+  }
+  function applyParams(){
+    const get = (k, def) => qs.get(k) || def;
+    timeWindow.value = get('tw', timeWindow.value);
+    minMag.value = get('min', minMag.value);
+    area.value = get('area', area.value);
+    radius.value = get('r', radius.value);
+    customCenter.value = get('cc', customCenter.value);
+  }
+
+  $$('#exportGeo').addEventListener('click', exportJson);
+  $$('#exportCsv').addEventListener('click', exportCsv);
+  $$('#share').addEventListener('click', ()=>{
+    const url = new URL(location.href);
+    url.search = buildShareUrl().split('?')[1];
+    navigator.clipboard?.writeText(url.toString());
+    alert('Copied link with current filters.');
+  });
+
+  refreshBtn.addEventListener('click', fetchQuakes);
+
+  // Initial
+  applyParams();
+  fetchQuakes();
+})();
+</script>
+</body>
+</html>
