@@ -291,10 +291,11 @@ document.addEventListener('input', syncPreview);
 
 /* ---------- DOCX (Word) export ---------- */
 document.getElementById('btnWord').addEventListener('click', async ()=>{
-  const {
-    Document, Packer, Paragraph, TextRun, HeadingLevel,
-    Table, TableRow, TableCell, WidthType, BorderStyle
-  } = docx;
+const {
+  Document, Packer, Paragraph, TextRun, HeadingLevel,
+  Table, TableRow, TableCell, WidthType, BorderStyle, TableLayoutType
+} = docx;
+
 
   const p = (text="") => new Paragraph({ children:[ new TextRun(text) ], spacing:{ after: 120 } });
   const H2 = t => new Paragraph({ text:t, heading:HeadingLevel.HEADING_2, spacing:{ before:240, after:120 } });
@@ -303,33 +304,65 @@ document.getElementById('btnWord').addEventListener('click', async ()=>{
     children:[ new TextRun({text: label + ": ", bold:true}), new TextRun(text) ], spacing:{ after: 120 }
   });
 
-  function tableFrom(id, widthsPct){
-    const rows = htmlRows(id);
-    const tRows = rows.map(r => new TableRow({
-      children: r.map((cell, idx)=> new TableCell({
-        children: [ p(cell) ],
-        width: widthsPct?.[idx] ? {size: widthsPct[idx], type: WidthType.PERCENTAGE} : undefined
-      }))
-    }));
-    // add header
-    const heads = Array.from(document.querySelectorAll('#'+id+' thead th')).map(th=>th.innerText.trim());
-    tRows.unshift(new TableRow({
-      children: heads.map((h, idx)=> new TableCell({
-        children: [ new Paragraph({ children:[ new TextRun({ text:h, bold:true }) ] }) ],
-        width: widthsPct?.[idx] ? {size: widthsPct[idx], type: WidthType.PERCENTAGE} : undefined
-      }))
-    }));
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
-      borders: {
-        top: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        bottom: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        left: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
-        right: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" }
-      },
-      rows: tRows
-    });
+  // Use FIXED layout + columnWidths in twips (1/20 pt).
+// A4 page ~11906 twips; margins are 1134 twips each in this doc.
+// Available width ≈ 11906 - (1134*2) = 9640 twips (round to 9600 for neat math).
+function tableFrom(id, widthsPct) {
+  const TWIPS_AVAILABLE = 9600; // tweak if you change margins/page size
+
+  const heads = Array.from(document.querySelectorAll('#' + id + ' thead th'))
+    .map(th => th.innerText.trim());
+
+  const bodyRows = [];
+  document.querySelectorAll('#' + id + ' tbody tr').forEach(tr => {
+    bodyRows.push(Array.from(tr.cells).map(td => (td.innerText || '').trim()));
+  });
+
+  // Convert percentage widths -> twips, or split evenly
+  let colWidths;
+  if (Array.isArray(widthsPct) && widthsPct.length === heads.length) {
+    const totalPct = widthsPct.reduce((a, b) => a + b, 0) || 100;
+    colWidths = widthsPct.map(p => Math.max(600, Math.round((p / totalPct) * TWIPS_AVAILABLE)));
+  } else {
+    const even = Math.round(TWIPS_AVAILABLE / heads.length);
+    colWidths = new Array(heads.length).fill(even);
   }
+
+  const makeRow = (cells, isHeader = false) =>
+    new docx.TableRow({
+      children: cells.map((text, i) =>
+        new docx.TableCell({
+          children: [
+            new docx.Paragraph({
+              children: [ new docx.TextRun({ text: String(text || ''), bold: isHeader }) ],
+              spacing: { after: 120 }
+            })
+          ],
+          // do NOT set per-cell width with percentages; rely on table.columnWidths
+          margins: { top: 120, bottom: 120, left: 120, right: 120 }
+        })
+      )
+    });
+
+  const rows = [
+    makeRow(heads, true),
+    ...bodyRows.map(r => makeRow(r, false))
+  ];
+
+  return new docx.Table({
+    width: { size: 100, type: WidthType.PERCENTAGE }, // make table use available width
+    columnWidths: colWidths,                           // fixed twip widths per column
+    layout: TableLayoutType.FIXED,                     // prevent Word from shrinking columns
+    borders: {
+      top:    { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+      bottom: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+      left:   { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+      right:  { style: BorderStyle.SINGLE, size: 4, color: "cccccc" }
+    },
+    rows
+  });
+}
+
 
   const doc = new Document({
     sections: [{
