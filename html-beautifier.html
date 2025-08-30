@@ -1,13 +1,11 @@
 <!doctype html>
 <html lang="en">
 <head>
-   <!-- Google tag (gtag.js) -->
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-C4SV7HGYM6');
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-C4SV7HGYM6');
   </script>
 
   <meta charset="utf-8"/>
@@ -108,8 +106,11 @@
 </div>
 
 
+
+
+
 <script>
-const HB_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set this
+const HB_API_URL_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev"; // ← set this
 const HB_CALC_URL     = HB_API_URL_BASE + "/beautify-html";
 
 const el = {
@@ -179,6 +180,7 @@ el.download.addEventListener('click', ()=>{
   document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 });
 </script>
+
 <!-- Optional: Buy Me a Coffee widget -->
 <script data-name="BMC-Widget" data-cfasync="false"
   src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
