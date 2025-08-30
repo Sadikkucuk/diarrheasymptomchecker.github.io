@@ -7,7 +7,7 @@
 <meta name="description" content="Single‑page web app showing recent earthquakes on a map and list. Uses USGS FDSN GeoJSON. Filters by magnitude, time, distance. Optional notifications." />
 <link rel="preconnect" href="https://unpkg.com">
 <link rel="dns-prefetch" href="https://unpkg.com">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
   :root{
     --bg:#0b1020; --panel:#12193a; --border:#233158; --text:#e9eefb; --muted:#9bb0d8; --chip:#1a2250; --accent:#4fd1ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
@@ -51,7 +51,7 @@
 <body>
 <header>
   <h1>QuakeWatch — Earthquake Alerts (Web)</h1>
-  <p class="tag">Live global earthquakes from USGS • Map + list • Filters • Optional notifications </p>
+  <p class="tag">Live global earthquakes from USGS • Map + list • Filters • Optional notifications • Works on GitHub Pages</p>
 </header>
 
 <main>
@@ -110,6 +110,7 @@
     <div class="row" style="margin-top:8px">
       <span class="chip">Loaded: <b id="count">0</b></span>
       <span class="chip">Updated: <b id="updated">—</b></span>
+      <span class="chip">Status: <b id="status">Idle</b></span>
       <span class="chip">Auto‑refresh: <select id="auto" style="background:transparent;border:none;color:var(--text)"><option value="0">Off</option><option value="60">1 min</option><option value="120">2 min</option><option value="300">5 min</option></select></span>
       <span class="chip">Notifications ≥ <select id="notifMag" style="background:transparent;border:none;color:var(--text)"><option value="4">4.0</option><option value="5" selected>5.0</option><option value="6">6.0</option></select> <button id="askNotif" class="ghost">Enable</button></span>
       <span class="right small">Data: USGS FDSN GeoJSON</span>
@@ -156,12 +157,13 @@
           <ul class="small">
             <li>Click a marker or row for details; use the <b>Fetch</b> button or set <b>Auto‑refresh</b>.</li>
             <li>Enable <b>Notifications</b> to get alerts for new events ≥ your selected magnitude while the tab is open.</li>
+            <li>Deploy easily on GitHub Pages — no keys or servers required.</li>
           </ul>
         </div>
         <div>
           <h3>Limitations</h3>
           <ul class="small">
-            <li>Notifications only work while this page is open/active .</li>
+            <li>Notifications only work while this page is open/active (no background push on GitHub Pages without a service worker and backend).</li>
             <li>All data is from USGS; other agencies (EMSC, JMA, etc.) may differ slightly.</li>
             <li>Geocoding of place names is not included; you can use coordinates or "Near me".</li>
           </ul>
@@ -170,10 +172,22 @@
     </details>
   </section>
 
-
+  <section class="card">
+    <details>
+      <summary>How to publish on GitHub Pages</summary>
+      <div>
+        <ol>
+          <li>Create a public repo (e.g., <b>quakewatch-web</b>).</li>
+          <li>Add a file named <b>index.html</b> with this code.</li>
+          <li>Go to <i>Settings → Pages</i>, set <i>Deploy from a branch</i>, select your default branch and <i>/ (root)</i>.</li>
+          <li>Open your site at <span class="mono">https://&lt;username&gt;.github.io/quakewatch-web/</span>.</li>
+        </ol>
+      </div>
+    </details>
+  </section>
 </main>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha512-vZTG03KQ8U3bWfQ8b57i0W2LQYdkWXNoKGdzRbMZLecH0zYacR3nG8ZTXmdg2gYB4YB2gZQ2n5rGdR3r0Lr3rQ==" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function(){
   // ---------- Helpers ----------
@@ -262,6 +276,55 @@
     const minmag = Number(minMag.value);
 
     let url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&orderby=time&starttime=${encodeURIComponent(start)}&minmagnitude=${minmag}&limit=200`;
+
+    if(area.value!=='global'){
+      let lat, lon;
+      if(area.value==='near'){
+        if(state.myLoc){ lat = state.myLoc.lat; lon = state.myLoc.lon; }
+      } else if(area.value==='custom'){
+        const parts = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
+        if(parts.length===2 && parts.every(n=>!isNaN(n))){ lat = parts[0]; lon = parts[1]; }
+      }
+      const r = Number(radius.value||500);
+      if (typeof lat === 'number' && typeof lon === 'number'){
+        url += `&latitude=${lat}&longitude=${lon}&maxradiuskm=${r}`;
+      }
+    }
+
+    const statusEl = document.querySelector('#status');
+    const setStatus = m => { if(statusEl) statusEl.textContent = m; };
+
+    refreshBtn.disabled = true; setStatus('Fetching…');
+    try{
+      const res = await fetch(url, { headers: { 'accept':'application/geo+json, application/json' } });
+      if(!res.ok) throw new Error('FDSN HTTP '+res.status);
+      const data = await res.json();
+      if(!data || !Array.isArray(data.features)) throw new Error('Bad JSON');
+      renderQuakes(data);
+      updatedEl.textContent = new Date().toLocaleTimeString();
+      rememberIds(data);
+      maybeNotify(data);
+      history.replaceState(null,'', buildShareUrl());
+      setStatus('OK');
+    }catch(e){
+      console.warn('FDSN fetch failed, trying summary feed', e);
+      setStatus('FDSN failed → trying fallback');
+      try{
+        const feed = chooseSummaryFeed(hours, minmag);
+        const res2 = await fetch(feed, { headers: { 'accept':'application/geo+json, application/json' } });
+        const data2 = await res2.json();
+        renderQuakes(data2);
+        updatedEl.textContent = new Date().toLocaleTimeString();
+        setStatus('Fallback feed OK');
+      }catch(e2){
+        console.error('Fallback feed failed', e2);
+        setStatus('Fetch failed');
+        alert('Failed to fetch earthquake data (FDSN and fallback). Check your network or try again.');
+      }
+    }finally{
+      refreshBtn.disabled = false;
+    }
+  }&minmagnitude=${minmag}&limit=200`;
 
     if(area.value!=='global'){
       let lat, lon;
@@ -427,6 +490,13 @@
   // Initial
   applyParams();
   fetchQuakes();
+
+  // Choose USGS summary feed closest to filters
+  function chooseSummaryFeed(hours, minmag){
+    const magBand = (m=> m>=6? '6.0' : m>=4.5? '4.5' : m>=2.5? '2.5' : m>=1.0? '1.0' : 'all')(minmag||0);
+    const windowBand = (h=> h<=1? 'hour' : h<=24? 'day' : h<=168? 'week' : 'month')(hours||24);
+    return `https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/${magBand}_${windowBand}.geojson`;
+  }
 })();
 </script>
 </body>
