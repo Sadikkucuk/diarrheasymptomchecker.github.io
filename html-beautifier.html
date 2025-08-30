@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4SV7HGYM6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-C4SV7HGYM6');
+  </script>
+
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HTML Beautifier — Free Online</title>
+  <meta name="description" content="Beautify and format HTML online. Options for indent size, tabs or spaces, comment keeping, line wrap, and blank line collapsing. Server-side formatter on Cloudflare Worker.">
+  <style>
+    :root{--bg:#0b1020;--card:#121934;--text:#e7ebff;--muted:#9aa4c7;--accent:#5fa8ff}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1100px;margin:40px auto;padding:0 16px}
+    .card{background:var(--card);border-radius:18px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    h1{margin:.2em 0 .2em;font-size:28px}
+    h2{margin-top:28px;font-size:20px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+    .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:14px;border-radius:14px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:none;background:var(--accent);color:#07213d;font-weight:800;padding:12px 18px;border-radius:12px;cursor:pointer;font-size:16px}
+    .btn:active{transform:translateY(1px)}
+    .result{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:14px}
+    .field{display:flex;flex-direction:column;gap:8px}
+    .two{display:grid;grid-template-columns:1fr 160px;gap:8px}
+    .row{display:flex;align-items:center;gap:10px;margin:8px 0}
+    textarea, pre{background:#0e1530;border:1px solid rgba(255,255,255,.15);border-radius:10px;color:var(--text);padding:10px 12px;font-size:14px;width:100%;box-sizing:border-box}
+    textarea{min-height:220px;resize:vertical}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:4px 8px;border-radius:999px;font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="topbar" style="display:flex;justify-content:flex-start;margin:-6px 0 12px">
+      <a href="index.html" class="home-link"
+         style="display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:rgba(255,255,255,.06);color:#e7ebff;text-decoration:none">
+        ← Home
+      </a>
+    </div>
+
+    <h1>HTML Beautifier — Free Online</h1>
+    <p class="muted">Paste HTML (or load a file), pick indentation and wrap options, then format. All processing runs on your Cloudflare Worker.</p>
+
+    <h2>1) Input & Options</h2>
+    <div class="grid">
+      <div class="box">
+        <div class="field">
+          <label>Source HTML</label>
+          <textarea id="hb_src" class="mono" placeholder="&lt;div><p>Hello&lt;/p>&lt;/div>"></textarea>
+        </div>
+        <div class="actions">
+          <input type="file" id="hb_file" accept=".html,.htm,.txt" />
+          <button class="btn" id="hb_example">Load Example</button>
+          <span class="chip" id="hb_stats"></span>
+        </div>
+      </div>
+
+      <div class="box">
+        <div class="field">
+          <label>Indentation</label>
+          <div class="two">
+            <select id="hb_indent_kind">
+              <option value="spaces" selected>Spaces</option>
+              <option value="tabs">Tabs</option>
+            </select>
+            <input type="number" id="hb_indent_size" value="2" min="1" step="1">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Max line length (wrap text nodes, 0 = no wrap)</label>
+          <input type="number" id="hb_wrap" value="0" min="0" step="10">
+        </div>
+
+        <div class="field">
+          <label><input type="checkbox" id="hb_keep_comments" checked> Keep comments</label>
+        </div>
+        <div class="field">
+          <label><input type="checkbox" id="hb_collapse_blanks" checked> Collapse multiple blank lines</label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:12px;align-items:center">
+      <button class="btn" id="hb_btn">Next → Beautify</button>
+      <span class="muted" id="hb_status"></span>
+    </div>
+
+    <h2>2) Result</h2>
+    <div class="result">
+      <textarea id="hb_out" class="mono" readonly placeholder="Beautified HTML will appear here…"></textarea>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn" id="hb_copy">Copy</button>
+        <button class="btn" id="hb_download">Download .html</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const HB_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set this
+const HB_CALC_URL     = HB_API_URL_BASE + "/beautify-html";
+
+const el = {
+  src: document.getElementById('hb_src'),
+  out: document.getElementById('hb_out'),
+  btn: document.getElementById('hb_btn'),
+  file: document.getElementById('hb_file'),
+  example: document.getElementById('hb_example'),
+  status: document.getElementById('hb_status'),
+  stats: document.getElementById('hb_stats'),
+  indentKind: document.getElementById('hb_indent_kind'),
+  indentSize: document.getElementById('hb_indent_size'),
+  wrap: document.getElementById('hb_wrap'),
+  keepComments: document.getElementById('hb_keep_comments'),
+  collapseBlanks: document.getElementById('hb_collapse_blanks'),
+  copy: document.getElementById('hb_copy'),
+  download: document.getElementById('hb_download')
+};
+
+el.file.addEventListener('change', async (e)=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const t = await f.text(); el.src.value = t;
+});
+el.example.addEventListener('click', ()=>{
+  el.src.value = `<!doctype html><html><head><title>Demo</title></head><body><div><p>Hello <strong>world</strong>!</p><!-- note --><img src="x.jpg"><script>console.log("hi");</script></div></body></html>`;
+});
+
+function updateStats(inp, out){
+  const lines = out.split(/\r?\n/).length;
+  el.stats.textContent = `${inp.length} → ${out.length} chars • ${lines} lines`;
+}
+
+async function beautify(){
+  el.status.textContent = 'Formatting…';
+  el.out.value = '';
+  const payload = {
+    html: el.src.value || '',
+    options: {
+      indent: el.indentKind.value === 'tabs' ? '\t' : ' '.repeat(Math.max(1, +el.indentSize.value||2)),
+      wrap: Math.max(0, +el.wrap.value||0),
+      keepComments: !!el.keepComments.checked,
+      collapseBlankLines: !!el.collapseBlanks.checked
+    }
+  };
+  try{
+    const resp = await fetch(HB_CALC_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const text = await resp.text();
+    const data = (()=>{ try{ return JSON.parse(text); } catch { return { error:text||'Bad response' }; }})();
+    if (data.error) throw new Error(data.error);
+    el.out.value = data.beautified;
+    updateStats(payload.html, data.beautified);
+  }catch(e){
+    el.out.value = `/* Error: ${e.message} */`;
+    el.stats.textContent = '';
+  }
+  el.status.textContent = '';
+}
+el.btn.addEventListener('click', beautify);
+
+el.copy.addEventListener('click', ()=>{
+  el.out.select(); document.execCommand('copy');
+});
+el.download.addEventListener('click', ()=>{
+  const blob = new Blob([el.out.value||''], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'beautified.html';
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+</script>
+<!-- Optional: Buy Me a Coffee widget -->
+<script data-name="BMC-Widget" data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="sadikkucuk"
+  data-description="Support my work"
+  data-message="If this tool helps you, you can buy me a coffee 🙂"
+  data-color="#FFDD00"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"></script>
+</body>
+</html>
