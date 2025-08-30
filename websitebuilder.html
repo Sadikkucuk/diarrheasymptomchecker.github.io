@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Page Builder — Templates & Drag‑Drop</title>
+  <meta name="description" content="Generate free web pages from templates and drag‑and‑drop blocks. Frontend on GitHub Pages, templates served by Cloudflare Workers." />
+
+  <!-- JSZip for client‑side ZIP export -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" defer></script>
+
+  <style>
+    :root {
+      --bg: #0b1020;      --panel: #121832;   --muted: #8fa2ff;
+      --text: #e7ecff;    --soft: #1a2246;    --accent: #6ee7ff;
+      --ok: #34d399;      --warn: #f59e0b;    --danger: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* Top bar */
+    .topbar { position: sticky; top:0; z-index: 50; display:flex; gap:.75rem; align-items:center; padding: .75rem 1rem; background: linear-gradient(180deg, #0b1020 0%, #0b1020ee 60%, transparent 100%); border-bottom: 1px solid #1d2753; backdrop-filter: blur(4px); }
+    .brand { font-weight: 800; letter-spacing:.3px; }
+    .spacer { flex: 1; }
+
+    .btn { border: 1px solid #2a3a77; background: #121a3a; color: var(--text); padding: .55rem .8rem; border-radius: .6rem; cursor: pointer; font-weight: 600; }
+    .btn:hover { border-color: #3c50a3; background: #16204a; }
+    .btn.ok { border-color: #1c7a59; background: #0e3e2e; }
+    .btn.warn { border-color: #7a5a1c; background: #3e2f0e; }
+    .btn.danger { border-color: #7a1c1c; background: #3e0e0e; }
+
+    .toolbar select, .toolbar input[type="text"] { background: #0f1735; border: 1px solid #2a3a77; color: var(--text); border-radius: .5rem; padding: .5rem .6rem; }
+
+    /* Layout */
+    .wrap { display:grid; grid-template-columns: 280px 1fr; gap: 14px; padding: 14px; }
+    .panel { background: var(--panel); border: 1px solid #1d2753; border-radius: 14px; padding: 12px; }
+
+    /* Palette */
+    .palette h3 { margin:.25rem 0 .5rem; font-size: 1rem; color: var(--muted); }
+    .block-card { background: var(--soft); border: 1px dashed #2c3a78; border-radius: 12px; padding: 10px; margin-bottom: 10px; cursor: grab; }
+    .block-card:active { cursor: grabbing; }
+
+    /* Canvas */
+    .canvas { min-height: 50vh; padding: 10px; border: 2px dashed #2c3a78; border-radius: 14px; background: repeating-linear-gradient(45deg, #0e1430, #0e1430 10px, #0f1533 10px, #0f1533 20px); }
+    .hint { color: #9fb0ff; font-size: .95rem; text-align: center; padding: 18px 6px; }
+    .drop-target { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+    /* Blocks placed on canvas */
+    .placed { position: relative; border: 1px solid #2b3a79; border-radius: 14px; overflow: hidden; background: #0e1430; margin: 10px 0; }
+    .controls { position:absolute; right:10px; top:10px; display:flex; gap:6px; z-index:10; }
+    .ctl { font-size: 12px; padding: .2rem .45rem; border-radius: 8px; border: 1px solid #32408a; background:#121a3a; color: var(--text); cursor: pointer; }
+    .ctl:hover { background:#182456; }
+
+    /* In-block content editable style */
+    [contenteditable="true"]:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
+
+    /* Footer notice */
+    .sticky-footer { position: fixed; left: 12px; bottom: 12px; background: #0e1430; border: 1px solid #1d2753; color: #a8b6ff; padding: 10px 12px; border-radius: 12px; font-size: .85rem; }
+
+    @media (max-width: 980px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Free Page Builder</div>
+    <div class="toolbar">
+      <label>Templates:</label>
+      <select id="templateSelect"><option>Loading…</option></select>
+    </div>
+    <div class="spacer"></div>
+    <div class="toolbar">
+      <input id="siteTitle" type="text" placeholder="Site title (for export)" />
+      <button id="applyTemplate" class="btn">Apply</button>
+      <button id="save" class="btn">Save</button>
+      <button id="load" class="btn">Load</button>
+      <button id="clear" class="btn warn">Clear</button>
+      <button id="exportZip" class="btn ok">Export ZIP</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <aside class="panel palette">
+      <h3>Blocks (drag to canvas)</h3>
+      <div id="palette"></div>
+    </aside>
+
+    <section id="canvas" class="panel canvas" aria-label="Drop blocks here" tabindex="0">
+      <div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, or remove.</div>
+    </section>
+  </main>
+
+  <div class="sticky-footer">Educational demo — not legal advice. You own your content. No sign‑in needed.</div>
+
+  <script>
+    // ======== CONFIG ========
+    // Set this to your deployed Cloudflare Worker base URL (no trailing slash)
+    // Example: https://builder-templates.yourname.workers.dev
+    const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev/";
+
+    // ======== STATE ========
+    const state = {
+      blocks: {},       // id -> { id, name, html }
+      templates: [],    // [{ id, name, blocks:[ids...] }]
+      layout: []        // array of block ids in order (with per-block overrides later if needed)
+    };
+
+    // ======== DOM ========
+    const palette = document.getElementById('palette');
+    const canvas = document.getElementById('canvas');
+    const templateSelect = document.getElementById('templateSelect');
+    const applyTemplateBtn = document.getElementById('applyTemplate');
+    const hint = document.getElementById('hint');
+
+    // Utility: sanitize (very simple; for real apps consider DOMPurify)
+    const esc = (s)=>String(s).replace(/[&<>"]g, t=>({"&":"&amp;","<":"&lt;",
+                                           ">":"&gt;","\"":"&quot;"}[t]));
+
+    // ======== FETCH TEMPLATES & BLOCKS from Worker ========
+    async function bootstrap() {
+      try {
+        const res = await fetch(`${CF_WORKER_BASE}/templates`, { mode:'cors' });
+        if (!res.ok) throw new Error('Failed to load templates');
+        const data = await res.json();
+        // blocks: {id:{id,name,html}}, templates:[{id,name,blocks:[]}, ...]
+        state.blocks = data.blocks || {};
+        state.templates = data.templates || [];
+
+        // Palette
+        palette.innerHTML = '';
+        Object.values(state.blocks).forEach(b => {
+          const el = document.createElement('div');
+          el.className = 'block-card';
+          el.draggable = true;
+          el.dataset.blockId = b.id;
+          el.innerHTML = `<strong>${esc(b.name)}</strong><div style="opacity:.75;font-size:.9em;margin-top:.25rem">${esc(b.id)}</div>`;
+          el.addEventListener('dragstart', (e)=>{
+            e.dataTransfer.setData('text/plain', b.id);
+          });
+          el.addEventListener('dblclick', ()=> addBlock(b.id));
+          palette.appendChild(el);
+        });
+
+        // Template selector
+        templateSelect.innerHTML = state.templates.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+      } catch (e) {
+        templateSelect.innerHTML = `<option>Error loading templates</option>`;
+        console.error(e);
+      }
+    }
+
+    // ======== CANVAS DND ========
+    canvas.addEventListener('dragover', (e)=>{ e.preventDefault(); canvas.classList.add('drop-target'); });
+    canvas.addEventListener('dragleave', ()=> canvas.classList.remove('drop-target'));
+    canvas.addEventListener('drop', (e)=>{
+      e.preventDefault(); canvas.classList.remove('drop-target');
+      const blockId = e.dataTransfer.getData('text/plain');
+      if (blockId) addBlock(blockId);
+    });
+
+    // Add a block instance to canvas
+    function addBlock(blockId, htmlOverride) {
+      const def = state.blocks[blockId];
+      if (!def) return;
+      hint.style.display = 'none';
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'placed';
+      wrapper.dataset.blockId = blockId;
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+      controls.innerHTML = `
+        <button class="ctl" title="Move up">↑</button>
+        <button class="ctl" title="Move down">↓</button>
+        <button class="ctl" title="Duplicate">⎘</button>
+        <button class="ctl" title="Remove">✕</button>
+      `;
+      controls.addEventListener('click', (e)=>{
+        const btn = e.target.closest('button.ctl'); if (!btn) return;
+        if (btn.title === 'Remove') wrapper.remove();
+        if (btn.title === 'Duplicate') wrapper.after(wrapper.cloneNode(true));
+        if (btn.title === 'Move up') wrapper.previousElementSibling?.before(wrapper);
+        if (btn.title === 'Move down') wrapper.nextElementSibling?.after(wrapper);
+      });
+
+      const content = document.createElement('div');
+      content.innerHTML = htmlOverride || def.html;
+      // make text nodes editable
+      content.querySelectorAll('[data-edit]')?.forEach(n=> n.setAttribute('contenteditable','true'));
+
+      wrapper.appendChild(controls);
+      wrapper.appendChild(content);
+      canvas.appendChild(wrapper);
+    }
+
+    // Apply selected template
+    applyTemplateBtn.addEventListener('click', ()=>{
+      const id = templateSelect.value;
+      const tpl = state.templates.find(t=>t.id === id);
+      if (!tpl) return;
+      canvas.innerHTML = '<div id="hint" class="hint" style="display:none"></div>';
+      (tpl.blocks||[]).forEach(bid => addBlock(bid));
+    });
+
+    // Save & Load (localStorage)
+    document.getElementById('save').addEventListener('click', ()=>{
+      const layout = Array.from(canvas.querySelectorAll('.placed')).map(sec => ({
+        id: sec.dataset.blockId,
+        html: sec.querySelector(':scope > div').innerHTML
+      }));
+      const data = { title: document.getElementById('siteTitle').value || 'My Site', layout };
+      localStorage.setItem('builder:v1', JSON.stringify(data));
+      alert('Saved locally');
+    });
+
+    document.getElementById('load').addEventListener('click', ()=>{
+      const raw = localStorage.getItem('builder:v1');
+      if (!raw) return alert('Nothing saved');
+      const data = JSON.parse(raw);
+      document.getElementById('siteTitle').value = data.title || '';
+      canvas.innerHTML = '<div id="hint" class="hint" style="display:none"></div>';
+      (data.layout||[]).forEach(item => addBlock(item.id, item.html));
+    });
+
+    document.getElementById('clear').addEventListener('click', ()=>{
+      if (!confirm('Clear canvas?')) return;
+      canvas.innerHTML = '<div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, or remove.</div>';
+    });
+
+    // Export ZIP (client side). Optionally you can POST to Worker /render for server render.
+    document.getElementById('exportZip').addEventListener('click', async ()=>{
+      const blocks = Array.from(canvas.querySelectorAll('.placed')).map(sec => sec.querySelector(':scope > div').innerHTML);
+      if (blocks.length === 0) return alert('Add some blocks first.');
+      const title = document.getElementById('siteTitle').value || 'My Site';
+
+      // Option A: render on client
+      const html = renderDocument(title, blocks.join('\n\n'));
+
+      const zip = new JSZip();
+      zip.file('index.html', html);
+      const blob = await zip.generateAsync({ type: 'blob' });
+      saveAs(blob, 'site.zip');
+    });
+
+    function renderDocument(title, bodyHtml){
+      return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${esc(title)}</title>
+  <meta name="description" content="A page built with Free Page Builder." />
+  <style>
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; color:#0b1020; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    a { color: #0ea5e9; }
+  </style>
+</head>
+<body>
+${bodyHtml}
+</body>
+</html>`;
+    }
+
+    // (Optional) Server render example
+    async function serverRender(){
+      const blk = Array.from(canvas.querySelectorAll('.placed')).map(sec => ({ html: sec.querySelector(':scope > div').innerHTML, id: sec.dataset.blockId }));
+      const title = document.getElementById('siteTitle').value || 'My Site';
+      const res = await fetch(`${CF_WORKER_BASE}/render`, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ title, blocks: blk })});
+      if (!res.ok) throw new Error('Render failed');
+      return await res.text();
+    }
+
+    // Start
+    bootstrap();
+  </script>
+</body>
+</html>
