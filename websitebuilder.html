@@ -112,8 +112,8 @@
     const hint = document.getElementById('hint');
 
     // HTML escape util
-    const esc = (s)=>String(s).replace(/[&<>\"]/g, t=>({"&":"&amp;","<":"&lt;",
-                                           ">":"&gt;","\"":"&quot;"}[t]));
+const esc = (s)=>String(s).replace(/[&<>"]/g, t=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[t]));
+
 
     // Theme
     document.getElementById('applyTheme').addEventListener('click', ()=>{
