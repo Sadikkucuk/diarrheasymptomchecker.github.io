@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Product Roadmap Generator — Single Page</title>
+<style>
+  :root{
+    --bg:#0b1220; --panel:#0f1a2b; --text:#eaf2ff; --muted:#9fb1cc; --border:#23334a; --accent:#79c0ff;
+    --good:#36c98f; --warn:#f0c75e; --bad:#f56969;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:radial-gradient(1200px 700px at 10% -10%,#16233a 0%,#0b1220 60%,#0b1220 100%);color:var(--text);font:14px/1.4 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{max-width:1200px;margin:18px auto 0;padding:0 16px}
+  h1{margin:0 0 6px;font-weight:800;font-size:24px}
+  .sub{margin:0 0 14px;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto;padding:0 16px 30px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+  .toolbar .sp{flex:1}
+  button,label.btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#13243c;color:var(--text);cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+  button:hover,label.btn:hover{filter:brightness(1.07)}
+  .primary{background:linear-gradient(180deg,#264a74,#1a3556);border-color:#355580}
+  .danger{background:linear-gradient(180deg,#6a2a2a,#4b1e1e);border-color:#7a3a3a}
+  input,select{background:#0f1a2b;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 10px}
+  input[type="color"]{padding:0;height:34px;width:46px}
+  .gridWrap{border:1px solid var(--border);background:#0c1626;border-radius:14px;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  .gridHeader{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#0f1c30;border-bottom:1px solid var(--border);color:#cfe0ff}
+  .laneLabel{writing-mode:horizontal-tb;font-weight:700}
+  .svgHost{width:100%;height:520px;display:block;background:linear-gradient(180deg,#0f1a2b 0%,#0d1727 100%)}
+  .legend{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:12px}
+  .pill{padding:2px 8px;border-radius:999px;border:1px solid var(--border);background:#0f1a2b}
+  .formRow{display:flex;flex-wrap:wrap;gap:8px}
+  .formRow > *{min-width:150px}
+  .card{background:#0f1a2b;border:1px solid var(--border);border-radius:12px;padding:10px}
+  .right{margin-left:auto}
+  .sep{height:1px;background:linear-gradient(90deg,transparent,#22334a,transparent);margin:10px 0}
+  .statusChip{border-radius:999px;padding:2px 8px;border:1px solid var(--border)}
+  .handle{pointer-events:none}
+  .hint{color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Product Roadmap Generator</h1>
+  <p class="sub">Create a month-by-month roadmap with lanes, draggable bars, and one‑click export to PNG / SVG / CSV / JSON. All data stays in your browser.</p>
+</header>
+
+<main>
+  <div class="toolbar card">
+    <div class="formRow">
+      <label>Timeline start <input type="date" id="tlStart"></label>
+      <label>Timeline end <input type="date" id="tlEnd"></label>
+      <label>Zoom (px/day) <input type="range" min="1" max="8" step="0.5" value="3" id="pxPerDay"></label>
+      <button id="fitBtn">Fit width</button>
+      <button id="todayBtn">Jump to Today</button>
+      <span class="sp"></span>
+      <button class="primary" id="exportPNG">Export PNG</button>
+      <button id="exportSVG">Export SVG</button>
+      <button id="exportCSV">Export CSV</button>
+      <button id="exportJSON">Export JSON</button>
+      <label for="importJSON" class="btn">Import JSON<input id="importJSON" type="file" accept="application/json"></label>
+      <button class="danger" id="clearAll">Clear</button>
+    </div>
+  </div>
+
+  <div class="toolbar card">
+    <div class="formRow">
+      <label>New lane <input type="text" id="laneName" placeholder="e.g., Platform"></label>
+      <button id="addLane">Add lane</button>
+      <span class="sep" style="flex-basis:100%"></span>
+      <label>Title <input type="text" id="itTitle" placeholder="Initiative"></label>
+      <label>Lane <select id="itLane"></select></label>
+      <label>Start <input type="date" id="itStart"></label>
+      <label>End <input type="date" id="itEnd"></label>
+      <label>Owner <input type="text" id="itOwner" placeholder="Optional"></label>
+      <label>Status <select id="itStatus"><option>Planned</option><option>In Progress</option><option>Blocked</option><option>Done</option></select></label>
+      <label>Color <input type="color" id="itColor" value="#77dd77"></label>
+      <button class="primary" id="addItem">Add item</button>
+      <span class="hint">Tip: drag bars to move; drag the tiny square handles to resize.</span>
+    </div>
+  </div>
+
+  <div class="gridWrap">
+    <div class="gridHeader">
+      <div class="legend">
+        <span class="pill"><span style="background:var(--good);display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>In Progress</span>
+        <span class="pill"><span style="background:var(--warn);display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>Planned</span>
+        <span class="pill"><span style="background:var(--bad);display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px"></span>Blocked</span>
+      </div>
+      <span class="sp"></span>
+      <span id="status" class="hint">Ready</span>
+    </div>
+    <svg id="board" class="svgHost"></svg>
+  </div>
+</main>
+
+<script>
+(function(){
+  // ===== Helpers =====
+  const $ = s => document.querySelector(s);
+  const MS = 24*60*60*1000;
+  const fmt = d => new Date(d).toISOString().slice(0,10);
+  const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
+  const uid = () => Math.random().toString(36).slice(2,9);
+  function monthName(d){ return d.toLocaleString(undefined,{month:'short'}); }
+
+  // ===== State =====
+  const LS = 'roadmap_state_v1';
+  let state = load() || defaultState();
+  function defaultState(){
+    const today = new Date();
+    const start = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    const end = new Date(today.getFullYear(), today.getMonth()+5, 0);
+    return {
+      start: +start,
+      end: +end,
+      pxPerDay: 3,
+      lanes: ['Platform','Web','Mobile','Growth'],
+      items: [
+        {id:uid(), title:'Auth revamp', lane:'Platform', start:+new Date(today.getFullYear(),today.getMonth()-1,10), end:+new Date(today.getFullYear(),today.getMonth()+1,5), color:'#79c0ff', status:'In Progress', owner:'Core'},
+        {id:uid(), title:'iOS redesign', lane:'Mobile', start:+new Date(today.getFullYear(),today.getMonth(),1), end:+new Date(today.getFullYear(),today.getMonth()+2,15), color:'#ffd166', status:'Planned', owner:'UX'},
+        {id:uid(), title:'SEO sprint', lane:'Growth', start:+new Date(today.getFullYear(),today.getMonth()+1,1), end:+new Date(today.getFullYear(),today.getMonth()+1,28), color:'#36c98f', status:'Planned', owner:'Mkt'}
+      ]
+    };
+  }
+  function save(){ localStorage.setItem(LS, JSON.stringify(state)); }
+  function load(){ try{ return JSON.parse(localStorage.getItem(LS)||''); }catch(e){ return null; }
+  }
+
+  // ===== Elements =====
+  const board = $('#board');
+  const status = $('#status');
+  const tlStart = $('#tlStart');
+  const tlEnd = $('#tlEnd');
+  const pxPerDay = $('#pxPerDay');
+  const itLane = $('#itLane');
+
+  // ===== Init form values =====
+  tlStart.value = fmt(state.start);
+  tlEnd.value = fmt(state.end);
+  pxPerDay.value = state.pxPerDay;
+  function refreshLaneSelect(){
+    itLane.innerHTML = state.lanes.map(l=>`<option>${l}</option>`).join('');
+  }
+  refreshLaneSelect();
+  $('#itStart').value = fmt(state.start);
+  $('#itEnd').value = fmt(state.start + 14*MS);
+
+  // ===== Derived layout =====
+  function days(){ return Math.round((state.end - state.start)/MS)+1; }
+  function width(){ return Math.max(800, days()*state.pxPerDay + 180); }
+  function laneHeight(){ return 64; }
+  function totalHeight(){ return 60 + state.lanes.length * laneHeight(); }
+  function xFor(ts){ return 160 + ( (ts - state.start)/MS ) * state.pxPerDay; }
+
+  // ===== Rendering =====
+  function render(){
+    const w = width();
+    const h = totalHeight();
+    board.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    board.setAttribute('width','100%');
+    board.setAttribute('height','520');
+
+    const today = new Date();
+    const months = monthsBetween(new Date(state.start), new Date(state.end));
+
+    let svg = '';
+    // background
+    svg += `<rect x="0" y="0" width="${w}" height="${h}" fill="#0d1728"/>`;
+
+    // left lane labels area
+    svg += `<rect x="0" y="0" width="160" height="${h}" fill="#0f1c30"/>`;
+    svg += `<text x="12" y="28" fill="#cfe0ff" font-size="14" font-weight="700">Lanes</text>`;
+
+    // header months grid
+    let yHeader = 0;
+    svg += `<rect x="160" y="0" width="${w-160}" height="40" fill="#0f1c30"/>`;
+    svg += `<line x1="160" y1="40" x2="${w}" y2="40" stroke="#22334a"/>`;
+
+    for (let m of months){
+      const x1 = xFor(+m.start);
+      const x2 = xFor(+m.end + MS);
+      svg += `<rect x="${x1}" y="0" width="${x2-x1}" height="40" fill="rgba(255,255,255,0)"/>`;
+      svg += `<text x="${x1+6}" y="26" fill="#cfe0ff" font-size="13" font-weight="700">${monthName(m.start)} ${m.start.getFullYear()}</text>`;
+      svg += `<line x1="${x1}" y1="40" x2="${x1}" y2="${h}" stroke="#22334a"/>`;
+    }
+
+    // horizontal lane lines + labels
+    for (let i=0;i<state.lanes.length;i++){
+      const y = 40 + i*laneHeight();
+      svg += `<line x1="0" y1="${y}" x2="${w}" y2="${y}" stroke="#203149"/>`;
+      svg += `<text x="12" y="${y + 36}" fill="#eaf2ff" font-size="14" font-weight="700">${esc(state.lanes[i])}</text>`;
+    }
+
+    // Today marker
+    const tX = xFor( stripDay(today) );
+    if (tX>=160 && tX<=w){ svg += `<line x1="${tX}" y1="40" x2="${tX}" y2="${h}" stroke="#79c0ff" stroke-dasharray="5,4"/>`; }
+
+    // Items (bars)
+    for (const it of state.items){
+      const laneIndex = state.lanes.indexOf(it.lane);
+      if (laneIndex<0) continue;
+      const y = 40 + laneIndex*laneHeight() + 16;
+      const x = xFor(it.start);
+      const barW = Math.max(8, xFor(it.end+MS) - x);
+      const col = it.color || '#79c0ff';
+      const textY = y + 14;
+      const id = it.id;
+      let statusStroke = '#264a74';
+      if (it.status==='In Progress') statusStroke = '#2e7a5b';
+      if (it.status==='Blocked') statusStroke = '#7a3a3a';
+      if (it.status==='Planned') statusStroke = '#6b5e24';
+      if (it.status==='Done') statusStroke = '#2d5f2a';
+      svg += `
+        <g class="bar" data-id="${id}">
+          <rect x="${x}" y="${y}" rx="6" ry="6" width="${barW}" height="28" fill="${col}" fill-opacity="0.85" stroke="${statusStroke}" stroke-width="2"/>
+          <text x="${x+8}" y="${textY}" fill="#0b1220" font-size="13" font-weight="800">${esc(it.title)}</text>
+          <text x="${x+8}" y="${textY+13}" fill="#10233c" font-size="11">${esc(it.owner||'')}</text>
+          <!-- resize handles -->
+          <rect class="handle" data-id="${id}" data-h="L" x="${x-5}" y="${y+6}" width="6" height="16" fill="#eaf2ff" fill-opacity="0.9" rx="2"/>
+          <rect class="handle" data-id="${id}" data-h="R" x="${x+barW-1}" y="${y+6}" width="6" height="16" fill="#eaf2ff" fill-opacity="0.9" rx="2"/>
+        </g>`;
+    }
+
+    board.innerHTML = svg;
+  }
+
+  function esc(s){ return String(s).replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function stripDay(d){ return +new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function monthsBetween(a,b){
+    const out=[]; const d=new Date(a.getFullYear(),a.getMonth(),1);
+    while (d <= b){
+      const end = new Date(d.getFullYear(), d.getMonth()+1, 0);
+      out.push({start:new Date(d), end});
+      d.setMonth(d.getMonth()+1);
+    }
+    return out;
+  }
+
+  // ===== Interactions =====
+  let drag = null; // {id, kind:'move'|'L'|'R', startX, itemSnapshot}
+
+  board.addEventListener('pointerdown', (e)=>{
+    const tgt = e.target.closest ? e.target.closest('.bar') : null;
+    const handle = e.target.getAttribute && e.target.getAttribute('data-h');
+    const id = (e.target.getAttribute && e.target.getAttribute('data-id')) || (tgt && tgt.getAttribute('data-id'));
+    if (!id) return;
+    e.preventDefault();
+    const it = state.items.find(x=>x.id===id);
+    if (!it) return;
+    const kind = handle ? handle : 'move';
+    drag = { id, kind, startX: e.clientX, snapshot: {...it} };
+    board.setPointerCapture(e.pointerId||0);
+  });
+
+  board.addEventListener('pointermove', (e)=>{
+    if (!drag) return;
+    const dx = e.clientX - drag.startX;
+    const daysDx = Math.round(dx / state.pxPerDay);
+    const it = state.items.find(x=>x.id===drag.id);
+    if (!it) return;
+    if (drag.kind==='move'){
+      it.start = clamp(drag.snapshot.start + daysDx*MS, state.start, state.end-MS);
+      const dur = stripDay(new Date(drag.snapshot.end)) - stripDay(new Date(drag.snapshot.start));
+      it.end = clamp(it.start + dur, it.start, state.end);
+    } else if (drag.kind==='L'){
+      const newStart = clamp(drag.snapshot.start + daysDx*MS, state.start, it.end-1*MS);
+      it.start = newStart;
+    } else if (drag.kind==='R'){
+      const newEnd = clamp(drag.snapshot.end + daysDx*MS, it.start+1*MS, state.end);
+      it.end = newEnd;
+    }
+    render();
+    save();
+  });
+
+  window.addEventListener('pointerup', ()=>{ drag=null; });
+
+  // ===== Controls =====
+  $('#addLane').addEventListener('click', ()=>{
+    const name = ($('#laneName').value||'').trim();
+    if (!name) return;
+    if (!state.lanes.includes(name)) state.lanes.push(name);
+    $('#laneName').value='';
+    refreshLaneSelect();
+    render(); save();
+  });
+
+  $('#addItem').addEventListener('click', ()=>{
+    const title = ($('#itTitle').value||'').trim();
+    if (!title) return alert('Please enter a title');
+    const lane = $('#itLane').value;
+    const start = +new Date($('#itStart').value);
+    const end = +new Date($('#itEnd').value);
+    const owner = ($('#itOwner').value||'').trim();
+    const status = $('#itStatus').value;
+    const color = $('#itColor').value;
+    if (isNaN(start) || isNaN(end) || end<=start) return alert('Check start/end dates');
+    state.items.push({id:uid(), title, lane, start:stripDay(new Date(start)), end:stripDay(new Date(end)), owner, status, color});
+    $('#itTitle').value='';
+    render(); save();
+  });
+
+  tlStart.addEventListener('change', ()=>{ const v=+new Date(tlStart.value); if(!isNaN(v)){ state.start=stripDay(new Date(v)); if(state.end<=state.start) state.end=state.start+30*MS; render(); save(); } });
+  tlEnd.addEventListener('change', ()=>{ const v=+new Date(tlEnd.value); if(!isNaN(v)){ state.end=stripDay(new Date(v)); if(state.end<=state.start) state.start=state.end-30*MS; render(); save(); } });
+  pxPerDay.addEventListener('input', ()=>{ state.pxPerDay=+pxPerDay.value; render(); save(); });
+
+  $('#fitBtn').addEventListener('click', ()=>{
+    const wrapW = board.getBoundingClientRect().width - 200;
+    const d = days();
+    const px = clamp(Math.floor(wrapW/d), 1, 12);
+    state.pxPerDay = px; pxPerDay.value = px; render(); save();
+  });
+
+  $('#todayBtn').addEventListener('click', ()=>{
+    const t = stripDay(new Date());
+    if (t<state.start){ state.start=t-15*MS; tlStart.value=fmt(state.start); }
+    if (t>state.end){ state.end=t+45*MS; tlEnd.value=fmt(state.end); }
+    render(); save();
+  });
+
+  $('#exportJSON').addEventListener('click', ()=>{
+    const payload = JSON.stringify(state,null,2);
+    downloadBlob(new Blob([payload],{type:'application/json'}), 'roadmap.json');
+  });
+  $('#exportCSV').addEventListener('click', ()=>{
+    const rows = [ ['Title','Lane','Start','End','Owner','Status','Color'] ];
+    state.items.forEach(it=> rows.push([it.title,it.lane,fmt(it.start),fmt(it.end),it.owner||'',it.status,it.color||'']));
+    const csv = rows.map(r=> r.map(cell => '"'+String(cell).replace(/"/g,'""')+'"').join(',')).join('\n');
+    downloadBlob(new Blob([csv],{type:'text/csv'}), 'roadmap.csv');
+  });
+  $('#exportSVG').addEventListener('click', ()=>{
+    const svg = serializeSVG();
+    downloadBlob(new Blob([svg],{type:'image/svg+xml'}), 'roadmap.svg');
+  });
+  $('#exportPNG').addEventListener('click', ()=>{
+    const svg = serializeSVG();
+    svgToPng(svg, (blob)=> downloadBlob(blob, 'roadmap.png') );
+  });
+  $('#importJSON').addEventListener('change', ()=>{
+    const f = $('#importJSON').files[0]; if(!f) return;
+    const r = new FileReader(); r.onload = ()=>{ try{ const obj = JSON.parse(r.result); if(!obj.items||!obj.lanes) throw new Error('Invalid file'); state=obj; applyStateToUI(); render(); save(); }catch(e){ alert('Import error: '+e.message); } }; r.readAsText(f); $('#importJSON').value='';
+  });
+  $('#clearAll').addEventListener('click', ()=>{ if(confirm('Clear all items?')){ state.items=[]; render(); save(); } });
+
+  function applyStateToUI(){
+    tlStart.value = fmt(state.start); tlEnd.value = fmt(state.end); pxPerDay.value = state.pxPerDay; refreshLaneSelect();
+  }
+
+  function serializeSVG(){
+    // ensure latest render
+    render();
+    const w = width(), h = totalHeight();
+    return `<?xml version="1.0"?><svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`+board.innerHTML+`</svg>`;
+  }
+  function downloadBlob(blob, name){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1200); }
+  function svgToPng(svgText, cb){ const img=new Image(); const w=width(), h=totalHeight(); const blob=new Blob([svgText],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob); img.onload=()=>{ const cnv=document.createElement('canvas'); cnv.width=w; cnv.height=h; const ctx=cnv.getContext('2d'); ctx.fillStyle='#0d1728'; ctx.fillRect(0,0,w,h); ctx.drawImage(img,0,0); cnv.toBlob(b=>{ URL.revokeObjectURL(url); cb(b); }, 'image/png'); }; img.src=url; }
+
+  // First paint
+  render();
+})();
+</script>
+</body>
+</html>
