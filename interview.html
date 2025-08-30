@@ -4,7 +4,6 @@
 <meta charset="utf-8" />
 <title>Interview Practice Coach — Checklist • Flashcards • Mock</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="Interactive practice for common interview questions: checklist, flashcards, mock interviews with timer and voice recording.">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <style>
   :root{
@@ -33,7 +32,6 @@
   textarea{min-height:90px;resize:vertical}
   .chk{display:flex;gap:10px;align-items:flex-start;margin:8px 0}
   .chk input{margin-top:2px}
-  .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
   .pill{display:inline-block;border:1px solid var(--border);padding:4px 8px;border-radius:999px;background:#0f1827;color:#cfe0ff;font-size:12px;margin:3px 3px 0 0}
   .flash{min-height:220px;border:1px dashed var(--border);border-radius:12px;padding:14px;background:#0f1722;cursor:pointer}
   .flash h3{margin:0 0 6px}
@@ -42,347 +40,326 @@
   .btn.primary{background:linear-gradient(180deg,#24466d,#1b3553);border-color:#33537b}
   .btn.good{background:linear-gradient(180deg,#1f4a34,#173826);border-color:#295b40}
   .btn.warn{background:linear-gradient(180deg,#5c3d16,#3f2a0e);border-color:#6a4b22}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .stack{display:flex;flex-direction:column;gap:8px}
   audio{width:100%}
   .tiny{font-size:12px;color:#9bb0ca}
   .badge{display:inline-block;padding:2px 8px;border-radius:8px;background:#0e1a2a;border:1px solid #20344f;font-size:12px;color:#cfe0ff}
-  .spaced > * {margin-right:8px}
 </style>
 </head>
 <body>
 <header>
   <h1>Interview Practice Coach</h1>
-  <p class="sub">Checklist your prep, drill flashcards, and run mock interviews with a timer and optional voice recording—fully in your browser.</p>
+  <p class="sub">Checklist your prep, drill flashcards, and run mock interviews with a timer and optional voice recording.</p>
 </header>
 
 <main>
-<div class="tabs">
-  <button class="tab active" data-tab="check" type="button">Checklist</button>
-  <button class="tab" data-tab="flash" type="button">Flashcards</button>
-  <button class="tab" data-tab="mock"  type="button">Mock Interview</button>
-</div>
-
+  <div class="tabs">
+    <button class="tab active" data-tab="check" type="button">Checklist</button>
+    <button class="tab" data-tab="flash" type="button">Flashcards</button>
+    <button class="tab" data-tab="mock"  type="button">Mock Interview</button>
+  </div>
 
   <div class="wrap">
-    <!-- LEFT: dynamic panel -->
-    <section class="card">
-      <div id="panel" class="pad"></div>
-    </section>
-
-    <!-- RIGHT: notes -->
-    <section class="card">
-      <div class="pad">
-        <div class="row" style="justify-content:space-between;align-items:baseline">
-          <h3 style="margin:0">Notes</h3>
-          <span class="tiny">Auto-saved to your browser</span>
-        </div>
-        <textarea id="notes" placeholder="Write insights, STAR stories, salary numbers, etc."></textarea>
-        <div class="row" style="margin-top:8px">
-          <button id="clearNotes" class="btn warn">Clear notes</button>
-          <span class="tiny">Tip: Press <b>Ctrl/Cmd+S</b> to save notes to a file.</span>
-        </div>
-        <div id="savedAudios" class="section">
-          <h4 style="margin:0 0 8px">Recorded Answers</h4>
-          <div id="audioList" class="stack tiny"></div>
-        </div>
+    <!-- LEFT -->
+    <section class="card"><div id="panel" class="pad"></div></section>
+    <!-- RIGHT -->
+    <section class="card"><div class="pad">
+      <div class="row" style="justify-content:space-between;align-items:baseline">
+        <h3 style="margin:0">Notes</h3>
+        <span class="tiny">Auto-saved to your browser</span>
       </div>
-    </section>
+      <textarea id="notes" placeholder="Write insights, STAR stories, salary numbers, etc."></textarea>
+      <div class="row" style="margin-top:8px">
+        <button id="clearNotes" class="btn warn" type="button">Clear notes</button>
+        <span class="tiny">Tip: <b>Ctrl/Cmd+S</b> saves notes to a file.</span>
+      </div>
+      <div class="section">
+        <h4 style="margin:0 0 8px">Recorded Answers</h4>
+        <div id="audioList" class="stack tiny"></div>
+      </div>
+    </div></section>
   </div>
 </main>
 
 <script>
-/* ========= Content (derived from your “Interview Common Questions”) ========= */
-const BANK = [
-  {q:"Salary negotiation", tips:[
-    "Negotiate after receiving a written offer.",
-    "Thank them, reinforce value, state your range clearly, then pause."
-  ]},
-  {q:"Interview rounds", tips:[
-    "HR: energy, clarity, enthusiasm.",
-    "Manager: strong relevant examples tied to role.",
-    "Executive: confidence, cultural fit, connection."
-  ]},
-  {q:"Body language", tips:["Feel at ease.","Mirror to build rapport.","Stay present to listen better."]},
-  {q:"Research company", tips:["Website (products/services).","News (latest moves).","LinkedIn (interviewers).","Social (culture/priorities)."]},
-  {q:"Dress", tips:["Match company culture.","Well-fitted outfit.","Polished, confident, professional."]},
-  {q:"Follow up", tips:["Ask next steps before leaving.","Follow up after a week if needed.","Stay confident and graceful."]},
-  {q:"Tell me about yourself", tips:[
-    "Short, structured, confident; connect strengths to their needs.",
-    "Hook + progression + 2–3 skills + why this role."
-  ]},
-  {q:"Greatest strength", tips:["Relevant to role.","Specific example.","Blend soft + technical.","End with benefit to employer."]},
-  {q:"Biggest weakness", tips:["Be authentic; not disqualifying.","Explain your improvement plan.","Use a specific example."]},
-  {q:"Why should we hire you?", tips:["Prove you’re qualified.","Show how you’ll excel + add value.","Demonstrate culture fit."]},
-  {q:"Why do you want to work here?", tips:["Start with them (mission/values).","Tie something timely.","Connect your experience.","End with your growth."]},
-  {q:"What would coworkers say about you?", tips:["Match job strengths.","Cite real feedback.","Give an example; add personality."]},
-  {q:"Why did you leave / leaving?", tips:["Stay positive.","Emphasize growth & goals.","Connect goals to this job."]},
-  {q:"Employment gap", tips:["Honest, confident, positive.","Share skills/insights gained.","Show readiness to return."]},
-  {q:"Salary expectations", tips:["Give a researched range.","Reference credible data.","Keep door open for total comp."]},
-  {q:"Outside of work?", tips:["Be real and positive.","Relatable, brief, safe."]},
-  {q:"5-year outlook", tips:["2–3 year phases.","Focus on value you’ll bring.","Avoid rigid titles; show enthusiasm."]},
-  {q:"Leadership style", tips:["Define authentically.","Back with a concrete example.","Show adaptability to the context."]},
-  {q:"Questions for us?", tips:["Always yes.","Build on the conversation.","Show curiosity and contributor mindset."]},
-  {q:"Tell me about a time…", tips:["Use SAR/STAR: Situation → Action → Result.","Make impact measurable."]},
-  {q:"Successful project", tips:["Set the challenge.","Show proactive actions.","Result with metrics; team spirit."]},
-  {q:"Made a mistake", tips:["Own it.","Lesson learned + how you apply it.","Be sincere."]},
-  {q:"Difficult person", tips:["STAR: rapport + listen + adjust.","Outcome: delivery + relationship."]},
-  {q:"Persuade someone", tips:["Empathy to find driver.","Offer alternative; preserve relationship."]},
-  {q:"Achieved a goal", tips:["Goal → Actions → Result.","Shows discipline and focus."]},
-  {q:"Surpassed expectations", tips:["STAR; adaptability; planning; impact."]},
-  {q:"Handle pressure", tips:["Tell a SAR story; show calm execution."]},
-  {q:"Follow-up email (after interview)", tips:[
-    "Send same day; be genuine and specific.",
-    "Be gracious, not groveling; signal interest in next steps."
-  ]},
-];
-
-/* ========= Tabs ========= */
-const panel = document.getElementById('panel');
-const tabs = document.querySelectorAll('.tab');
-// --- Tabs: delegate clicks & handle initial render safely ---
-function setActiveTab(tabName){
-  document.querySelectorAll('.tab').forEach(b => {
-    b.classList.toggle('active', b.dataset.tab === tabName);
-  });
-  render(tabName); // calls renderChecklist / renderFlashcards / renderMock
-}
-
-// Clicks (works for dynamically added buttons too)
-document.addEventListener('click', (e)=>{
-  const btn = e.target.closest('button.tab');
-  if(!btn) return;
-  e.preventDefault();
-  setActiveTab(btn.dataset.tab);
-});
-
-// Initial render after DOM is ready (covers script anywhere on page)
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => setActiveTab('check'));
-} else {
-  setActiveTab('check');
-}
-function render(which){
-  if(which === 'check') renderChecklist();
-  else if(which === 'flash') renderFlashcards();
-  else renderMock();
-}
-render('check');
-
-/* ========= Local storage helpers ========= */
-const KEY_NOTES = 'ipc_notes';
-const KEY_CHECK = 'ipc_check';
-const KEY_AUDIO = 'ipc_audio_meta';
-
-/* ========= Checklist ========= */
-function renderChecklist(){
-  const saved = JSON.parse(localStorage.getItem(KEY_CHECK)||'{}');
-  const groups = [
-    {name:"Preparation", keys:["Research company","Dress","Body language","Interview rounds"]},
-    {name:"Offer & Money", keys:["Salary expectations","Salary negotiation"]},
-    {name:"Core Fit", keys:["Tell me about yourself","Why should we hire you?","Why do you want to work here?","Questions for us?"]},
-    {name:"Behavioral (STAR/SAR)", keys:["Tell me about a time…","Successful project","Made a mistake","Difficult person","Persuade someone","Handle pressure","Achieved a goal","Surpassed expectations"]},
-    {name:"Background", keys:["Greatest strength","Biggest weakness","Why did you leave / leaving?","Employment gap","5-year outlook","Outside of work?","Leadership style"]},
-    {name:"Process & Follow-up", keys:["Follow up","Follow-up email (after interview)"]},
+window.addEventListener('DOMContentLoaded', () => {
+  // ===== Data =====
+  const BANK = [
+    {q:"Salary negotiation", tips:[
+      "Negotiate after receiving a written offer.",
+      "Thank them, reinforce value, state your range clearly, then pause."
+    ]},
+    {q:"Interview rounds", tips:[
+      "HR: energy, clarity, enthusiasm.",
+      "Manager: strong relevant examples tied to role.",
+      "Executive: confidence, cultural fit, connection."
+    ]},
+    {q:"Body language", tips:["Feel at ease.","Mirror to build rapport.","Stay present to listen better."]},
+    {q:"Research company", tips:["Website (products/services).","News (latest moves).","LinkedIn (interviewers).","Social (culture/priorities)."]},
+    {q:"Dress", tips:["Match company culture.","Well-fitted outfit.","Polished, confident, professional."]},
+    {q:"Follow up", tips:["Ask next steps before leaving.","Follow up after a week if needed.","Stay confident and graceful."]},
+    {q:"Tell me about yourself", tips:[
+      "Short, structured, confident; connect strengths to their needs.",
+      "Hook + progression + 2–3 skills + why this role."
+    ]},
+    {q:"Greatest strength", tips:["Relevant to role.","Specific example.","Blend soft + technical.","End with benefit to employer."]},
+    {q:"Biggest weakness", tips:["Be authentic; not disqualifying.","Explain your improvement plan.","Use a specific example."]},
+    {q:"Why should we hire you?", tips:["Prove you’re qualified.","Show how you’ll excel + add value.","Demonstrate culture fit."]},
+    {q:"Why do you want to work here?", tips:["Start with them (mission/values).","Tie something timely.","Connect your experience.","End with your growth."]},
+    {q:"What would coworkers say about you?", tips:["Match job strengths.","Cite real feedback.","Give an example; add personality."]},
+    {q:"Why did you leave / leaving?", tips:["Stay positive.","Emphasize growth & goals.","Connect goals to this job."]},
+    {q:"Employment gap", tips:["Honest, confident, positive.","Share skills/insights gained.","Show readiness to return."]},
+    {q:"Salary expectations", tips:["Give a researched range.","Reference credible data.","Keep door open for total comp."]},
+    {q:"Outside of work?", tips:["Be real and positive.","Relatable, brief, safe."]},
+    {q:"5-year outlook", tips:["2–3 year phases.","Focus on value you’ll bring.","Avoid rigid titles; show enthusiasm."]},
+    {q:"Leadership style", tips:["Define authentically.","Back with a concrete example.","Show adaptability to the context."]},
+    {q:"Questions for us?", tips:["Always yes.","Build on the conversation.","Show curiosity and contributor mindset."]},
+    {q:"Tell me about a time…", tips:["Use STAR: Situation → Task → Action → Result.","Make impact measurable."]},
+    {q:"Successful project", tips:["Set the challenge.","Show proactive actions.","Result with metrics; team spirit."]},
+    {q:"Made a mistake", tips:["Own it.","Lesson learned + how you apply it.","Be sincere."]},
+    {q:"Difficult person", tips:["STAR: rapport + listen + adjust.","Outcome: delivery + relationship."]},
+    {q:"Persuade someone", tips:["Empathy to find driver.","Offer alternative; preserve relationship."]},
+    {q:"Achieved a goal", tips:["Goal → Actions → Result.","Shows discipline and focus."]},
+    {q:"Surpassed expectations", tips:["STAR; adaptability; planning; impact."]},
+    {q:"Handle pressure", tips:["Tell a STAR story; show calm execution."]},
+    {q:"Follow-up email (after interview)", tips:[
+      "Send same day; be genuine and specific.",
+      "Be gracious, not groveling; signal interest in next steps."
+    ]},
   ];
 
-  let html = `<h3 style="margin:0 0 10px">Interview Readiness Checklist</h3>
-  <div class="muted tiny" style="margin-bottom:8px">Tick the items you’ve prepared. Click a pill to open tips.</div>`;
-  groups.forEach(g=>{
-    html += `<div class="section"><div class="row"><h4 style="margin:0">${g.name}</h4>
-      <span class="badge" id="b_${g.name}"></span></div><div>`;
-    g.keys.forEach(k=>{
-      const id = 'chk_'+k.replace(/[^a-z0-9]+/gi,'_').toLowerCase();
-      const on = saved[id] === true;
-      html += `<div class="chk">
-        <input type="checkbox" id="${id}" ${on?'checked':''} />
-        <label for="${id}">
-          <span class="pill" data-open="${k}">${k}</span>
-        </label>
-      </div>`;
+  // ===== Tabs =====
+  function setActiveTab(tabName){
+    document.querySelectorAll('.tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tabName);
     });
-    html += `</div></div>`;
-  });
-  panel.innerHTML = html;
-
-  // bind
-  panel.querySelectorAll('input[type=checkbox]').forEach(cb=>{
-    cb.addEventListener('change', ()=>{
-      const saved = JSON.parse(localStorage.getItem(KEY_CHECK) || '{}');
-      saved[cb.id] = cb.checked;
-      localStorage.setItem(KEY_CHECK, JSON.stringify(saved));
-      refreshGroupBadges();
-    });
-  });
-  panel.querySelectorAll('[data-open]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const topic = BANK.find(x=>x.q === el.dataset.open);
-      if(topic) showTipsModal(topic);
-    });
-  });
-  refreshGroupBadges();
-}
-function refreshGroupBadges(){
-  document.querySelectorAll('.section').forEach(sec=>{
-    const boxes = sec.querySelectorAll('input[type=checkbox]');
-    if(!boxes.length) return;
-    const done = Array.from(boxes).filter(b=>b.checked).length;
-    const badge = sec.querySelector('.badge');
-    if(badge) badge.textContent = `${done}/${boxes.length} ready`;
-  });
-}
-function showTipsModal(topic){
-  const tips = topic.tips.map(t=>`<li>${t}</li>`).join('');
-  const box = document.createElement('div');
-  box.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50";
-  box.innerHTML = `<div style="background:#0f1722;border:1px solid #2a3a50;border-radius:12px;padding:16px;max-width:560px;width:92%">
-    <div class="row" style="justify-content:space-between;align-items:center">
-      <h3 style="margin:0">${topic.q}</h3>
-      <button class="btn" id="x">Close</button>
-    </div>
-    <ul style="margin:8px 0 0; padding-left:18px">${tips}</ul>
-  </div>`;
-  document.body.appendChild(box);
-  box.querySelector('#x').addEventListener('click', ()=>box.remove());
-  box.addEventListener('click', e=>{ if(e.target===box) box.remove(); });
-}
-
-/* ========= Flashcards ========= */
-let flashIdx = 0, flashBack = false;
-function renderFlashcards(){
-  const topic = BANK[flashIdx % BANK.length];
-  panel.innerHTML = `
-    <div class="row spaced">
-      <button class="btn" id="prev">‹ Prev</button>
-      <button class="btn" id="flip">Flip</button>
-      <button class="btn" id="next">Next ›</button>
-      <span class="tiny">Press ← / Space / →</span>
-    </div>
-    <div class="flash" id="card" title="Click to flip">
-      ${flashBack
-        ? `<h3>How to answer</h3><ul class="tips">${topic.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`
-        : `<h3>${topic.q}</h3><div class="muted">Think for 10–20 seconds, then speak your answer aloud.</div>`}
-    </div>
-  `;
-  const flip = ()=>{ flashBack=!flashBack; renderFlashcards(); };
-  panel.querySelector('#prev').onclick = ()=>{ flashIdx=(flashIdx-1+BANK.length)%BANK.length; flashBack=false; renderFlashcards(); };
-  panel.querySelector('#next').onclick = ()=>{ flashIdx=(flashIdx+1)%BANK.length; flashBack=false; renderFlashcards(); };
-  panel.querySelector('#flip').onclick = flip;
-  panel.querySelector('#card').onclick = flip;
-}
-window.addEventListener('keydown', e=>{
-  const active = document.querySelector('.tab.active')?.dataset.tab;
-  if(active!=='flash') return;
-  if(e.code==='ArrowRight'){ flashIdx=(flashIdx+1)%BANK.length; flashBack=false; renderFlashcards(); }
-  if(e.code==='ArrowLeft'){ flashIdx=(flashIdx-1+BANK.length)%BANK.length; flashBack=false; renderFlashcards(); }
-  if(e.code==='Space'){ e.preventDefault(); flashBack=!flashBack; renderFlashcards(); }
-});
-
-/* ========= Mock Interview (timer + voice recording) ========= */
-let mediaStream=null, recorder=null, chunks=[];
-function renderMock(){
-  const q = BANK[Math.floor(Math.random()*BANK.length)];
-  panel.innerHTML = `
-    <div class="stack">
-      <div class="row" style="justify-content:space-between;align-items:baseline">
-        <h3 style="margin:0">Mock Interview</h3>
-        <span class="tiny">Random question • Countdown • Optional recording</span>
-      </div>
-      <div class="row">
-        <button class="btn" id="nextQ">New question</button>
-        <label class="muted">Answer time
-          <select id="duration">
-            <option value="60">60s</option>
-            <option value="90" selected>90s</option>
-            <option value="120">120s</option>
-            <option value="180">180s</option>
-          </select>
-        </label>
-        <span class="badge" id="clock">—</span>
-      </div>
-      <div class="flash" style="cursor:auto">
-        <h3 id="question">${q.q}</h3>
-        <div class="tiny" id="hint">Tip: ${q.tips[0]||''}</div>
-      </div>
-      <div class="row">
-        <button class="btn good" id="start">Start</button>
-        <button class="btn warn" id="stop">Stop</button>
-        <button class="btn" id="record">🎙 Record</button>
-        <button class="btn" id="save" disabled>Save answer</button>
-      </div>
-      <audio id="player" controls></audio>
-    </div>
-  `;
-
-  const qs = ()=>{ const t=BANK[Math.floor(Math.random()*BANK.length)]; 
-    document.getElementById('question').textContent=t.q;
-    document.getElementById('hint').textContent='Tip: '+(t.tips[0]||'');
-  };
-  panel.querySelector('#nextQ').onclick = qs;
-
-  let timer=null, left=0;
-  const tick=()=>{ document.getElementById('clock').textContent = left>0? `${left}s` : 'Done'; if(left<=0){ clearInterval(timer); timer=null; } left--; };
-  panel.querySelector('#start').onclick = ()=>{ clearInterval(timer); left=parseInt(document.getElementById('duration').value,10); tick(); timer=setInterval(tick,1000); };
-  panel.querySelector('#stop').onclick = ()=>{ clearInterval(timer); timer=null; document.getElementById('clock').textContent='—'; };
-
-  // Recording
-  const recBtn = panel.querySelector('#record');
-  const saveBtn = panel.querySelector('#save');
-  const player = panel.querySelector('#player');
-
-  async function toggleRecord(){
-    if(recorder && recorder.state==='recording'){
-      recorder.stop();
-      recBtn.textContent = "🎙 Record";
-      return;
-    }
-    try{
-      if(!mediaStream) mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
-      chunks=[];
-      recorder = new MediaRecorder(mediaStream);
-      recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
-      recorder.onstop = ()=> {
-        const blob = new Blob(chunks, {type:'audio/webm'});
-        player.src = URL.createObjectURL(blob);
-        saveBtn.disabled = false;
-      };
-      recorder.start();
-      recBtn.textContent = "⏹ Stop";
-      saveBtn.disabled = true;
-    }catch(e){
-      alert("Microphone error: " + (e?.message||e));
-    }
+    render(tabName);
   }
-  recBtn.onclick = toggleRecord;
-
-  saveBtn.onclick = ()=>{
-    if(!player.src) return;
-    const a = document.createElement('a');
-    const qText = document.getElementById('question').textContent.replace(/\s+/g,'_').slice(0,60);
-    a.href = player.src;
-    a.download = `answer_${qText}_${new Date().toISOString().replace(/[:.]/g,'-')}.webm`;
-    a.click();
-    // list it
-    const item = document.createElement('div');
-    item.innerHTML = `<audio controls src="${player.src}"></audio><div class="tiny">${qText}</div>`;
-    document.getElementById('audioList').prepend(item);
-  };
-}
-
-/* ========= Notes persistence ========= */
-const notes = document.getElementById('notes');
-notes.value = localStorage.getItem(KEY_NOTES) || "";
-notes.addEventListener('input', ()=> localStorage.setItem(KEY_NOTES, notes.value));
-document.getElementById('clearNotes').addEventListener('click', ()=>{
-  if(confirm('Clear all notes?')){ notes.value=""; localStorage.removeItem(KEY_NOTES); }
-});
-window.addEventListener('keydown', e=>{
-  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button.tab');
+    if(!btn) return;
     e.preventDefault();
-    const blob = new Blob([notes.value], {type:'text/plain'});
-    const a = Object.assign(document.createElement('a'), {href:URL.createObjectURL(blob), download:'interview_notes.txt'});
-    a.click();
+    setActiveTab(btn.dataset.tab);
+  });
+
+  // ===== Checklist =====
+  const KEY_CHECK = 'ipc_check';
+  function renderChecklist(){
+    const panel = document.getElementById('panel');
+    const saved = JSON.parse(localStorage.getItem(KEY_CHECK)||'{}');
+    const groups = [
+      {name:"Preparation", keys:["Research company","Dress","Body language","Interview rounds"]},
+      {name:"Offer & Money", keys:["Salary expectations","Salary negotiation"]},
+      {name:"Core Fit", keys:["Tell me about yourself","Why should we hire you?","Why do you want to work here?","Questions for us?"]},
+      {name:"Behavioral (STAR)", keys:["Tell me about a time…","Successful project","Made a mistake","Difficult person","Persuade someone","Handle pressure","Achieved a goal","Surpassed expectations"]},
+      {name:"Background", keys:["Greatest strength","Biggest weakness","Why did you leave / leaving?","Employment gap","5-year outlook","Outside of work?","Leadership style"]},
+      {name:"Process & Follow-up", keys:["Follow up","Follow-up email (after interview)"]},
+    ];
+
+    let html = `<h3 style="margin:0 0 10px">Interview Readiness Checklist</h3>
+      <div class="tiny muted" style="margin-bottom:8px">Tick items you’ve prepared. Click a tag to see tips.</div>`;
+    groups.forEach(g=>{
+      html += `<div class="section"><div class="row"><h4 style="margin:0">${g.name}</h4>
+        <span class="badge" data-badge="${g.name}"></span></div>`;
+      g.keys.forEach(k=>{
+        const id = 'chk_'+k.replace(/[^a-z0-9]+/gi,'_').toLowerCase();
+        const on = saved[id] === true;
+        html += `<div class="chk">
+          <input type="checkbox" id="${id}" ${on?'checked':''} />
+          <label for="${id}"><span class="pill" data-open="${k}">${k}</span></label>
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    panel.innerHTML = html;
+
+    panel.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        const s = JSON.parse(localStorage.getItem(KEY_CHECK) || '{}');
+        s[cb.id] = cb.checked;
+        localStorage.setItem(KEY_CHECK, JSON.stringify(s));
+        refreshBadges();
+      });
+    });
+    panel.querySelectorAll('[data-open]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const topic = BANK.find(x=>x.q === el.dataset.open);
+        if(topic) showTips(topic);
+      });
+    });
+    refreshBadges();
   }
+  function refreshBadges(){
+    document.querySelectorAll('[data-badge]').forEach(b=>{
+      const sec = b.closest('.section');
+      const boxes = sec.querySelectorAll('input[type=checkbox]');
+      const done = Array.from(boxes).filter(x=>x.checked).length;
+      b.textContent = `${done}/${boxes.length} ready`;
+    });
+  }
+  function showTips(topic){
+    const box = document.createElement('div');
+    box.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50";
+    box.innerHTML = `<div style="background:#0f1722;border:1px solid #2a3a50;border-radius:12px;padding:16px;max-width:560px;width:92%">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h3 style="margin:0">${topic.q}</h3>
+        <button class="btn" id="x" type="button">Close</button>
+      </div>
+      <ul style="margin:8px 0 0; padding-left:18px">${topic.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>`;
+    document.body.appendChild(box);
+    box.querySelector('#x').addEventListener('click', ()=>box.remove());
+    box.addEventListener('click', e=>{ if(e.target===box) box.remove(); });
+  }
+
+  // ===== Flashcards =====
+  let flashIdx = 0, flashBack = false;
+  function renderFlashcards(){
+    const panel = document.getElementById('panel');
+    const topic = BANK[flashIdx % BANK.length];
+    panel.innerHTML = `
+      <div class="row">
+        <button class="btn" id="prev" type="button">‹ Prev</button>
+        <button class="btn" id="flip" type="button">Flip</button>
+        <button class="btn" id="next" type="button">Next ›</button>
+        <span class="tiny">Keys: ← / Space / →</span>
+      </div>
+      <div class="flash" id="card" title="Click to flip">
+        ${flashBack
+          ? `<h3>How to answer</h3><ul class="tips">${topic.tips.map(t=>`<li>${t}</li>`).join('')}</ul>`
+          : `<h3>${topic.q}</h3><div class="muted">Think for 10–20 seconds, then speak your answer aloud.</div>`}
+      </div>`;
+    const flip = ()=>{ flashBack=!flashBack; renderFlashcards(); };
+    panel.querySelector('#prev').onclick = ()=>{ flashIdx=(flashIdx-1+BANK.length)%BANK.length; flashBack=false; renderFlashcards(); };
+    panel.querySelector('#next').onclick = ()=>{ flashIdx=(flashIdx+1)%BANK.length; flashBack=false; renderFlashcards(); };
+    panel.querySelector('#flip').onclick = flip;
+    panel.querySelector('#card').onclick = flip;
+  }
+  window.addEventListener('keydown', e=>{
+    const active = document.querySelector('.tab.active')?.dataset.tab;
+    if(active!=='flash') return;
+    if(e.code==='ArrowRight'){ flashIdx=(flashIdx+1)%BANK.length; flashBack=false; renderFlashcards(); }
+    if(e.code==='ArrowLeft'){ flashIdx=(flashIdx-1+BANK.length)%BANK.length; flashBack=false; renderFlashcards(); }
+    if(e.code==='Space'){ e.preventDefault(); flashBack=!flashBack; renderFlashcards(); }
+  });
+
+  // ===== Mock Interview =====
+  let mediaStream=null, recorder=null, chunks=[];
+  function renderMock(){
+    const panel = document.getElementById('panel');
+    const q = BANK[Math.floor(Math.random()*BANK.length)];
+    panel.innerHTML = `
+      <div class="stack">
+        <div class="row" style="justify-content:space-between;align-items:baseline">
+          <h3 style="margin:0">Mock Interview</h3>
+          <span class="tiny">Random question • Countdown • Optional recording</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="nextQ" type="button">New question</button>
+          <label class="muted">Answer time
+            <select id="duration">
+              <option value="60">60s</option>
+              <option value="90" selected>90s</option>
+              <option value="120">120s</option>
+              <option value="180">180s</option>
+            </select>
+          </label>
+          <span class="badge" id="clock">—</span>
+        </div>
+        <div class="flash" style="cursor:auto">
+          <h3 id="question">${q.q}</h3>
+          <div class="tiny" id="hint">Tip: ${q.tips[0]||''}</div>
+        </div>
+        <div class="row">
+          <button class="btn good" id="start" type="button">Start</button>
+          <button class="btn warn" id="stop"  type="button">Stop</button>
+          <button class="btn" id="record" type="button">🎙 Record</button>
+          <button class="btn" id="save" type="button" disabled>Save answer</button>
+        </div>
+        <audio id="player" controls></audio>
+      </div>`;
+    const qs = ()=>{ const t=BANK[Math.floor(Math.random()*BANK.length)];
+      document.getElementById('question').textContent=t.q;
+      document.getElementById('hint').textContent='Tip: '+(t.tips[0]||'');
+    };
+    panel.querySelector('#nextQ').onclick = qs;
+
+    let timer=null, left=0;
+    const tick=()=>{ document.getElementById('clock').textContent = left>0? `${left}s` : 'Done'; if(left<=0){ clearInterval(timer); timer=null; } left--; };
+    panel.querySelector('#start').onclick = ()=>{ clearInterval(timer); left=parseInt(document.getElementById('duration').value,10); tick(); timer=setInterval(tick,1000); };
+    panel.querySelector('#stop').onclick  = ()=>{ clearInterval(timer); timer=null; document.getElementById('clock').textContent='—'; };
+
+    // Recording
+    const recBtn = panel.querySelector('#record');
+    const saveBtn = panel.querySelector('#save');
+    const player = panel.querySelector('#player');
+
+    async function toggleRecord(){
+      if(recorder && recorder.state==='recording'){
+        recorder.stop();
+        recBtn.textContent = "🎙 Record";
+        return;
+      }
+      try{
+        if(!mediaStream) mediaStream = await navigator.mediaDevices.getUserMedia({audio:true});
+        chunks=[];
+        recorder = new MediaRecorder(mediaStream);
+        recorder.ondataavailable = e => { if(e.data.size>0) chunks.push(e.data); };
+        recorder.onstop = ()=> {
+          const blob = new Blob(chunks, {type:'audio/webm'});
+          player.src = URL.createObjectURL(blob);
+          saveBtn.disabled = false;
+        };
+        recorder.start();
+        recBtn.textContent = "⏹ Stop";
+        saveBtn.disabled = true;
+      }catch(e){ alert("Microphone error: " + (e?.message||e)); }
+    }
+    recBtn.onclick = toggleRecord;
+
+    saveBtn.onclick = ()=>{
+      if(!player.src) return;
+      const a = document.createElement('a');
+      const qText = document.getElementById('question').textContent.replace(/\s+/g,'_').slice(0,60);
+      a.href = player.src;
+      a.download = `answer_${qText}_${new Date().toISOString().replace(/[:.]/g,'-')}.webm`;
+      a.click();
+      const item = document.createElement('div');
+      item.innerHTML = `<audio controls src="${player.src}"></audio><div class="tiny">${qText}</div>`;
+      document.getElementById('audioList').prepend(item);
+    };
+  }
+
+  // ===== Render switch =====
+  function render(which){
+    if(which==='check') return renderChecklist();
+    if(which==='flash') return renderFlashcards();
+    return renderMock();
+  }
+
+  // Tab clicks
+  setActiveTab('check'); // initial render
+  function setActiveTab(tabName){
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tabName));
+    render(tabName);
+  }
+
+  // Notes persistence
+  const notes = document.getElementById('notes');
+  const KEY_NOTES = 'ipc_notes';
+  notes.value = localStorage.getItem(KEY_NOTES) || "";
+  notes.addEventListener('input', ()=> localStorage.setItem(KEY_NOTES, notes.value));
+  document.getElementById('clearNotes').addEventListener('click', ()=>{
+    if(confirm('Clear all notes?')){ notes.value=""; localStorage.removeItem(KEY_NOTES); }
+  });
+  window.addEventListener('keydown', e=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){
+      e.preventDefault();
+      const blob = new Blob([notes.value], {type:'text/plain'});
+      const a = Object.assign(document.createElement('a'), {href:URL.createObjectURL(blob), download:'interview_notes.txt'});
+      a.click();
+    }
+  });
 });
 </script>
 </body>
