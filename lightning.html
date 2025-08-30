@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LightningWatch — Live Lightning & Storm Alerts (Web)</title>
+<meta name="description" content="Single‑page lightning & storm alerts viewer. Free sources (Meteoalarm EU, NWS US) + demo strikes. Optional radar overlay. GitHub Pages compatible." />
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="dns-prefetch" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#12193a; --border:#233158; --text:#e9eefb; --muted:#9bb0d8; --chip:#1a2250; --accent:#4fd1ff; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+    --map-h: 58vh;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#0e1430 70%);color:var(--text)}
+  header{position:sticky;top:0;z-index:10;background:#0d1430e6;backdrop-filter:blur(6px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{color:var(--muted);margin:4px 0 0}
+  main{max-width:1200px;margin:0 auto;padding:16px;display:grid;gap:14px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px}
+  .controls{display:grid;grid-template-columns:1fr;gap:10px}
+  @media (min-width:900px){ .controls{grid-template-columns:1.3fr 1fr 1fr 1fr 1fr 1fr; align-items:end} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 4px}
+  input,select,button,textarea{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  textarea{min-height:84px}
+  button{cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:linear-gradient(180deg,#4fd1ff,#2aa4ef);border:none;color:#00111e;font-weight:600}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  #map{height:var(--map-h);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1fr}
+  @media (min-width:900px){ .two{grid-template-columns:1fr 1fr} }
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+  thead th{position:sticky;top:0;background:#121a45;z-index:1}
+  tbody tr:hover{background:#0f183b}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .right{margin-left:auto}
+  .legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.y{background:#ffd166}.dot.o{background:#ff8c42}.dot.r{background:#ff5151}
+  .small{font-size:12px;color:var(--muted)}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>LightningWatch — Live Lightning & Storm Alerts (Web)</h1>
+  <p class="tag">Map + alerts • EU (Meteoalarm) & US (NWS) feeds • Demo strikes • Optional radar overlay • GitHub Pages‑ready</p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="controls">
+      <div>
+        <label>Source</label>
+        <select id="source">
+          <option value="demo">Demo strikes (sample)</option>
+          <option value="eu" selected>EU Alerts — Meteoalarm</option>
+          <option value="us">US Alerts — NWS</option>
+        </select>
+      </div>
+      <div>
+        <label>Area</label>
+        <select id="area">
+          <option value="global" selected>Global / Country</option>
+          <option value="near">Near me</option>
+          <option value="custom">Custom center</option>
+        </select>
+      </div>
+      <div>
+        <label>Country (EU alerts)</label>
+        <select id="country">
+          <option value="TR" selected>Turkey (TR)</option>
+          <option value="DE">Germany (DE)</option>
+          <option value="FR">France (FR)</option>
+          <option value="IT">Italy (IT)</option>
+          <option value="ES">Spain (ES)</option>
+          <option value="GB">United Kingdom (GB)</option>
+          <option value="GR">Greece (GR)</option>
+          <option value="RO">Romania (RO)</option>
+          <option value="BG">Bulgaria (BG)</option>
+          <option value="SE">Sweden (SE)</option>
+          <option value="NO">Norway (NO)</option>
+          <option value="FI">Finland (FI)</option>
+          <option value="PL">Poland (PL)</option>
+          <option value="HU">Hungary (HU)</option>
+          <option value="AT">Austria (AT)</option>
+          <option value="NL">Netherlands (NL)</option>
+          <option value="BE">Belgium (BE)</option>
+          <option value="PT">Portugal (PT)</option>
+        </select>
+      </div>
+      <div>
+        <label>Radius (km) — Near/Custom</label>
+        <select id="radius">
+          <option>100</option>
+          <option>300</option>
+          <option selected>500</option>
+          <option>1000</option>
+        </select>
+      </div>
+      <div>
+        <label>Custom center (lat,lon)</label>
+        <input id="customCenter" placeholder="41.0082, 28.9784" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button id="fetchBtn" class="btn">▶ Fetch</button>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <span class="chip">Loaded: <b id="count">0</b></span>
+      <span class="chip">Updated: <b id="updated">—</b></span>
+      <span class="chip">Status: <b id="status">Idle</b></span>
+      <label class="chip" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="radar"> Radar overlay</label>
+      <span class="right small">Data: Meteoalarm (EU), NWS (US) • Demo strikes (offline sample)</span>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <div id="map"></div>
+      <div class="legend" style="margin-top:10px">
+        <span class="small">Alerts by severity:</span>
+        <span class="dot y"></span><span class="small">Yellow (attention)</span>
+        <span class="dot o"></span><span class="small">Orange (danger)</span>
+        <span class="dot r"></span><span class="small">Red (severe)</span>
+      </div>
+    </div>
+    <div class="card" style="max-height:calc(var(--map-h) + 50px);overflow:auto">
+      <table id="list">
+        <thead>
+          <tr><th>Time</th><th>Type</th><th>Area</th><th>Level</th><th>Dist km</th><th>Link</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0">Diagnostics</h3>
+    <div class="row">
+      <button id="diagBtn" class="ghost">🩺 Run diagnostics</button>
+      <button id="exportJson" class="ghost">⬇ Export JSON</button>
+      <button id="exportCsv" class="ghost">⬇ Export CSV</button>
+    </div>
+    <div style="overflow:auto;max-height:220px;margin-top:8px">
+      <table id="diagTable">
+        <thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Help & About</summary>
+      <div class="grid two">
+        <div>
+          <h3>What works for free</h3>
+          <ul class="small">
+            <li><b>EU Alerts:</b> pulls current warnings from <span class="mono">api.meteoalarm.org</span> by country (thunderstorms, etc.).</li>
+            <li><b>US Alerts:</b> pulls active warnings from <span class="mono">api.weather.gov</span> near your point.</li>
+            <li><b>Demo strikes:</b> built‑in sample lightning points to test the UI offline.</li>
+            <li><b>Radar overlay:</b> optional public radar tiles (best‑effort).</li>
+          </ul>
+          <p class="small">Live strike coordinates from global networks usually require paid keys or contributor access. This page focuses on free alert feeds + demo data.</p>
+        </div>
+        <div>
+          <h3>Deploy on GitHub Pages</h3>
+          <ol class="small">
+            <li>Create a public repo (e.g., <b>lightningwatch-web</b>).</li>
+            <li>Add <b>index.html</b> with this code. Commit.</li>
+            <li>Repo <i>Settings → Pages</i> → Deploy from a branch → default branch → <i>/(root)</i>.</li>
+            <li>Open: <span class="mono">https://&lt;username&gt;.github.io/lightningwatch-web/</span></li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  // ---------- Helpers ----------
+  const $$ = sel => document.querySelector(sel);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const fmtDate = v => (v? new Date(v).toLocaleString() : '—');
+  const fmtNum = (n, d=0) => (n==null? '—' : Number(n).toFixed(d));
+  const km = d => Math.round(d);
+  const toCsv = rows => rows.map(r => r.map(v => {
+    v = v==null? '' : String(v);
+    return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }).join(',')).join('\n');
+  const toRad = x => x*Math.PI/180;
+  const haversineKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  };
+
+  function setStatus(s){ $$('#status').textContent = s; }
+
+  // ---------- Map ----------
+  let map=null, layers={};
+  try{
+    map = L.map('map').setView([20,0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+    layers.items = L.layerGroup().addTo(map);
+    layers.polys = L.layerGroup().addTo(map);
+    layers.radar = null;
+  }catch(e){
+    document.getElementById('map').innerHTML = '<div class="small">Map library failed to load. List view will still work.</div>';
+  }
+
+  // ---------- State ----------
+  const state = { items: [], myLoc:null };
+
+  // ---------- UI Refs ----------
+  const sourceSel = $$('#source');
+  const areaSel = $$('#area');
+  const countrySel = $$('#country');
+  const radiusSel = $$('#radius');
+  const customCenter = $$('#customCenter');
+  const fetchBtn = $$('#fetchBtn');
+  const countEl = $$('#count');
+  const updatedEl = $$('#updated');
+  const radarChk = $$('#radar');
+
+  // ---------- Radar overlay (RainViewer nowcast) ----------
+  async function toggleRadar(){
+    if(!map) return;
+    if(!radarChk.checked){ if(layers.radar){ map.removeLayer(layers.radar); layers.radar=null; } return; }
+    try{
+      const meta = await fetch('https://tilecache.rainviewer.com/v2/radar/nowcast.json').then(r=>r.json());
+      const ts = (meta && meta.nowcast && meta.nowcast[0] && meta.nowcast[0].time) || meta.generated;
+      if(!ts) throw new Error('no timestamp');
+      const url = `https://tilecache.rainviewer.com/v2/radar/${ts}/256/{z}/{x}/{y}/2/1_1.png`;
+      layers.radar = L.tileLayer(url, { opacity:0.7, attribution: 'RainViewer radar' }).addTo(map);
+    }catch(e){ alert('Radar overlay failed to load.'); radarChk.checked=false; }
+  }
+  radarChk.addEventListener('change', toggleRadar);
+
+  // ---------- Geolocation ----------
+  function ensureLocation(cb){
+    if(areaSel.value!=='near') return cb(null);
+    if(state.myLoc) return cb(null);
+    if(!navigator.geolocation){ alert('Geolocation not supported'); areaSel.value='custom'; return cb(new Error('no geo')); }
+    navigator.geolocation.getCurrentPosition(pos=>{
+      state.myLoc = {lat:pos.coords.latitude, lon:pos.coords.longitude};
+      map && map.setView([state.myLoc.lat, state.myLoc.lon], 6);
+      cb(null);
+    }, err=>{ alert('Could not get your location'); areaSel.value='custom'; cb(err); }, {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  }
+
+  // ---------- Fetch orchestrator ----------
+  fetchBtn.addEventListener('click', ()=>{
+    ensureLocation(()=> fetchData());
+  });
+
+  async function fetchData(){
+    setStatus('Fetching…'); fetchBtn.disabled=true;
+    try{
+      let data = null;
+      if(sourceSel.value==='demo') data = await loadDemo();
+      else if(sourceSel.value==='eu') data = await loadMeteoalarm();
+      else if(sourceSel.value==='us') data = await loadNws();
+      if(!data) throw new Error('No data');
+      render(data);
+      setStatus('OK');
+      updatedEl.textContent = new Date().toLocaleTimeString();
+    }catch(e){
+      console.error(e); setStatus('Fetch failed'); alert('Fetch failed for the selected source. See Diagnostics.');
+    }finally{ fetchBtn.disabled=false; }
+  }
+
+  // ---------- Sources ----------
+  function getCenter(){
+    if(areaSel.value==='near' && state.myLoc) return state.myLoc;
+    if(areaSel.value==='custom'){
+      const [lat,lon] = (customCenter.value||'').split(',').map(s=>parseFloat(s.trim()));
+      if(!isNaN(lat)&&!isNaN(lon)) return {lat,lon};
+    }
+    return null;
+  }
+
+  function withinRadius(lat,lon){
+    const c = getCenter(); if(!c) return true; // global
+    const r = Number(radiusSel.value||500);
+    return haversineKm(c.lat,c.lon,lat,lon) <= r;
+  }
+
+  // Demo strikes (built-in sample points)
+  async function loadDemo(){
+    const base = [
+      {lat:41.0, lon:29.0, time: Date.now()-5*60*1000, type:'CG', intensity:1.2, place:'Near Istanbul'},
+      {lat:40.2, lon:27.2, time: Date.now()-15*60*1000, type:'IC', intensity:0.8, place:'Marmara'},
+      {lat:38.4, lon:27.1, time: Date.now()-40*60*1000, type:'CG', intensity:1.0, place:'Izmir'},
+      {lat:37.0, lon:35.3, time: Date.now()-50*60*1000, type:'CG', intensity:1.5, place:'Adana'}
+    ];
+    const feats = base.filter(p=> withinRadius(p.lat,p.lon)).map((p,i)=>({
+      id:'demo-'+i,
+      kind:'strike',
+      lat:p.lat, lon:p.lon,
+      title:`Lightning ${p.type}`,
+      time:p.time,
+      level:'—',
+      link:'#',
+      extra:`Intensity ${p.intensity}`,
+    }));
+    return { type:'points', items:feats };
+  }
+
+  // Meteoalarm EU (country warnings, GeoJSON). Filters to thunder/convective.
+  async function loadMeteoalarm(){
+    const country = countrySel.value || 'TR';
+    // EDR locations query by country. Returns GeoJSON with features.
+    const url = `https://api.meteoalarm.org/edr/v1/collections/warnings/locations?country=${encodeURIComponent(country)}&f=json`;
+    const res = await fetch(url, { headers: { 'accept': 'application/geo+json, application/json' } });
+    if(!res.ok) throw new Error('Meteoalarm HTTP '+res.status);
+    const gj = await res.json();
+    const items = (gj.features||[]).map((f,i)=>{
+      const p = f.properties||{}; const when = p.when || p.onset || p.sent || p.effective;
+      const title = p.eventAwarenessName || p.event || p.headline || p.description || 'Alert';
+      const level = p.awareness_level || p.awarenessLevel || p.severity || '';
+      const center = centroid(f.geometry);
+      return {
+        id: f.id || ('eu-'+i),
+        kind:'alert',
+        lat:center?.lat, lon:center?.lon,
+        title,
+        time: when,
+        level,
+        link: p.web || p.link || p.contact || '#',
+        polygon: f.geometry
+      };
+    }).filter(it=> isThunder(it.title));
+    return { type:'alerts', items: items.filter(it=> it.lat!=null && withinRadius(it.lat,it.lon)) };
+  }
+
+  function isThunder(text){
+    if(!text) return false;
+    const t = String(text).toLowerCase();
+    return t.includes('thunder') || t.includes('storm') || t.includes('lightning') || t.includes('konveksiyon') || t.includes('fırtına');
+  }
+
+  // NWS US (active alerts near point). Filter thunderstorm.
+  async function loadNws(){
+    const c = getCenter() || {lat:39, lon:-97};
+    const url = `https://api.weather.gov/alerts/active?point=${c.lat.toFixed(3)},${c.lon.toFixed(3)}`;
+    const res = await fetch(url, { headers: { 'accept':'application/geo+json, application/json' } });
+    if(!res.ok) throw new Error('NWS HTTP '+res.status);
+    const gj = await res.json();
+    const items = (gj.features||[]).map((f,i)=>{
+      const p = f.properties||{}; const when = p.effective || p.onset || p.sent || p.startsAt;
+      const title = p.event || p.headline || 'Alert';
+      const level = p.severity || p.certainty || '';
+      const cen = centroid(f.geometry);
+      return {
+        id: f.id || ('us-'+i),
+        kind:'alert',
+        lat: cen?.lat, lon: cen?.lon,
+        title,
+        time: when,
+        level,
+        link: p.uri || p.@id || p.id || '#',
+        polygon: f.geometry
+      };
+    }).filter(it=> isThunder(it.title));
+    return { type:'alerts', items: items.filter(it=> it.lat!=null && withinRadius(it.lat,it.lon)) };
+  }
+
+  function centroid(geom){
+    if(!geom) return null;
+    try{
+      if(geom.type==='Point'){ return {lat:geom.coordinates[1], lon:geom.coordinates[0]}; }
+      if(geom.type==='Polygon'){
+        const c = geom.coordinates[0];
+        let lat=0, lon=0; for(const p of c){ lon+=p[0]; lat+=p[1]; }
+        return {lat:lat/c.length, lon:lon/c.length};
+      }
+      if(geom.type==='MultiPolygon'){
+        const c = geom.coordinates[0][0];
+        let lat=0, lon=0; for(const p of c){ lon+=p[0]; lat+=p[1]; }
+        return {lat:lat/c.length, lon:lon/c.length};
+      }
+    }catch{}
+    return null;
+  }
+
+  // ---------- Render ----------
+  function render(dataset){
+    const tbody = $$('#list tbody'); tbody.innerHTML='';
+    if(layers.items){ try{ layers.items.clearLayers(); }catch{} }
+    if(layers.polys){ try{ layers.polys.clearLayers(); }catch{} }
+
+    state.items = dataset.items || [];
+    countEl.textContent = String(state.items.length);
+
+    const bounds = [];
+
+    for(const it of state.items){
+      const dist = (it.lat!=null && it.lon!=null && getCenter()) ? km(haversineKm(getCenter().lat, getCenter().lon, it.lat, it.lon)) : '—';
+
+      // map
+      if(map && it.lat!=null && it.lon!=null){
+        if(it.kind==='strike'){
+          const m = L.circleMarker([it.lat,it.lon], {radius:6, color:'#fff', weight:1, fillColor:'#ffde59', fillOpacity:0.95});
+          m.bindPopup(`<div class="mono"><b>${it.title}</b><br>${fmtDate(it.time)}<br>${it.extra||''}</div>`);
+          m.addTo(layers.items); bounds.push([it.lat,it.lon]);
+        } else if(it.kind==='alert'){
+          const color = levelColor(it.level);
+          const m = L.circleMarker([it.lat,it.lon], {radius:7, color:'#000', weight:1, fillColor:color, fillOpacity:0.9});
+          m.bindPopup(`<div class="mono"><b>${it.title}</b><br>${fmtDate(it.time)}<br><a href="${it.link}" target="_blank" rel="noopener">Details</a></div>`);
+          m.addTo(layers.items); bounds.push([it.lat,it.lon]);
+          if(it.polygon){
+            try{
+              const poly = L.geoJSON(it.polygon, { style:{ color: color, weight:1, fillOpacity:0.2 } });
+              poly.addTo(layers.polys);
+            }catch{}
+          }
+        }
+      }
+
+      // list row
+      const tr = $t('tr');
+      const link = $t('a',{href:it.link||'#',target:'_blank', rel:'noopener', textContent: (it.link && it.link!=='#')? 'Link' : ''});
+      [fmtDate(it.time), it.title||'', (it.area||'').toString(), (it.level||'').toString(), String(dist), ''].forEach((val,i)=>{
+        const td = $t('td'); if(i===5) td.appendChild(link); else td.textContent = String(val||''); tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    }
+
+    if(map && bounds.length){ try{ map.fitBounds(bounds, {padding:[20,20]}); }catch{} }
+  }
+
+  function levelColor(level){
+    const s = String(level||'').toLowerCase();
+    if(s.includes('red')) return '#ff5151';
+    if(s.includes('orange')) return '#ff8c42';
+    if(s.includes('yellow')||s.includes('amber')) return '#ffd166';
+    return '#ffd166';
+  }
+
+  // ---------- Export ----------
+  $$('#exportJson').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify({generatedAt:new Date().toISOString(), items:state.items}, null, 2)], {type:'application/json'});
+    const a = $t('a', {href:URL.createObjectURL(blob), download:'lightningwatch.json'}); document.body.appendChild(a); a.click(); a.remove();
+  });
+  $$('#exportCsv').addEventListener('click', ()=>{
+    const rows = [['id','kind','time','title','lat','lon','level','link']].concat((state.items||[]).map(it=>[
+      it.id||'', it.kind||'', (it.time? new Date(it.time).toISOString():''), it.title||'', it.lat||'', it.lon||'', it.level||'', it.link||''
+    ]));
+    const a = $t('a', {href:URL.createObjectURL(new Blob([toCsv(rows)],{type:'text/csv'})), download:'lightningwatch.csv'}); document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // ---------- Diagnostics ----------
+  $$('#diagBtn').addEventListener('click', runDiagnostics);
+  async function runDiagnostics(){
+    const tbody = $$('#diagTable tbody'); tbody.innerHTML='';
+    const row=(name,ok,details)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:name})); const st=$t('td'); st.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(st); tr.appendChild($t('td',{textContent:String(details||'')})); tbody.appendChild(tr); };
+
+    row('HTTPS', (location.protocol==='https:'|| location.hostname==='localhost'), location.protocol);
+    row('Leaflet map', !!window.L, window.L? 'Loaded' : 'Not loaded (CDN blocked?)');
+    try{ const r = await fetch('https://api.meteoalarm.org/edr/v1/collections/warnings?f=json'); row('Meteoalarm API', r.ok, 'HTTP '+r.status); }catch(e){ row('Meteoalarm API', false, e.message); }
+    try{ const r = await fetch('https://api.weather.gov/alerts/active'); row('NWS API', r.ok, 'HTTP '+r.status); }catch(e){ row('NWS API', false, e.message); }
+    try{ const r = await fetch('https://tilecache.rainviewer.com/v2/radar/nowcast.json'); row('Radar meta', r.ok, 'HTTP '+r.status); }catch(e){ row('Radar meta', false, e.message); }
+  }
+
+  // ---------- Initial ----------
+  // Center the map to Istanbul by default for convenience
+  if(map){ try{ map.setView([41.0082, 28.9784], 5); }catch{} }
+  fetchData();
+})();
+</script>
+</body>
+</html>
