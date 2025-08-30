@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Network Activity Recorder</title>
+<meta name="description" content="Record this page's web requests with the Performance API and benchmark DNS resolvers (DoH)." />
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121936; --muted:#8aa0c9; --text:#e8eefc; --accent:#5dd4fb; --ok:#18c964; --warn:#ffd166; --bad:#ff6b6b;
+    --border:#243055; --chip:#1a2349;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Inter,Arial,sans-serif;background:linear-gradient(180deg,#0b1020,#0e1530 75%);color:var(--text)}
+  header{padding:22px 18px;border-bottom:1px solid var(--border);background:#0d1430c0;backdrop-filter:blur(6px);position:sticky;top:0;z-index:9}
+  h1{margin:0;font-size: clamp(22px, 3vw, 32px)}
+  .tagline{margin:6px 0 0;color:var(--muted)}
+  main{padding:20px;display:grid;gap:18px;grid-template-columns:1fr;max-width:1200px;margin:0 auto}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .controls button,.controls input,.controls select,.controls textarea{background:var(--chip);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px}
+  button{cursor:pointer}
+  button.primary{background:linear-gradient(180deg,#3ac1ff,#2aa4ef);color:#00111e;border:none}
+  button.ghost{background:transparent;border:1px dashed var(--border)}
+  button:disabled{opacity:.6;cursor:not-allowed}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1fr;}
+  @media (min-width:900px){ .two{grid-template-columns: 1fr 1fr;} }
+  .note{background:#0f1b3f;border:1px solid var(--border);padding:12px;border-radius:12px;color:var(--muted)}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap}
+  .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:8px 12px;color:var(--muted);font-size:12px}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  thead th{position:sticky;top:0;background:linear-gradient(180deg,#151e45,#11183a);z-index:1}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;font-size:13px}
+  tbody tr:hover{background:#0f183b}
+  .status{font-weight:600}
+  .status.ok{color:var(--ok)}
+  .status.bad{color:var(--bad)}
+  .status.warn{color:var(--warn)}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+  footer{padding:24px;color:var(--muted);text-align:center}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:12px}
+  .small{font-size:12px;color:var(--muted)}
+  .w100{width:100%}
+  .textarea{min-height:84px}
+  .right{margin-left:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>Network Activity Recorder</h1>
+  <p class="tagline">Record this page's web requests (via the Performance API) and benchmark DNS resolvers using DNS-over-HTTPS (DoH).<br>
+    <span class="small">Note: Browsers cannot capture OS‑level TCP/UDP/IP traffic or change your system DNS. See Help below.</span>
+  </p>
+</header>
+
+<main>
+  <section class="card grid two">
+    <div>
+      <h2 style="margin-top:0">Recorder</h2>
+      <div class="note">This records <em>network activity initiated by this page</em> (e.g., DoH tests, images, XHR). For privacy, most cross‑origin resources expose limited timing breakdowns.</div>
+      <div class="row controls" style="margin-top:10px">
+        <button id="startBtn" class="primary">▶ Start recording</button>
+        <button id="stopBtn" disabled>⏸ Stop</button>
+        <button id="clearBtn" class="ghost">🧹 Clear</button>
+        <button id="exportJsonBtn" class="right">⬇ Export JSON</button>
+        <button id="exportCsvBtn">⬇ Export CSV</button>
+      </div>
+      <div class="kpi" style="margin-top:10px">
+        <span class="chip">Entries: <b id="entryCount">0</b></span>
+        <span class="chip">Since: <b id="since">—</b></span>
+        <span class="chip">Conn: <b id="netInfo">—</b></span>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin:0">Quick ping (image fetch)</h3>
+      <div class="row">
+        <input id="pingDomain" placeholder="example.com" value="example.com" class="w100" />
+        <button id="pingBtn">Ping (favicon)</button>
+      </div>
+      <p class="small">This loads <span class="mono">https://DOMAIN/favicon.ico</span> to generate a measurable request. Some sites may block or cache it.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <div style="overflow:auto; max-height:420px">
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Time</th>
+            <th>Type</th>
+            <th>URL</th>
+            <th>Dur (ms)</th>
+            <th>Transfer</th>
+            <th>DNS</th>
+            <th>TCP</th>
+            <th>TLS</th>
+            <th>Req</th>
+            <th>TTFB</th>
+            <th>Download</th>
+            <th>Proto</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card grid two">
+    <div>
+      <h2 style="margin-top:0">DNS Benchmark (DoH)</h2>
+      <div class="note">Compare resolver latency using DNS‑over‑HTTPS. This does <em>not</em> switch your device's DNS; it only measures the listed DoH endpoints from your network.</div>
+      <div class="grid" style="margin-top:10px">
+        <div>
+          <label class="small">Resolvers (JSON — edit freely)</label>
+          <textarea id="resolverJson" class="w100 textarea mono" spellcheck="false"></textarea>
+          <div class="small">Placeholders: <span class="mono">{name}</span> for domain, <span class="mono">{type}</span> for record type.</div>
+        </div>
+        <div>
+          <label class="small">Domains (one per line)</label>
+          <textarea id="domainList" class="w100 textarea mono" spellcheck="false">example.com
+github.com
+wikipedia.org
+youtube.com
+openai.com</textarea>
+          <div class="row" style="margin-top:8px">
+            <select id="rrtype">
+              <option value="A">A (IPv4)</option>
+              <option value="AAAA">AAAA (IPv6)</option>
+              <option value="TXT">TXT</option>
+              <option value="CNAME">CNAME</option>
+            </select>
+            <button id="runDnsBtn" class="primary">▶ Run Benchmark</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="margin:0">Results</h3>
+      <div style="overflow:auto; max-height:240px">
+        <table id="dnsTable">
+          <thead>
+            <tr>
+              <th>#</th><th>Resolver</th><th>Domain</th><th>Type</th><th>ms</th><th>Answers</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <h3>Summary (avg per resolver)</h3>
+      <div style="overflow:auto; max-height:220px">
+        <table id="dnsSummary">
+          <thead>
+            <tr>
+              <th>Resolver</th><th>Queries</th><th>Success</th><th>Avg ms</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Help & Limitations</summary>
+      <div class="grid two">
+        <div>
+          <h3>What this page can do</h3>
+          <ul>
+            <li>Record web requests initiated by this page (images, fetch/XHR) with timing via the Performance API.</li>
+            <li>Benchmark public DNS resolvers using DNS‑over‑HTTPS (you can add custom DoH URLs).</li>
+            <li>Export logs as JSON/CSV for analysis.</li>
+          </ul>
+          <h3>What it cannot do</h3>
+          <ul>
+            <li>Capture OS‑level TCP/UDP/IP packets or sniff other apps' traffic (browsers forbid this for security).</li>
+            <li>Show the server IP per request (not exposed via web APIs).</li>
+            <li>Change your system DNS. To switch DNS, use your OS/router settings (tips at right) or enable DoH in your browser.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Change DNS quickly</h3>
+          <p class="small">If your default DNS seems slow, try these:</p>
+          <ul>
+            <li><b>Chrome/Edge:</b> Settings → Privacy & security → Use secure DNS → Choose provider (e.g., Cloudflare or Google).</li>
+            <li><b>Firefox:</b> Settings → General → Network Settings → Enable DNS over HTTPS.</li>
+            <li><b>Windows/macOS/iOS/Android:</b> Change DNS in network settings (e.g., 1.1.1.1, 8.8.8.8). Router changes affect your whole network.</li>
+          </ul>
+          <p class="small">After changing DNS, re‑run the DoH benchmark to compare.</p>
+        </div>
+      </div>
+    </details>
+  </section>
+
+
+  <footer>
+    Network Activity Recorder · MIT License · Built with standard Web APIs (no trackers, no external deps)
+  </footer>
+</main>
+
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const $$ = sel => document.querySelector(sel);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const fmtMs = v => (v==null || !isFinite(v) || v<=0) ? '—' : v.toFixed(1);
+  const fmtBytes = b => (b==null||b<=0) ? '—' : (b<1024? b+' B' : b<1048576? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(2)+' MB');
+  const nowIso = () => new Date().toISOString();
+  const toCsv = rows => rows.map(r => r.map(v => {
+    v = v==null? '' : String(v);
+    return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v;
+  }).join(',')).join('\n');
+  function download(filename, mime, text){
+    const blob = new Blob([text], {type:mime});
+    const url = URL.createObjectURL(blob);
+    const a = $t('a', {href:url, download:filename});
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1500);
+  }
+
+  // ---------- Recorder State ----------
+  let recording = false;
+  let startedAt = null;
+  let observer = null;
+  const logs = [];
+  const tbody = $$("#logTable tbody");
+  const entryCountEl = $$("#entryCount");
+  const sinceEl = $$("#since");
+
+  function processEntry(e){
+    const isNav = e.entryType === 'navigation';
+    const data = {
+      time: new Date(performance.timeOrigin + e.startTime).toISOString(),
+      type: isNav ? 'navigation' : (e.initiatorType || e.entryType || 'resource'),
+      url: e.name,
+      dur: e.duration || 0,
+      transfer: e.transferSize ?? 0,
+      dns: (e.domainLookupEnd && e.domainLookupStart && (e.domainLookupEnd - e.domainLookupStart)) || null,
+      tcp: (e.connectEnd && e.connectStart && (e.connectEnd - e.connectStart)) || null,
+      tls: (e.secureConnectionStart && e.connectEnd && e.secureConnectionStart>0) ? (e.connectEnd - e.secureConnectionStart) : null,
+      req: (e.responseStart && e.requestStart && (e.responseStart - e.requestStart)) || null,
+      ttfb: (e.responseStart && (e.responseStart - e.startTime)) || null,
+      dl: (e.responseEnd && e.responseStart && (e.responseEnd - e.responseStart)) || null,
+      proto: e.nextHopProtocol || ''
+    };
+    logs.push(data);
+    appendRow(data, logs.length);
+    entryCountEl.textContent = String(logs.length);
+    try { localStorage.setItem('nar_logs', JSON.stringify(logs)); } catch {}
+  }
+
+  function appendRow(d, idx){
+    const tr = $t('tr');
+    const cells = [
+      idx,
+      new Date(d.time).toLocaleTimeString(),
+      d.type,
+      d.url,
+      fmtMs(d.dur),
+      fmtBytes(d.transfer),
+      fmtMs(d.dns),
+      fmtMs(d.tcp),
+      fmtMs(d.tls),
+      fmtMs(d.req),
+      fmtMs(d.ttfb),
+      fmtMs(d.dl),
+      d.proto
+    ];
+    for(const c of cells){ tr.appendChild($t('td',{textContent:String(c)})); }
+    tbody.appendChild(tr);
+  }
+
+  function start(){
+    if(recording) return;
+    recording = true; startedAt = new Date();
+    sinceEl.textContent = startedAt.toLocaleString();
+    $$('#startBtn').disabled = true; $$('#stopBtn').disabled = false;
+    observer = new PerformanceObserver((list)=>{
+      for (const e of list.getEntries()) processEntry(e);
+    });
+    observer.observe({type:'resource', buffered:false});
+    // also capture navigation once if available
+    const nav = performance.getEntriesByType('navigation')[0];
+    if (nav) processEntry(nav);
+  }
+
+  function stop(){
+    if(!recording) return;
+    recording = false;
+    if(observer){ observer.disconnect(); observer=null; }
+    $$('#startBtn').disabled = false; $$('#stopBtn').disabled = true;
+  }
+
+  function clearLogs(){
+    logs.length = 0; tbody.innerHTML=''; entryCountEl.textContent='0';
+    try { localStorage.removeItem('nar_logs'); } catch {}
+  }
+
+  // Try to restore previous session (optional)
+  try{
+    const prev = localStorage.getItem('nar_logs');
+    if(prev){
+      const arr = JSON.parse(prev);
+      arr.forEach((d,i)=>appendRow(d,i+1));
+      logs.push(...arr); entryCountEl.textContent = String(logs.length);
+    }
+  }catch{}
+
+  // Network Information API (best-effort)
+  function refreshNetInfo(){
+    const n = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if(!n){ $$('#netInfo').textContent = 'n/a'; return; }
+    const parts = [n.effectiveType || '', (n.downlink? n.downlink+'Mbps':''), (n.rtt? n.rtt+'ms RTT':'')].filter(Boolean);
+    $$('#netInfo').textContent = parts.join(' · ');
+  }
+  refreshNetInfo();
+  const n = navigator.connection; if(n && n.addEventListener){ n.addEventListener('change', refreshNetInfo); }
+
+  // Buttons
+  $$('#startBtn').addEventListener('click', start);
+  $$('#stopBtn').addEventListener('click', stop);
+  $$('#clearBtn').addEventListener('click', clearLogs);
+  $$('#exportJsonBtn').addEventListener('click', ()=>{
+    download('network-recording.json','application/json', JSON.stringify({generatedAt: nowIso(), logs}, null, 2));
+  });
+  $$('#exportCsvBtn').addEventListener('click', ()=>{
+    const header = ['time','type','url','duration_ms','transfer_bytes','dns_ms','tcp_ms','tls_ms','request_ms','ttfb_ms','download_ms','protocol'];
+    const rows = [header].concat(logs.map(d=>[
+      d.time, d.type, d.url, d.dur, d.transfer, d.dns??'', d.tcp??'', d.tls??'', d.req??'', d.ttfb??'', d.dl??'', d.proto
+    ]));
+    download('network-recording.csv','text/csv', toCsv(rows));
+  });
+
+  // Quick ping (favicon)
+  $$('#pingBtn').addEventListener('click', ()=>{
+    const dom = $$('#pingDomain').value.trim().replace(/^https?:\/\//,'');
+    if(!dom) return;
+    // Use a cache-buster query to reduce caching
+    const url = `https://${dom}/favicon.ico?ts=${Date.now()}&r=${Math.random().toString(36).slice(2)}`;
+    // Create an image to ensure a request happens
+    const img = new Image();
+    img.referrerPolicy = 'no-referrer';
+    img.src = url;
+    img.onload = ()=>{/* noop */};
+    img.onerror = ()=>{/* still recorded as a request */};
+  });
+
+  // ---------- DNS Benchmark (DoH) ----------
+  const defaultResolvers = [
+    { name: 'Cloudflare (1.1.1.1)', url: 'https://cloudflare-dns.com/dns-query?name={name}&type={type}' },
+    { name: 'Google (8.8.8.8)', url: 'https://dns.google/resolve?name={name}&type={type}' }
+  ];
+  const resolverBox = $$('#resolverJson');
+  resolverBox.value = JSON.stringify(defaultResolvers, null, 2);
+  const dnsTbody = $$('#dnsTable tbody');
+  const dnsSumBody = $$('#dnsSummary tbody');
+
+  function addDnsRow(obj){
+    const tr = $t('tr');
+    function td(v){ return $t('td', { textContent: String(v) }); }
+    const statusClass = obj.ok ? 'ok' : (obj.status===0? 'ok' : 'bad');
+    tr.appendChild(td(obj.idx));
+    tr.appendChild(td(obj.resolver));
+    tr.appendChild(td(obj.domain));
+    tr.appendChild(td(obj.type));
+    tr.appendChild(td(obj.ms.toFixed(1)));
+    tr.appendChild(td(obj.answers || ''));
+    const st = $t('td');
+    const span = $t('span', {className:'status '+statusClass, textContent: obj.ok? 'OK' : ('Error'+ (obj.status!=null? ' ['+obj.status+']':''))});
+    st.appendChild(span); tr.appendChild(st);
+    dnsTbody.appendChild(tr);
+  }
+
+  async function dohQuery(resolverUrl, name, rrtype){
+    const url = resolverUrl.replace('{name}', encodeURIComponent(name)).replace('{type}', encodeURIComponent(rrtype));
+    const t0 = performance.now();
+    let res, json, ok=false, status=null, answers='';
+    try{
+      res = await fetch(url, { headers: { 'accept': 'application/dns-json' } });
+      const t1 = performance.now();
+      const ms = t1 - t0;
+      json = await res.json();
+      status = (json && typeof json.Status !== 'undefined') ? json.Status : (res.ok? 0 : 1);
+      ok = res.ok && (status===0 || json.Answer);
+      if(Array.isArray(json?.Answer)){
+        answers = json.Answer.slice(0,3).map(a=>a.data).join('; ');
+      }
+      return {ms, ok, status, answers};
+    }catch(e){
+      const ms = performance.now() - t0;
+      return {ms, ok:false, status:null, answers:''};
+    }
+  }
+
+  $$('#runDnsBtn').addEventListener('click', async ()=>{
+    dnsTbody.innerHTML=''; dnsSumBody.innerHTML='';
+    let resolvers;
+    try { resolvers = JSON.parse(resolverBox.value); }
+    catch(e){ alert('Resolvers JSON is invalid.'); return; }
+    const domains = $$('#domainList').value.split(/\s+/).map(s=>s.trim()).filter(Boolean);
+    const rr = $$('#rrtype').value;
+    if(!resolvers.length || !domains.length){ alert('Please provide resolvers and domains.'); return; }
+
+    const summary = new Map(); // name -> {count, ok, totalMs}
+    let idx = 0;
+    for (const r of resolvers){
+      for (const d of domains){
+        idx++;
+        const {ms, ok, status, answers} = await dohQuery(r.url, d, rr);
+        addDnsRow({idx, resolver:r.name, domain:d, type:rr, ms, ok, status, answers});
+        const s = summary.get(r.name) || {count:0, ok:0, totalMs:0};
+        s.count++; s.totalMs += ms; if(ok) s.ok++; summary.set(r.name, s);
+      }
+    }
+    // render summary
+    for (const [name, s] of summary.entries()){
+      const tr = $t('tr');
+      tr.appendChild($t('td',{textContent:name}));
+      tr.appendChild($t('td',{textContent:String(s.count)}));
+      const okCell = $t('td');
+      okCell.innerHTML = `<span class="status ${s.ok===s.count?'ok':'warn'}">${s.ok}/${s.count}</span>`;
+      tr.appendChild(okCell);
+      tr.appendChild($t('td',{textContent:(s.totalMs/s.count).toFixed(1)}));
+      dnsSumBody.appendChild(tr);
+    }
+  });
+})();
+</script>
+</body>
+</html>
