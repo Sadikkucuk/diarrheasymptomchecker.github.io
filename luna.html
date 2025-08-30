@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LunaWatch — Moon Phases, Rise/Set, Golden & Blue Hour</title>
+<meta name="description" content="Single‑page lunar calendar web app. Moon phase, illumination, rise/set, distance, altitude; sunrise/sunset; golden & blue hour; cloud cover forecast. No key required. GitHub Pages‑ready." />
+<link rel="preconnect" href="https://unpkg.com"/>
+<link rel="dns-prefetch" href="https://unpkg.com"/>
+<style>
+  :root{
+    --bg:#0b1020; --panel:#111736; --panel2:#0e1430; --border:#233158; --text:#eaf0ff; --muted:#a6b6df; --chip:#17235a; --accent:#67d2ff; --ok:#18c964; --bad:#ff6b6b; --warn:#ffd166;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:radial-gradient(1200px 700px at 75% -10%,#152055 0,#0b1020 60%,#0b1020 100%);color:var(--text)}
+  header{position:sticky;top:0;z-index:20;background:#0c1334e6;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:14px 16px}
+  h1{margin:0;font-size:clamp(20px,3vw,28px)}
+  .tag{margin:6px 0 0;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto;padding:14px;display:grid;gap:12px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+  .grid{display:grid;gap:12px}
+  .two{grid-template-columns:1fr}
+  @media (min-width:900px){ .two{grid-template-columns:1.2fr 1fr} }
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+  input,select,button{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:#0e1640;color:var(--text);font-size:14px}
+  button{cursor:pointer}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .btn{background:linear-gradient(180deg,#67d2ff,#2aa4ef);border:none;color:#00111e;font-weight:700}
+  .ghost{background:transparent;border:1px dashed var(--border);color:var(--muted)}
+  .chip{background:var(--chip);border:1px solid var(--border);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .small{font-size:12px;color:var(--muted)}
+  .right{margin-left:auto}
+  .kpi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  @media(min-width:700px){ .kpi{grid-template-columns:repeat(4,minmax(0,1fr))} }
+  .k{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px}
+  .k b{display:block;font-size:18px;margin-bottom:4px}
+  .moonwrap{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .mooncanvas{width:220px;height:220px;border-radius:50%;background:radial-gradient(120px 160px at 65% 35%,#fff 0,#fdf9f2 40%,#e9e1d2 60%,#b6ac9a 100%);box-shadow:0 0 0 1px #0003 inset, 0 0 180px 30px #88b9ff22 inset}
+  .moonmask{width:220px;height:220px;border-radius:50%;position:relative;overflow:hidden}
+  .moonphase{position:relative}
+  .moonface{position:absolute;inset:0;border-radius:50%}
+  .phasebar{height:8px;background:#0e1640;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+  .phasefill{height:100%;background:linear-gradient(90deg,#ffcf4d,#67d2ff);width:0}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+  thead th{position:sticky;top:0;background:#121a45;z-index:1}
+  tbody tr:hover{background:#0f183b}
+  details{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  details>summary{cursor:pointer;padding:10px 14px;background:#111a3f;color:var(--text);list-style:none}
+  details>div{padding:14px}
+  .status.ok{color:var(--ok)} .status.bad{color:var(--bad)} .status.warn{color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <h1>LunaWatch — Moon Phases, Rise/Set, Golden & Blue Hour</h1>
+  <p class="tag">Sleek dark UI • pick any date & place • phase, illumination, distance, altitude • golden/blue hour • cloud cover outlook • optional notifications</p>
+</header>
+
+<main>
+  <section class="card">
+    <div class="grid" style="grid-template-columns:1fr;gap:10px">
+      <div class="row" style="gap:10px">
+        <div style="min-width:220px;max-width:260px;flex:0 0 auto">
+          <label>Pick date & time</label>
+          <input id="dt" type="datetime-local" />
+        </div>
+        <div style="min-width:180px;max-width:320px;flex:1 1 auto">
+          <label>Location</label>
+          <div class="row" style="gap:6px">
+            <input id="place" placeholder="Istanbul, TR" />
+            <button id="useLoc" class="ghost">📍 Use my location</button>
+          </div>
+          <div id="suggest" class="small" style="margin-top:4px"></div>
+        </div>
+        <div style="min-width:140px;width:160px;flex:0 0 auto">
+          <label>&nbsp;</label>
+          <button id="refresh" class="btn">↻ Update</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="chip">Lat/Lon: <b id="latlon">—</b></span>
+        <span class="chip">Timezone: <b id="tz">—</b></span>
+        <span class="chip">Updated: <b id="updated">—</b></span>
+        <span class="chip">Status: <b id="status">Idle</b></span>
+        <button id="notifyPhase" class="ghost right">🔔 Notify next phase</button>
+        <button id="icsPhase" class="ghost">📅 Add to calendar</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid two">
+    <div class="card">
+      <div class="moonwrap">
+        <div class="moonmask">
+          <div class="mooncanvas"></div>
+          <svg class="moonface" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <radialGradient id="shade" cx="70%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#0000"/>
+                <stop offset="60%" stop-color="#0002"/>
+                <stop offset="100%" stop-color="#0008"/>
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="100" height="100" fill="url(#shade)"/>
+            <!-- Dynamic terminator path injected here -->
+            <path id="terminator" d="" fill="#0b1020"/>
+          </svg>
+        </div>
+        <div style="min-width:260px;flex:1 1 280px">
+          <div class="kpi">
+            <div class="k"><span class="small">Phase</span><b id="phaseName">—</b><div class="phasebar"><div id="phaseFill" class="phasefill"></div></div><div class="small">Illumination: <b id="illum">—</b></div></div>
+            <div class="k"><span class="small">Rise / Set</span><b id="riseSet">—</b><div class="small">Age: <b id="age">—</b> • Distance: <b id="dist">—</b></div></div>
+            <div class="k"><span class="small">Altitude / Azimuth</span><b id="altAz">—</b><div class="small">At selected time</div></div>
+            <div class="k"><span class="small">Sun</span><b id="sunTimes">—</b><div class="small">Golden & Blue hrs below</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:12px;grid-template-columns:1fr;gap:10px">
+        <div class="card" style="background:var(--panel2)">
+          <div class="row"><b>Golden & Blue Hour</b><span class="small">(approx thresholds: blue −6°→−4°, golden −4°↔+6°)</span><span class="right small" id="daylabel">—</span></div>
+          <div class="row mono" id="magicHours" style="gap:10px;flex-wrap:wrap"></div>
+        </div>
+        <div class="card" style="background:var(--panel2)">
+          <div class="row"><b>Upcoming Phases</b><span class="right small">Next new • first qtr • full • last qtr</span></div>
+          <table>
+            <thead><tr><th>Phase</th><th>Date & time</th><th>Days away</th></tr></thead>
+            <tbody id="nextPhases"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="max-height:calc(70vh);overflow:auto">
+      <div class="row"><b>Cloud Cover Outlook (next 7 days)</b><span class="right small">Source: Open‑Meteo</span></div>
+      <table id="cloudTbl">
+        <thead><tr><th>Date</th><th>Cloud cover (avg %)</th><th>Best viewing?</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="margin:0">Diagnostics</h3>
+    <div class="row">
+      <button id="diagBtn" class="ghost">🩺 Run diagnostics</button>
+      <span class="chip">Suncalc: <b id="diagSunCalc">—</b></span>
+      <span class="chip">Geocoding: <b id="diagGeo">—</b></span>
+      <span class="chip">Forecast: <b id="diagWx">—</b></span>
+    </div>
+    <div style="overflow:auto;max-height:220px;margin-top:8px">
+      <table id="diagTable"><thead><tr><th>Check</th><th>Status</th><th>Details</th></tr></thead><tbody></tbody></table>
+    </div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Help & About</summary>
+      <div class="grid two">
+        <div>
+          <h3>What you get</h3>
+          <ul class="small">
+            <li>Moon: phase name, illumination %, rise/set, age, distance, altitude/azimuth at any date/time.</li>
+            <li>Sun: sunrise/sunset and **golden/blue hour** windows by altitude thresholds (−6° ↔ −4° ↔ +6°).</li>
+            <li>Cloud cover forecast for the next 7 days at your location (via Open‑Meteo). No API key.</li>
+            <li>Pick **any date** forward/back; choose a place via search or device location.</li>
+            <li>Optional browser notification + iCal export for the **next key phase**.</li>
+          </ul>
+          <p class="small">Notes: Notifications fire only while the tab is open (no background push). Times are local to the chosen location/timezone.</p>
+        </div>
+        <div>
+          <h3>Deploy on GitHub Pages</h3>
+          <ol class="small">
+            <li>Create a public repo (e.g., <b>lunawatch-web</b>).</li>
+            <li>Add <b>index.html</b> with this code. Commit.</li>
+            <li>Settings → Pages → Deploy from branch → <i>/(root)</i>.</li>
+            <li>Open: <span class="mono">https://&lt;username&gt;.github.io/lunawatch-web/</span></li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  </section>
+</main>
+
+<!-- 1) Try to load SunCalc from CDN (moon & sun positions, rise/set, illumination). -->
+<script src="https://unpkg.com/suncalc@1.9.0/suncalc.js"></script>
+<script>
+(function(){
+  // ---------- Utilities ----------
+  const $$ = s=>document.querySelector(s);
+  const $t = (tag, props={}) => Object.assign(document.createElement(tag), props);
+  const fmt = (n,d=0)=> (n==null? '—' : Number(n).toFixed(d));
+  const km = n => n==null? '—' : Math.round(n).toLocaleString();
+  const pad = n=> String(n).padStart(2,'0');
+  const tzGuess = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  const isoLocal = (d)=>{ const z = new Date(d.getTime()-d.getTimezoneOffset()*60000); return z.toISOString().slice(0,16); };
+  const toLocalString = (d, tz)=> d? new Date(d).toLocaleString([], {hour:'2-digit',minute:'2-digit', second:undefined, year:'numeric',month:'short',day:'2-digit', timeZone: tz||undefined}) : '—';
+  const toLocalHM = (d, tz)=> d? new Date(d).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit', timeZone: tz||undefined}) : '—';
+  const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
+
+  function setStatus(s){ $$('#status').textContent = s; $$('#updated').textContent = new Date().toLocaleTimeString(); }
+
+  // ---------- State ----------
+  const state = {
+    lat: 41.0082, lon: 28.9784, // Istanbul default
+    tz: tzGuess,
+    when: new Date(),
+    nextPhase: null,
+    phases: []
+  };
+
+  // ---------- Init controls ----------
+  const dt = $$('#dt'); dt.value = isoLocal(state.when);
+  const place = $$('#place'); place.value = 'Istanbul, TR';
+  const tzEl = $$('#tz'); tzEl.textContent = state.tz;
+  $$('#latlon').textContent = `${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`;
+
+  // Geocoding autosuggest (Open‑Meteo Geocoding API)
+  let suggestTimer=null;
+  place.addEventListener('input', ()=>{ clearTimeout(suggestTimer); suggestTimer=setTimeout(lookupPlace, 350); });
+  async function lookupPlace(){
+    const q = place.value.trim(); if(!q) { $$('#suggest').textContent=''; return; }
+    try{
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=en&format=json`;
+      const r = await fetch(url); if(!r.ok) throw new Error('geocoding HTTP '+r.status);
+      const j = await r.json();
+      const hits = (j.results||[]).map(it=>({ name:`${it.name}, ${it.country_code}${it.admin1? ' • '+it.admin1: ''}`, lat:it.latitude, lon:it.longitude, tz:it.timezone }));
+      if(!hits.length){ $$('#suggest').textContent='No matches'; return; }
+      const span = document.createElement('span'); span.className='small';
+      hits.forEach(h=>{
+        const btn = $t('button',{className:'ghost', textContent:h.name, style:'margin:4px 6px 0 0'});
+        btn.addEventListener('click', ()=>{ state.lat=h.lat; state.lon=h.lon; state.tz=h.tz||state.tz; $$('#latlon').textContent=`${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; $$('#tz').textContent = state.tz; $$('#suggest').textContent=''; refreshAll(); });
+        span.appendChild(btn);
+      });
+      $$('#suggest').innerHTML=''; $$('#suggest').appendChild(span);
+      $$('#diagGeo').textContent = 'OK';
+    }catch(e){ $$('#suggest').textContent='Lookup failed'; $$('#diagGeo').textContent='Fail'; }
+  }
+
+  // Use device location
+  $$('#useLoc').addEventListener('click', ()=>{
+    if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
+    navigator.geolocation.getCurrentPosition(pos=>{
+      state.lat = pos.coords.latitude; state.lon = pos.coords.longitude; $$('#latlon').textContent = `${state.lat.toFixed(4)}, ${state.lon.toFixed(4)}`; refreshAll();
+    }, err=> alert('Could not get location: '+err.message), {enableHighAccuracy:true, timeout:10000, maximumAge:60000});
+  });
+
+  // Manual refresh
+  $$('#refresh').addEventListener('click', ()=>{ state.when = new Date(dt.value||Date.now()); refreshAll(); });
+
+  // ---------- Astronomy engine (SunCalc expected) ----------
+  function hasSunCalc(){ return typeof window.SunCalc==='object' && SunCalc.getTimes && SunCalc.getMoonIllumination; }
+
+  function computeAll(){
+    const tz = state.tz; const when = new Date(dt.value || state.when);
+    // Sun basics
+    let sunStr='—'; let magic = [];
+    if(hasSunCalc()){
+      const times = SunCalc.getTimes(when, state.lat, state.lon);
+      // Golden/Blue windows via alt thresholds (approx based on -6,-4, +6)
+      const dawn = times.dawn, sunrise=times.sunrise, sunset=times.sunset, dusk=times.dusk;
+      const morningBlueStart = dawn; // -6°
+      const morningBlueEnd = findAltTime(when, -4);
+      const morningGoldenStart = morningBlueEnd;
+      const morningGoldenEnd = findAltTime(when, +6);
+      const eveningGoldenStart = findAltTime(when, +6, true);
+      const eveningGoldenEnd = findAltTime(when, -4, true);
+      const eveningBlueStart = eveningGoldenEnd;
+      const eveningBlueEnd = dusk; // -6°
+      sunStr = `${toLocalHM(sunrise,tz)} / ${toLocalHM(sunset,tz)}`;
+      magic = [
+        ['Blue (AM)', morningBlueStart, morningBlueEnd],
+        ['Golden (AM)', morningGoldenStart, morningGoldenEnd],
+        ['Golden (PM)', eveningGoldenStart, eveningGoldenEnd],
+        ['Blue (PM)', eveningBlueStart, eveningBlueEnd]
+      ];
+    }
+    $$('#sunTimes').textContent = sunStr;
+    renderMagic(magic);
+
+    // Moon
+    if(hasSunCalc()){
+      const illum = SunCalc.getMoonIllumination(when);
+      const pos = SunCalc.getMoonPosition(when, state.lat, state.lon);
+      const mt = SunCalc.getMoonTimes(when, state.lat, state.lon);
+      const altDeg = pos.altitude * 180/Math.PI; const azDeg = (pos.azimuth*180/Math.PI+360)%360;
+      const phase = illum.phase; // 0 new → 0.5 full → 1 new
+      const phasePct = Math.round(illum.fraction*100);
+      const ageDays = phase * 29.53058867;
+      const distKm = illum.distance? (illum.distance/1000) : (pos.distance? pos.distance : null);
+
+      $$('#phaseName').textContent = phaseName(phase);
+      $$('#illum').textContent = `${phasePct}%`;
+      $$('#age').textContent = `${fmt(ageDays,1)} d`;
+      $$('#dist').textContent = distKm? `${km(distKm)} km` : '—';
+      $$('#altAz').textContent = `${fmt(altDeg,1)}° • ${fmt(azDeg,0)}°`;
+      $$('#riseSet').textContent = `${mt.rise? toLocalHM(mt.rise,tz):'—'} / ${mt.set? toLocalHM(mt.set,tz):'—'}`;
+
+      drawMoon(illum.phase, illum.fraction);
+      drawPhaseBar(phase);
+
+      // Next phases table
+      computeNextPhases(when);
+    } else {
+      $$('#phaseName').textContent = 'Limited mode (SunCalc blocked)';
+    }
+  }
+
+  function drawPhaseBar(phase){
+    const pct = clamp(phase*100,0,100); $$('#phaseFill').style.width = pct+'%';
+  }
+
+  // Moon SVG terminator: simple approximation using phase fraction
+  function drawMoon(phase, fraction){
+    // 0=new, 0.25=first qtr, 0.5=full, 0.75=last qtr
+    const k = Math.cos(phase*2*Math.PI); // -1 .. +1
+    const x = 50 + k*50; // ellipse center shift
+    const path = `M0,0 H100 V100 H0 Z M 50,0 A 50,50 0 1 0 50,100 A ${Math.abs(50*k)},50 0 1 ${k>0?1:0} 50,0 Z`;
+    $$('#terminator').setAttribute('d', path);
+  }
+
+  function phaseName(p){
+    const names = [
+      ['New Moon', 0], ['Waxing Crescent', 0.01], ['First Quarter', 0.24], ['Waxing Gibbous', 0.26],
+      ['Full Moon', 0.49], ['Waning Gibbous', 0.51], ['Last Quarter', 0.74], ['Waning Crescent', 0.76]
+    ];
+    // pick nearest label
+    let best = names[0][0], bestd=1e9;
+    for(const [name, q] of names){ const d=Math.abs(p-q); if(d<bestd){ best=name; bestd=d; } }
+    return best;
+  }
+
+  function renderMagic(entries){
+    const box = $$('#magicHours'); box.innerHTML='';
+    const tz = state.tz; $$('#daylabel').textContent = new Date(dt.value||state.when).toLocaleDateString([], {weekday:'short', month:'short', day:'numeric', timeZone: tz});
+    for(const [lab,a,b] of entries){
+      const chip = $t('span',{className:'chip mono', textContent: `${lab}: ${toLocalHM(a,tz)} – ${toLocalHM(b,tz)}`});
+      box.appendChild(chip);
+    }
+  }
+
+  // Find time when sun altitude crosses altDeg (in degrees). dir=false=morning, true=evening
+  function findAltTime(baseDate, altDeg, evening=false){
+    const lat=state.lat, lon=state.lon; const day = new Date(baseDate);
+    const start = evening? new Date(day.setHours(12,0,0,0)) : new Date(day.setHours(0,0,0,0));
+    // coarse scan then binary refine
+    let t1=null, t2=null, last=null;
+    for(let h=0; h<24; h+=0.5){
+      const t = new Date(start.getTime() + h*3600*1000);
+      const alt = SunCalc.getPosition(t, lat, lon).altitude*180/Math.PI;
+      if(last!=null && ((last-altDeg)*(alt-altDeg) <= 0)){ t1 = new Date(t.getTime()-30*60*1000); t2 = t; break; }
+      last = alt;
+    }
+    if(!t1){ return null; }
+    for(let i=0;i<15;i++){
+      const mid = new Date((t1.getTime()+t2.getTime())/2);
+      const alt = SunCalc.getPosition(mid, lat, lon).altitude*180/Math.PI;
+      if(alt>altDeg) t2 = mid; else t1 = mid;
+    }
+    return new Date((t1.getTime()+t2.getTime())/2);
+  }
+
+  // Compute next four key phases around reference date
+  function computeNextPhases(ref){
+    const tbody = $$('#nextPhases'); tbody.innerHTML='';
+    const targets = [0,0.25,0.5,0.75];
+    const out=[];
+    for(const q of targets){
+      const t = refinePhase(ref, q);
+      const daysAway = (t - ref)/(86400*1000);
+      out.push({name: phaseName(q), t, daysAway});
+    }
+    state.nextPhase = out[0]; state.phases = out; renderPhases(out);
+  }
+
+  function renderPhases(list){
+    const tz = state.tz; const tbody = $$('#nextPhases'); tbody.innerHTML='';
+    for(const it of list){
+      const tr = $t('tr');
+      tr.appendChild($t('td',{textContent: it.name}));
+      tr.appendChild($t('td',{textContent: new Date(it.t).toLocaleString([], {timeZone: tz}) }));
+      tr.appendChild($t('td',{textContent: it.daysAway.toFixed(1)}));
+      tbody.appendChild(tr);
+    }
+  }
+
+  // Roughly locate phase then refine by bisection using SunCalc.getMoonIllumination().phase
+  function refinePhase(ref, target){
+    let t1 = new Date(ref.getTime());
+    let t2 = new Date(ref.getTime()+35*86400*1000); // within next lunation
+    // first, find a bracket where phase crosses target
+    function phaseAt(t){ return SunCalc.getMoonIllumination(t).phase; }
+    // move t1 to just after current if already past target
+    let p1 = phaseAt(t1), p2 = phaseAt(t2);
+    // unwrap phase over time (monotonic increasing modulo 1) — approximate linear search
+    while(p2 < target) { t1 = new Date(t2); p1 = p2; t2 = new Date(t2.getTime()+29*86400*1000); p2 = phaseAt(t2); if((t2-ref)>120*86400*1000) break; }
+    // binary search for precise crossing
+    for(let i=0;i<30;i++){
+      const mid = new Date((t1.getTime()+t2.getTime())/2); const pm = phaseAt(mid);
+      if(pm < target) { t1 = mid; p1 = pm; } else { t2 = mid; p2 = pm; }
+    }
+    return new Date((t1.getTime()+t2.getTime())/2);
+  }
+
+  // ---------- Cloud cover via Open‑Meteo ----------
+  async function loadCloud(){
+    try{
+      const lat=state.lat, lon=state.lon; const tz=state.tz;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=cloudcover&forecast_days=7&timezone=${encodeURIComponent(tz)}`;
+      const r = await fetch(url); if(!r.ok) throw new Error('open-meteo HTTP '+r.status);
+      const j = await r.json();
+      const H = j.hourly; const times = H.time.map(t=> new Date(t));
+      const rows = [];
+      for(let d=0; d<7; d++){
+        const day = new Date(); day.setHours(0,0,0,0); day.setDate(day.getDate()+d);
+        const end = new Date(day.getTime()+24*3600*1000);
+        const vals = [];
+        for(let i=0;i<times.length;i++) if(times[i]>=day && times[i]<end) vals.push(H.cloudcover[i]);
+        const avg = vals.length? (vals.reduce((a,b)=>a+b,0)/vals.length) : null;
+        rows.push({date: day, avg});
+      }
+      const tbody = $$('#cloudTbl tbody'); tbody.innerHTML='';
+      rows.forEach(rw=>{
+        const tr = $t('tr');
+        tr.appendChild($t('td',{textContent: rw.date.toLocaleDateString([], {weekday:'short', month:'short', day:'numeric', timeZone: tz})}));
+        tr.appendChild($t('td',{textContent: (rw.avg==null? '—' : Math.round(rw.avg)+'%')}));
+        const good = (rw.avg!=null && rw.avg<=40)? 'Likely clear' : (rw.avg<=70? 'Mixed' : 'Cloudy');
+        const span = $t('span',{className:'chip', textContent: good});
+        if(rw.avg!=null){ span.style.borderColor = rw.avg<=40? 'var(--ok)' : (rw.avg<=70? 'var(--warn)' : 'var(--bad)'); span.style.color = rw.avg<=40? 'var(--ok)' : (rw.avg<=70? 'var(--warn)' : 'var(--bad)'); }
+        const td3 = $t('td'); td3.appendChild(span); tr.appendChild(td3);
+        tbody.appendChild(tr);
+      });
+      $$('#diagWx').textContent='OK';
+    }catch(e){ $$('#diagWx').textContent='Fail'; }
+  }
+
+  // ---------- Notifications & ICS ----------
+  $$('#notifyPhase').addEventListener('click', ()=>{
+    if(!('Notification' in window)) return alert('Notifications not supported in this browser.');
+    Notification.requestPermission().then(p=>{
+      if(p!=='granted') return alert('Notification permission denied');
+      const next = state.phases && state.phases[0]; if(!next) return alert('Phase not ready yet');
+      const ms = next.t - new Date(); if(ms<=0) return alert('Next phase is in the past');
+      alert('A reminder will fire when the tab is open. Keep this page open in the background.');
+      setTimeout(()=> new Notification(`Moon phase: ${next.name}`, { body: new Date(next.t).toLocaleString(), tag:'lunaphase'}), Math.min(ms, 2**31-1));
+    });
+  });
+
+  $$('#icsPhase').addEventListener('click', ()=>{
+    const next = state.phases && state.phases[0]; if(!next) return alert('Phase not ready yet');
+    const dtStart = new Date(next.t);
+    const dtend = new Date(dtStart.getTime()+60*60*1000);
+    const tz = state.tz;
+    function icsDate(d){ const y=d.getUTCFullYear(); const m=pad(d.getUTCMonth()+1); const da=pad(d.getUTCDate()); const h=pad(d.getUTCHours()); const mi=pad(d.getUTCMinutes()); const s=pad(d.getUTCSeconds()); return `${y}${m}${da}T${h}${mi}${s}Z`; }
+    const ics = [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//LunaWatch//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      'UID:'+crypto.randomUUID(),
+      'DTSTAMP:'+icsDate(new Date()),
+      'DTSTART:'+icsDate(dtStart),
+      'DTEND:'+icsDate(dtend),
+      'SUMMARY:Moon phase — '+next.name,
+      'DESCRIPTION:Automatically created by LunaWatch',
+      'END:VEVENT','END:VCALENDAR' ].join('\r\n');
+    const a = $t('a',{href:URL.createObjectURL(new Blob([ics],{type:'text/calendar'})), download:'lunawatch_phase.ics'}); document.body.appendChild(a); a.click(); a.remove();
+  });
+
+  // ---------- Diagnostics ----------
+  $$('#diagBtn').addEventListener('click', runDiagnostics);
+  async function runDiagnostics(){
+    const tbody = $$('#diagTable tbody'); tbody.innerHTML='';
+    const row=(n,ok,det)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:n})); const td=$t('td'); td.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(td); tr.appendChild($t('td',{textContent:String(det||'')})); tbody.appendChild(tr); };
+    row('SunCalc loaded', hasSunCalc(), hasSunCalc()? 'OK' : 'CDN blocked?'); $$('#diagSunCalc').textContent = hasSunCalc()? 'OK' : 'Fail';
+    try{ const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=istanbul&count=1'); row('Geocoding API', r.ok, 'HTTP '+r.status); }catch(e){ row('Geocoding API', false, e.message); }
+    try{ const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${state.lat}&longitude=${state.lon}&hourly=cloudcover&forecast_days=1`); row('Forecast API', r.ok, 'HTTP '+r.status); }catch(e){ row('Forecast API', false, e.message); }
+  }
+
+  // ---------- Refresh orchestration ----------
+  async function refreshAll(){ setStatus('Working…'); state.when = new Date(dt.value||Date.now()); computeAll(); await loadCloud(); setStatus('OK'); }
+
+  // ---------- Start ----------
+  // If SunCalc didn't load, show limited mode (no rise/set precision) but still fetch cloud cover
+  window.addEventListener('load', ()=>{ refreshAll(); });
+})();
+</script>
+</body>
+</html>
