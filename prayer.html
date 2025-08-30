@@ -82,7 +82,7 @@
       <span class="chip">Timezone: <b id="tz">—</b></span>
       <span class="chip">Updated: <b id="updated">—</b></span>
       <span class="chip">Status: <b id="status">Idle</b></span>
-      <span class="right small">Offline calc via Adhan; dates by tabular Hijri (±1 day possible).</span>
+      <span class="right small">Offline calc via Adhan or API fallback (AlAdhan); dates by tabular Hijri (±1 day possible).</span>
     </div>
 
     <div class="card" style="background:var(--panel2);margin-top:10px">
@@ -214,36 +214,65 @@
     return p;
   }
 
-  function computeTimes(date){
-    const coords = new adhan.Coordinates(state.lat, state.lon);
-    const pt = new adhan.PrayerTimes(coords, date, adhanParams());
-    return {
-      Fajr: pt.fajr,
-      Sunrise: pt.sunrise,
-      Dhuhr: pt.dhuhr,
-      Asr: pt.asr,
-      Maghrib: pt.maghrib,
-      Isha: pt.isha
-    };
+  async function computeTimes(date){
+    // Prefer on-device Adhan calculations; otherwise fall back to AlAdhan API
+    if (window.adhan && adhan?.PrayerTimes) {
+      const coords = new adhan.Coordinates(state.lat, state.lon);
+      const pt = new adhan.PrayerTimes(coords, date, adhanParams());
+      return {
+        Fajr: pt.fajr, Sunrise: pt.sunrise, Dhuhr: pt.dhuhr, Asr: pt.asr, Maghrib: pt.maghrib, Isha: pt.isha,
+        _mode: 'offline'
+      };
+    } else {
+      const t = await fetchTimesFromApi(date);
+      return {...t, _mode: 'api'};
+    }
   }
 
-  function renderToday(){
+  function mapMethodToAlAdhan(name){
+    // Best-effort mapping; unknown → MWL (3)
+    const M = {
+      MWL:3, Egyptian:5, Karachi:1, UmmAlQura:4, NorthAmerica:2, Tehran:7,
+      MoonsightingCommittee:2, Singapore:22, Dubai:12, Qatar:8, Kuwait:9
+    };
+    return M[name] ?? 3;
+  }
+
+  async function fetchTimesFromApi(date){
+    const dateStr = date.toISOString().slice(0,10);
+    const school = ($$('#madhab').value==='hanafi')? 1 : 0;
+    const methodCode = mapMethodToAlAdhan($$('#method').value);
+    const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${state.lat}&longitude=${state.lon}&method=${methodCode}&school=${school}&iso8601=true&timezonestring=${encodeURIComponent(state.tz)}`;
+    const r = await fetch(url);
+    if(!r.ok) throw new Error('AlAdhan HTTP '+r.status);
+    const j = await r.json();
+    const T = j?.data?.timings || {};
+    const parse = (v)=>{ const d = new Date(v); if(!isNaN(d)) return d; const [hh,mm] = String(v).split(':').map(Number); const base = new Date(date); base.setHours(hh||0, mm||0, 0, 0); return base; };
+    return {
+      Fajr: parse(T.Fajr), Sunrise: parse(T.Sunrise), Dhuhr: parse(T.Dhuhr), Asr: parse(T.Asr), Maghrib: parse(T.Maghrib), Isha: parse(T.Isha)
+    };
+  };
+  }
+
+  async function renderToday(){
     const date = new Date($$('#date').value || todayISO());
-    const times = computeTimes(date);
+    const times = await computeTimes(date);
     const tz = state.tz; const tbody = $$('#ptbl tbody'); tbody.innerHTML='';
-    Object.entries(times).forEach(([name, t])=>{
+    Object.entries({Fajr:times.Fajr,Sunrise:times.Sunrise,Dhuhr:times.Dhuhr,Asr:times.Asr,Maghrib:times.Maghrib,Isha:times.Isha}).forEach(([name, t])=>{
       const tr=$t('tr'); tr.appendChild($t('td',{textContent:name})); tr.appendChild($t('td',{textContent: toLocalHM(t, tz)})); tbody.appendChild(tr);
     });
     $$('#todayLabel').textContent = date.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz});
+  });
+    $$('#todayLabel').textContent = date.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz});
   }
 
-  function renderFriday(){
+  async function renderFriday(){
     const tz = state.tz; const d0 = new Date($$('#date').value || todayISO());
-    const day = d0.getDay(); // 0=Sun ... 5=Fri
-    const add = (5 - day + 7) % 7; // days to next Friday (0 if Friday)
+    const day = d0.getDay();
+    const add = (5 - day + 7) % 7; // days to next Friday
     const fri = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate()+add);
-    const t = computeTimes(fri);
-    $$('#friTime').textContent = 'Jumu\'ah = Dhuhr at ' + toLocalHM(t.Dhuhr, tz);
+    const t = await computeTimes(fri);
+    $$('#friTime').textContent = `Jumu'ah = Dhuhr at ${toLocalHM(t.Dhuhr, tz)}`;
     $$('#friLabel').textContent = fri.toLocaleDateString([], {weekday:'long', year:'numeric', month:'short', day:'numeric', timeZone: tz});
   }
 
@@ -318,12 +347,14 @@
   async function runDiagnostics(){
     const tbody=$$('#diagTable tbody'); tbody.innerHTML='';
     const row=(n,ok,det)=>{ const tr=$t('tr'); tr.appendChild($t('td',{textContent:n})); const s=$t('td'); s.innerHTML = ok? '<span class="status ok">OK</span>' : '<span class="status bad">Fail</span>'; tr.appendChild(s); tr.appendChild($t('td',{textContent:String(det||'')})); tbody.appendChild(tr); };
-    row('Adhan library', !!window.adhan, window.adhan? 'Loaded' : 'CDN blocked?');
+    const hasAdhan = !!window.adhan;
+    row('Adhan library', hasAdhan, hasAdhan? 'Loaded (offline calc)' : 'CDN blocked?');
     try{ const r = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=istanbul&count=1'); row('Geocoding API', r.ok, 'HTTP '+r.status); }catch(e){ row('Geocoding API', false, e.message); }
+    try{ const dd = new Date().toISOString().slice(0,10); const u=`https://api.aladhan.com/v1/timings/${dd}?latitude=${state.lat}&longitude=${state.lon}&method=3&school=0&iso8601=true&timezonestring=${encodeURIComponent(state.tz)}`; const r = await fetch(u); row('AlAdhan API (fallback)', r.ok, 'HTTP '+r.status); }catch(e){ row('AlAdhan API (fallback)', false, e.message); }
   }
 
   // ----- Orchestration -----
-  function refreshAll(){ setStatus('Working…'); renderToday(); renderFriday(); renderHolidays(); setStatus('OK'); }
+  async function refreshAll(){ setStatus('Working…'); await renderToday(); await renderFriday(); renderHolidays(); setStatus(window.adhan? 'OK (offline)' : 'OK (API)'); }
   function setStatus(s){ $$('#status').textContent = s; $$('#updated').textContent = new Date().toLocaleTimeString(); }
 
   $$('#refresh').addEventListener('click', refreshAll);
