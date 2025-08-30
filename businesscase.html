@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Business Case — Word Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Fill a Business Case from template, keep explanations as defaults, export a DOCX.">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121922; --text:#eaf0f7; --muted:#8da0b8; --border:#273446;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b0f14,#0f1520);color:var(--text);font:15px/1.55 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{max-width:1200px;margin:18px auto 0;padding:0 16px}
+  h1{margin:0 0 6px;font-weight:800;font-size:24px}
+  .sub{margin:0 0 14px;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto 80px;padding:0 16px;display:grid;grid-template-columns: 1.05fr 1fr;gap:18px}
+  @media (max-width: 980px){ main{grid-template-columns:1fr} }
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  .pad{padding:14px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button{
+    padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#122033;color:var(--text);
+    cursor:pointer;transition:.15s transform ease
+  }
+  button:hover{transform:translateY(-1px)}
+  button.primary{background:linear-gradient(180deg,#24466d,#1b3553);border-color:#33537b}
+  .small{font-size:12px;color:var(--muted)}
+  .section{border-top:1px dashed var(--border);padding-top:12px;margin-top:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;margin:8px 0 4px;color:#cfe0ff;font-size:13px}
+  input[type=text], input[type=date], textarea{
+    width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#0f1722;color:var(--text);
+  }
+  textarea{min-height:94px;resize:vertical}
+  table{width:100%;border-collapse:collapse;margin:8px 0}
+  th, td{border:1px solid #2b3a4f;padding:8px 10px}
+  th{background:#152235;text-align:left}
+  .table-actions{display:flex;gap:8px;margin:6px 0 12px}
+  .scroll{max-height:70vh;overflow:auto;border-radius:0 0 14px 14px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Business Case — DOCX Only</h1>
+  <p class="sub">Uses explanatory text from the template as defaults. Plain text for fields, but keeps the key tables. No headers/footers/logos.</p>
+</header>
+
+<main>
+  <!-- LEFT: FORM -->
+  <section class="card">
+    <div class="pad toolbar">
+      <button id="btnWord" class="primary">Export Word (.docx)</button>
+      <span class="small">Tip: You can add more rows to tables before exporting.</span>
+    </div>
+    <div class="pad scroll">
+
+      <!-- Meta (from inside pages; no cover/headers/footers/logos) -->
+      <div class="section">
+        <h3>Document Metadata</h3>
+        <div class="grid2">
+          <div><label>Project Name</label><input type="text" name="project_name" placeholder="Name of Project"></div>
+          <div><label>Document Version</label><input type="text" name="doc_version" placeholder="e.g., V01"></div>
+          <div><label>Document Date</label><input type="date" name="doc_date"></div>
+          <div><label>Document Author</label><input type="text" name="doc_author" placeholder="Author name"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>1) Executive Summary</h3>
+        <label>Summary</label>
+        <textarea name="exec_summary">Explain the rational for needing to pursue the organizational change. Provide a high-level description of the current state and present a high level explanation of the future state.</textarea>
+        <label>1A) Situation Statement</label>
+        <textarea name="situation">Problem or opportunity of ‘a’
+Has the effect of ‘b’,
+With the impact of ‘c’.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>2) Objectives</h3>
+        <textarea name="objectives">What are the business objectives your business customer wishes to accomplish with this change?</textarea>
+      </div>
+
+      <div class="section">
+        <h3>3) Benefits</h3>
+        <textarea name="benefits">Itemize the quantitative and qualitative benefits expected from addressing the situation, e.g., revenue or sales growth, cost reduction/avoidance or time savings, operational efficiencies, improved competitive position, productivity or process improvement gains, penetration into new markets, sales growth, etc. Explain how pursuing this initiative supports strategic and/or business objectives.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>4) Key Performance Indicators</h3>
+        <textarea name="kpis">Identify how the benefits will be measured.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>5) Success Criteria</h3>
+        <textarea name="success">Explain how the success of the initiative will be measured. How will the business customer know the change was successful?</textarea>
+      </div>
+
+      <div class="section">
+        <h3>6) Viable Options</h3>
+        <textarea name="options">Present at least three viable alternative solution options the business can consider to address the proposed change. Provide a high-level description of each option and the pros/cons of each option. Always include the option of ‘do nothing’ and explain what happens if the organization chooses to take no action at the present time. Make sure you indicate (Recommended) next to the option you are recommending for the decision makers.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>7) Timing for Benefits Realization</h3>
+        <textarea name="timing">Explain when the business will begin to see the benefits for the recommended option. You can also include this information for each solution option (excluding the do-nothing option).</textarea>
+      </div>
+
+      <div class="section">
+        <h3>8) Risks</h3>
+        <textarea name="risks">Explain the known risks for the recommended option. Provide any information known as to how risks identified could be mitigated (keep it high level). You can include the high-level risks for each option.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>9) Key Assumptions</h3>
+        <textarea name="assumptions">Explain the known key assumptions for the recommended option. You can include the relevant assumptions for each option.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>10) Constraints</h3>
+        <textarea name="constraints">Explain the known constraints for the recommended option. You can include the known constraints for each option.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>11) Dependencies</h3>
+        <textarea name="dependencies">Explain any dependencies impacting the recommended option. You can include the known dependencies for each option.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>12) High Level Solution Architecture</h3>
+        <textarea name="architecture">Include a high-level context diagram or a solution architecture diagram to depict visually what the proposed solution would look like. Keep it high level.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>13) Proposed Milestones</h3>
+        <textarea name="milestones">Include a list of high-level dates and deliverables associated to the proposed option.</textarea>
+      </div>
+
+      <div class="section">
+        <h3>14) Product Roadmap</h3>
+        <textarea name="roadmap">Provide a high-level view of how the solution features will be delivered over time or in phases (typically for the selected option).</textarea>
+      </div>
+
+      <!-- 15 Project Costs (TABLE) -->
+      <div class="section">
+        <h3>15) Project Costs (Table)</h3>
+        <div class="table-actions">
+          <button type="button" onclick="addRow('tblCosts')">Add Row</button>
+          <button type="button" onclick="delRow('tblCosts')">Delete Last Row</button>
+        </div>
+        <table id="tblCosts">
+          <thead><tr><th>Category</th><th>Cost</th><th>Year 1</th><th>Year 2</th></tr></thead>
+          <tbody>
+            <tr><td>Capital cost Labor</td><td></td><td></td><td></td></tr>
+            <tr><td>Capital cost Vendor</td><td></td><td></td><td></td></tr>
+            <tr><td>Expense Marketing/sales</td><td></td><td></td><td></td></tr>
+            <tr><td>Expense Training</td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 16 Operational Costs (TABLE) -->
+      <div class="section">
+        <h3>16) Operational Costs (Table)</h3>
+        <p class="small">Note: adjust rows as needed with sponsor/finance support. These are high-level estimates.</p>
+        <div class="table-actions">
+          <button type="button" onclick="addRow('tblOps')">Add Row</button>
+          <button type="button" onclick="delRow('tblOps')">Delete Last Row</button>
+        </div>
+        <table id="tblOps">
+          <thead><tr><th>Cost Category</th><th>Cost Description</th><th>Annual cost</th></tr></thead>
+          <tbody>
+            <tr><td>Operational support</td><td></td><td></td></tr>
+            <tr><td>Hardware maintenance</td><td></td><td></td></tr>
+            <tr><td>Software licensing</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 17 Terms/Acronyms/Definitions (TABLE) -->
+      <div class="section">
+        <h3>17) Terms, Acronyms, Definitions (Table)</h3>
+        <div class="table-actions">
+          <button type="button" onclick="addRow('tblTerms')">Add Row</button>
+          <button type="button" onclick="delRow('tblTerms')">Delete Last Row</button>
+        </div>
+        <table id="tblTerms">
+          <thead><tr><th>Term/Acronym</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 18 Approvals (TABLE kept, but simple) -->
+      <div class="section">
+        <h3>18) Approvals (Table)</h3>
+        <div class="table-actions">
+          <button type="button" onclick="addRow('tblApprovals')">Add Row</button>
+          <button type="button" onclick="delRow('tblApprovals')">Delete Last Row</button>
+        </div>
+        <table id="tblApprovals">
+          <thead><tr><th>Role</th><th>Name</th><th>Date</th></tr></thead>
+          <tbody>
+            <tr><td>Sponsor</td><td></td><td></td></tr>
+            <tr><td>Project Manager</td><td></td><td></td></tr>
+            <tr><td>Business Analyst</td><td></td><td></td></tr>
+            <tr><td>Technical Lead</td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 19 Revision History (TABLE) -->
+      <div class="section">
+        <h3>19) Revision History (Table)</h3>
+        <div class="table-actions">
+          <button type="button" onclick="addRow('tblHistory')">Add Row</button>
+          <button type="button" onclick="delRow('tblHistory')">Delete Last Row</button>
+        </div>
+        <table id="tblHistory">
+          <thead><tr><th>Unique identifier</th><th>Author</th><th>Date of revision</th><th>Changes made</th></tr></thead>
+          <tbody>
+            <tr><td>1.0</td><td></td><td>mm/dd/yyyy</td><td>Created initial draft</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RIGHT: lightweight preview (optional) -->
+  <section class="card">
+    <div class="pad">
+      <h3>Quick Preview</h3>
+      <p class="small">This side is just to skim your content; the final layout is in the Word export.</p>
+      <div id="preview"></div>
+    </div>
+  </section>
+</main>
+
+<!-- libs: docx + FileSaver -->
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<script>
+/* ---------- tiny helpers for tables ---------- */
+function addRow(id){
+  const tbody = document.querySelector('#'+id+' tbody');
+  if(!tbody) return;
+  const cols = tbody.rows[0]?.cells.length || 2;
+  const tr = document.createElement('tr');
+  for(let i=0;i<cols;i++){
+    const td = document.createElement('td');
+    td.contentEditable = "true";
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+}
+function delRow(id){
+  const tbody = document.querySelector('#'+id+' tbody');
+  if(tbody && tbody.rows.length>1) tbody.deleteRow(tbody.rows.length-1);
+}
+// make all table cells editable for convenience
+document.querySelectorAll('table tbody td').forEach(td=> td.contentEditable = "true");
+
+/* ---------- quick preview ---------- */
+function v(name){ const el = document.querySelector(`[name="${name}"]`); return el?.value || ""; }
+function tval(name){ return (v(name) || "").replace(/\\n/g, "<br>"); }
+function htmlRows(id){
+  const rows = [];
+  document.querySelectorAll('#'+id+' tbody tr').forEach(tr=>{
+    rows.push(Array.from(tr.cells).map(td => td.innerText.trim()));
+  });
+  return rows;
+}
+function syncPreview(){
+  const p = document.getElementById('preview');
+  p.innerHTML = `
+  <b>Project:</b> ${v('project_name')||'—'}<br>
+  <b>Version:</b> ${v('doc_version')||'—'} &nbsp; <b>Date:</b> ${v('doc_date')||'—'} &nbsp; <b>Author:</b> ${v('doc_author')||'—'}
+  <hr>
+  <h4>Executive Summary</h4><div>${tval('exec_summary')}</div>
+  <h4>Situation Statement</h4><div>${tval('situation')}</div>
+  <h4>Objectives</h4><div>${tval('objectives')}</div>
+  `;
+}
+syncPreview();
+document.addEventListener('input', syncPreview);
+
+/* ---------- DOCX (Word) export ---------- */
+document.getElementById('btnWord').addEventListener('click', async ()=>{
+  const {
+    Document, Packer, Paragraph, TextRun, HeadingLevel,
+    Table, TableRow, TableCell, WidthType, BorderStyle
+  } = docx;
+
+  const p = (text="") => new Paragraph({ children:[ new TextRun(text) ], spacing:{ after: 120 } });
+  const H2 = t => new Paragraph({ text:t, heading:HeadingLevel.HEADING_2, spacing:{ before:240, after:120 } });
+  const H3 = t => new Paragraph({ text:t, heading:HeadingLevel.HEADING_3, spacing:{ before:160, after:90 } });
+  const strongLine = (label, text="") => new Paragraph({
+    children:[ new TextRun({text: label + ": ", bold:true}), new TextRun(text) ], spacing:{ after: 120 }
+  });
+
+  function tableFrom(id, widthsPct){
+    const rows = htmlRows(id);
+    const tRows = rows.map(r => new TableRow({
+      children: r.map((cell, idx)=> new TableCell({
+        children: [ p(cell) ],
+        width: widthsPct?.[idx] ? {size: widthsPct[idx], type: WidthType.PERCENTAGE} : undefined
+      }))
+    }));
+    // add header
+    const heads = Array.from(document.querySelectorAll('#'+id+' thead th')).map(th=>th.innerText.trim());
+    tRows.unshift(new TableRow({
+      children: heads.map((h, idx)=> new TableCell({
+        children: [ new Paragraph({ children:[ new TextRun({ text:h, bold:true }) ] }) ],
+        width: widthsPct?.[idx] ? {size: widthsPct[idx], type: WidthType.PERCENTAGE} : undefined
+      }))
+    }));
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+        bottom: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+        left: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" },
+        right: { style: BorderStyle.SINGLE, size: 4, color: "cccccc" }
+      },
+      rows: tRows
+    });
+  }
+
+  const doc = new Document({
+    sections: [{
+      properties: { page: { margin: { top: 1134, bottom: 1134, left: 1134, right: 1134 } } }, // ~2cm
+      children: [
+        new Paragraph({ text: "Business Case", heading: HeadingLevel.TITLE, spacing:{ after: 200 } }),
+        strongLine("Project Name", v("project_name")),
+        strongLine("Document Version", v("doc_version")),
+        strongLine("Document Date", v("doc_date")),
+        strongLine("Document Author", v("doc_author")),
+
+        H2("1. Executive Summary"),
+          p(v("exec_summary")),
+        H3("1A. Situation Statement"),
+          p(v("situation")),
+
+        H2("2. Objectives"), p(v("objectives")),
+        H2("3. Benefits"), p(v("benefits")),
+        H2("4. Key Performance Indicators"), p(v("kpis")),
+        H2("5. Success Criteria"), p(v("success")),
+        H2("6. Viable Options"), p(v("options")),
+        H2("7. Timing for Benefits Realization"), p(v("timing")),
+        H2("8. Risks"), p(v("risks")),
+        H2("9. Key Assumptions"), p(v("assumptions")),
+        H2("10. Constraints"), p(v("constraints")),
+        H2("11. Dependencies"), p(v("dependencies")),
+        H2("12. High Level Solution Architecture"), p(v("architecture")),
+        H2("13. Proposed Milestones"), p(v("milestones")),
+        H2("14. Product Roadmap"), p(v("roadmap")),
+
+        H2("15. Project Costs"),
+          tableFrom("tblCosts", [40,20,20,20]),
+
+        H2("16. Operational Costs"),
+          tableFrom("tblOps", [40,40,20]),
+
+        H2("17. Terms, Acronyms, Definitions"),
+          tableFrom("tblTerms", [40,60]),
+
+        H2("18. Approvals"),
+          tableFrom("tblApprovals", [40,40,20]),
+
+        H2("19. Revision History"),
+          tableFrom("tblHistory", [20,20,20,40]),
+      ]
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, (v("project_name") ? v("project_name") + "_" : "") + "Business_Case.docx");
+});
+</script>
+</body>
+</html>
