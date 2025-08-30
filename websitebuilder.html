@@ -181,6 +181,34 @@
     replaceImageTarget(img);
   });
 
+function replaceImage(wrapper){
+  const imgs = Array.from(wrapper.querySelectorAll('[data-img], img'));
+  if (!imgs.length) return alert('Bu blokta görsel yok.');
+  let target = imgs[0];
+  if (imgs.length > 1) {
+    const ans = prompt(`Hangi görsel? 1-${imgs.length} (hepsi için A yaz)`, "1");
+    if (!ans) return;
+    if (ans.toLowerCase?.() === 'a') { imgs.forEach(el => promptAndSetImage(el)); return; }
+    const i = Math.max(1, Math.min(imgs.length, parseInt(ans,10) || 1));
+    target = imgs[i-1];
+  }
+  promptAndSetImage(target);
+}
+function promptAndSetImage(target){
+  const url = prompt('Görsel URL (boş bırak -> dosya yükle):');
+  if (url) { target.setAttribute('src', url); return; }
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = () => {
+    const f = input.files?.[0]; if (!f) return;
+    const fr = new FileReader();
+    fr.onload = () => target.setAttribute('src', fr.result);
+    fr.readAsDataURL(f);
+  };
+  input.click();
+}
+
+  
   function replaceImageTarget(target){
     const url = prompt('Görsel URL yapıştır (ya da boş bırakıp dosya yükle):');
     if (url) { target.setAttribute('src', url); return; }
@@ -266,8 +294,12 @@
       if (btn.title === 'Aşağı') wrapper.nextElementSibling?.after(wrapper);
     });
 
-    const content = document.createElement('div');
-    content.innerHTML = htmlOverride || def.html;
+const content = document.createElement('div');
+content.className = 'content';              // <-- içerik div'i
+content.innerHTML = htmlOverride || def.html;
+
+const blocks = Array.from(canvas.querySelectorAll('.placed'))
+  .map(sec => sec.querySelector(':scope > .content').innerHTML);
 
     // Tüm metinler düzenlenebilir + başlangıçta yüksek kontrast
     content.querySelectorAll('h1,h2,h3,h4,h5,h6,p,li,a,strong,em,span,small,button').forEach(n=>{
@@ -296,7 +328,7 @@
   document.getElementById('save').addEventListener('click', ()=>{
     const layout = Array.from(canvas.querySelectorAll('.placed')).map(sec=>({
       id: sec.dataset.blockId,
-      html: sec.querySelector(':scope > div').innerHTML
+html: sec.querySelector(':scope > .content').innerHTML
     }));
     const data = {
       title: document.getElementById('siteTitle').value || 'Benim Sitem',
