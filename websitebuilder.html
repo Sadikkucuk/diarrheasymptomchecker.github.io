@@ -13,8 +13,7 @@
   <style>
     :root {
       --bg: #0b1020;      --panel: #121832;   --muted: #8fa2ff;
-      --text: #e7ecff;    --soft: #1a2246;    --accent: #6ee7ff;
-      --ok: #34d399;      --warn: #f59e0b;    --danger: #ef4444;
+      --text: #e7ecff;    --soft: #1a2246;    --accent: #0ea5e9;
     }
     * { box-sizing: border-box; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; background: var(--bg); color: var(--text); }
@@ -31,7 +30,7 @@
     .btn.warn { border-color: #7a5a1c; background: #3e2f0e; }
     .btn.danger { border-color: #7a1c1c; background: #3e0e0e; }
 
-    .toolbar select, .toolbar input[type="text"] { background: #0f1735; border: 1px solid #2a3a77; color: var(--text); border-radius: .5rem; padding: .5rem .6rem; }
+    .toolbar select, .toolbar input[type="text"], .toolbar input[type="color"] { background: #0f1735; border: 1px solid #2a3a77; color: var(--text); border-radius: .5rem; padding: .5rem .6rem; }
 
     /* Layout */
     .wrap { display:grid; grid-template-columns: 280px 1fr; gap: 14px; padding: 14px; }
@@ -53,15 +52,11 @@
     .ctl { font-size: 12px; padding: .2rem .45rem; border-radius: 8px; border: 1px solid #32408a; background:#121a3a; color: var(--text); cursor: pointer; }
     .ctl:hover { background:#182456; }
 
-    /* In-block content editable style */
     [contenteditable="true"]:focus { outline: 2px dashed var(--accent); outline-offset: 2px; }
 
-    /* Footer notice */
     .sticky-footer { position: fixed; left: 12px; bottom: 12px; background: #0e1430; border: 1px solid #1d2753; color: #a8b6ff; padding: 10px 12px; border-radius: 12px; font-size: .85rem; }
 
-    @media (max-width: 980px) {
-      .wrap { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -72,6 +67,11 @@
       <select id="templateSelect"><option>Loading…</option></select>
     </div>
     <div class="spacer"></div>
+    <div class="toolbar">
+      <label>Accent</label>
+      <input id="themeColor" type="color" value="#0ea5e9" title="Accent color" />
+      <button id="applyTheme" class="btn">Theme</button>
+    </div>
     <div class="toolbar">
       <input id="siteTitle" type="text" placeholder="Site title (for export)" />
       <button id="applyTemplate" class="btn">Apply</button>
@@ -89,7 +89,7 @@
     </aside>
 
     <section id="canvas" class="panel canvas" aria-label="Drop blocks here" tabindex="0">
-      <div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, or remove.</div>
+      <div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, replace images, or remove.</div>
     </section>
   </main>
 
@@ -98,16 +98,11 @@
   <script>
     // ======== CONFIG ========
     // Set this to your deployed Cloudflare Worker base URL (no trailing slash)
-    // Example: https://builder-templates.yourname.workers.dev
-    // 1) Set your Worker base here or pass ?worker=https://your.worker.workers.dev in the page URL
-const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev";
+    // Or pass ?worker=https://your.worker.workers.dev in the page URL
+    const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev";
 
     // ======== STATE ========
-    const state = {
-      blocks: {},       // id -> { id, name, html }
-      templates: [],    // [{ id, name, blocks:[ids...] }]
-      layout: []        // array of block ids in order (with per-block overrides later if needed)
-    };
+    const state = { blocks: {}, templates: [], layout: [], accent: '#0ea5e9' };
 
     // ======== DOM ========
     const palette = document.getElementById('palette');
@@ -116,17 +111,22 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
     const applyTemplateBtn = document.getElementById('applyTemplate');
     const hint = document.getElementById('hint');
 
-    // Utility: sanitize (very simple; for real apps consider DOMPurify)
-    // HTML escape util (fixed regex)
+    // HTML escape util
     const esc = (s)=>String(s).replace(/[&<>\"]/g, t=>({"&":"&amp;","<":"&lt;",
                                            ">":"&gt;","\"":"&quot;"}[t]));
 
+    // Theme
+    document.getElementById('applyTheme').addEventListener('click', ()=>{
+      const c = document.getElementById('themeColor').value || '#0ea5e9';
+      state.accent = c;
+      document.documentElement.style.setProperty('--accent', c);
+    });
+
     // ======== FETCH TEMPLATES & BLOCKS from Worker ========
-    // Fallback demo data to keep the UI usable if Worker is misconfigured
     const FALLBACK = {
       blocks: {
         'header-basic': { id:'header-basic', name:'Header (Basic)', html:'<header style="padding:18px 0;border-bottom:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;padding:0 20px"><strong data-edit>My Brand</strong><nav><a data-edit href="#">Home</a></nav></div></header>' },
-        'hero-simple': { id:'hero-simple', name:'Hero (Simple)', html:'<section style="padding:60px 20px;background:#f7fbff"><div class="container" style="max-width:1100px;margin:0 auto;text-align:center"><h1 data-edit>It works without Worker</h1><p data-edit>Set CF_WORKER_BASE or use ?worker=… to load remote templates.</p></div></section>' },
+        'hero-simple': { id:'hero-simple', name:'Hero (Simple)', html:'<section style="padding:60px 20px;background:linear-gradient(135deg, var(--accent), #60a5fa);color:#fff"><div class="container" style="max-width:1100px;margin:0 auto;text-align:center"><h1 data-edit style="font-size: clamp(28px, 5vw, 52px); margin: 0 0 10px;">It works without Worker</h1><p data-edit style="opacity:.95;max-width:780px;margin:0 auto 20px;">Set CF_WORKER_BASE or use ?worker=… to load remote templates.</p><a data-edit href="#" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:10px;font-weight:700;">Get Started</a></div></section>' },
         'footer-simple': { id:'footer-simple', name:'Footer (Simple)', html:'<footer style="padding:24px 20px;border-top:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto"><span data-edit>© 2025 Your Name</span></div></footer>' }
       },
       templates: [{ id:'fallback', name:'Fallback template', blocks:['header-basic','hero-simple','footer-simple'] }]
@@ -143,7 +143,6 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
       } catch (e) {
         console.warn('[builder] Worker unreachable, using fallback. Reason:', e);
         hydrateUI(FALLBACK);
-        // Surface a small notice in the UI
         const note = document.createElement('div');
         note.className = 'hint';
         note.innerHTML = '⚠️ Templates service not reachable. Using local fallback. Set <code>CF_WORKER_BASE</code> or open with <code>?worker=YOUR_URL</code>.';
@@ -155,7 +154,6 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
       state.blocks = data.blocks || {};
       state.templates = data.templates || [];
 
-      // Palette
       palette.innerHTML = '';
       Object.values(state.blocks).forEach(b => {
         const el = document.createElement('div');
@@ -168,7 +166,6 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
         palette.appendChild(el);
       });
 
-      // Template selector
       templateSelect.innerHTML = state.templates.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
     }
 
@@ -197,6 +194,7 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
         <button class="ctl" title="Move up">↑</button>
         <button class="ctl" title="Move down">↓</button>
         <button class="ctl" title="Duplicate">⎘</button>
+        <button class="ctl" title="Image">🖼</button>
         <button class="ctl" title="Remove">✕</button>
       `;
       controls.addEventListener('click', (e)=>{
@@ -205,16 +203,32 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
         if (btn.title === 'Duplicate') wrapper.after(wrapper.cloneNode(true));
         if (btn.title === 'Move up') wrapper.previousElementSibling?.before(wrapper);
         if (btn.title === 'Move down') wrapper.nextElementSibling?.after(wrapper);
+        if (btn.title === 'Image') replaceImage(wrapper);
       });
 
       const content = document.createElement('div');
       content.innerHTML = htmlOverride || def.html;
-      // make text nodes editable
       content.querySelectorAll('[data-edit]')?.forEach(n=> n.setAttribute('contenteditable','true'));
 
       wrapper.appendChild(controls);
       wrapper.appendChild(content);
       canvas.appendChild(wrapper);
+    }
+
+    function replaceImage(wrapper){
+      const target = wrapper.querySelector('[data-img], img');
+      if (!target) return alert('No image in this block.');
+      const url = prompt('Paste image URL (or leave blank to upload a local file):');
+      if (url) { target.setAttribute('src', url); return; }
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*';
+      input.onchange = () => {
+        const f = input.files?.[0]; if (!f) return;
+        const fr = new FileReader();
+        fr.onload = () => target.setAttribute('src', fr.result);
+        fr.readAsDataURL(f);
+      };
+      input.click();
     }
 
     // Apply selected template
@@ -232,41 +246,42 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
         id: sec.dataset.blockId,
         html: sec.querySelector(':scope > div').innerHTML
       }));
-      const data = { title: document.getElementById('siteTitle').value || 'My Site', layout };
-      localStorage.setItem('builder:v1', JSON.stringify(data));
+      const data = { title: document.getElementById('siteTitle').value || 'My Site', layout, accent: state.accent };
+      localStorage.setItem('builder:v2', JSON.stringify(data));
       alert('Saved locally');
     });
 
     document.getElementById('load').addEventListener('click', ()=>{
-      const raw = localStorage.getItem('builder:v1');
+      const raw = localStorage.getItem('builder:v2') || localStorage.getItem('builder:v1');
       if (!raw) return alert('Nothing saved');
       const data = JSON.parse(raw);
       document.getElementById('siteTitle').value = data.title || '';
+      if (data.accent) { state.accent = data.accent; document.documentElement.style.setProperty('--accent', data.accent); document.getElementById('themeColor').value = data.accent; }
       canvas.innerHTML = '<div id="hint" class="hint" style="display:none"></div>';
       (data.layout||[]).forEach(item => addBlock(item.id, item.html));
     });
 
     document.getElementById('clear').addEventListener('click', ()=>{
       if (!confirm('Clear canvas?')) return;
-      canvas.innerHTML = '<div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, or remove.</div>';
+      canvas.innerHTML = '<div id="hint" class="hint">Drag blocks from the left and drop them here. Click text to edit inline. Use controls on each block to duplicate, move, replace images, or remove.</div>';
     });
 
-    // Export ZIP (client side). Optionally you can POST to Worker /render for server render.
+    // Export ZIP (client side)
     document.getElementById('exportZip').addEventListener('click', async ()=>{
       const blocks = Array.from(canvas.querySelectorAll('.placed')).map(sec => sec.querySelector(':scope > div').innerHTML);
       if (blocks.length === 0) return alert('Add some blocks first.');
       const title = document.getElementById('siteTitle').value || 'My Site';
+      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0ea5e9';
+      const html = renderDocument(title, blocks.join('
 
-      // Option A: render on client
-      const html = renderDocument(title, blocks.join('\n\n'));
-
+'), accent);
       const zip = new JSZip();
       zip.file('index.html', html);
       const blob = await zip.generateAsync({ type: 'blob' });
       saveAs(blob, 'site.zip');
     });
 
-    function renderDocument(title, bodyHtml){
+    function renderDocument(title, bodyHtml, accent){
       return `<!doctype html>
 <html lang="en">
 <head>
@@ -275,9 +290,11 @@ const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev
   <title>${esc(title)}</title>
   <meta name="description" content="A page built with Free Page Builder." />
   <style>
+    :root{ --accent: ${accent}; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; color:#0b1020; }
     .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-    a { color: #0ea5e9; }
+    a { color: var(--accent); }
+    .btn { display:inline-block; background: var(--accent); color:#fff; padding:12px 18px; border-radius:10px; font-weight:700; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -286,16 +303,7 @@ ${bodyHtml}
 </html>`;
     }
 
-    // (Optional) Server render example
-    async function serverRender(){
-      const blk = Array.from(canvas.querySelectorAll('.placed')).map(sec => ({ html: sec.querySelector(':scope > div').innerHTML, id: sec.dataset.blockId }));
-      const title = document.getElementById('siteTitle').value || 'My Site';
-      const res = await fetch(`${CF_WORKER_BASE}/render`, {method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ title, blocks: blk })});
-      if (!res.ok) throw new Error('Render failed');
-      return await res.text();
-    }
-
-    // Simple global error banner so you see issues without DevTools
+    // Error banner
     window.addEventListener('error', (e)=>{
       const note = document.createElement('div');
       note.className = 'hint';
