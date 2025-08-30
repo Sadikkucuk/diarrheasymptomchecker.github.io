@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sticky Kanban — Board with Exports</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111a25; --panel2:#0e1722; --text:#eaf0f7; --muted:#92a4bf; --border:#263446; --accent:#75c6ff;
+    --yellow:#fff7a9; --pink:#ffd5e1; --green:#dfffd2; --blue:#d9ecff; --purple:#eadbff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0b0f14,#0f1520);color:var(--text);font:15px/1.5 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  header{max-width:1200px;margin:18px auto 0;padding:0 16px}
+  h1{margin:0 0 6px;font-weight:800;font-size:24px}
+  .sub{margin:0 0 14px;color:var(--muted)}
+  main{max-width:1200px;margin:0 auto 60px;padding:0 16px}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  button, label.btn {padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:#132033;color:var(--text);cursor:pointer;transition:.15s transform ease;display:inline-flex;gap:8px;align-items:center}
+  button:hover, label.btn:hover{transform:translateY(-1px)}
+  .primary{background:linear-gradient(180deg,#24466d,#1b3553);border-color:#33537b}
+  .warn{background:linear-gradient(180deg,#5c3d16,#3f2a0e);border-color:#6a4b22}
+  .ghost{background:transparent}
+  input[type="file"]{display:none}
+  .tiny{font-size:12px;color:var(--muted)}
+
+  .board{display:grid;grid-template-columns:repeat(4,minmax(260px,1fr));gap:12px;align-items:start}
+  @media (max-width:1100px){ .board{grid-template-columns:repeat(3,minmax(240px,1fr))} }
+  @media (max-width:820px){ .board{grid-template-columns:repeat(2,minmax(220px,1fr))} }
+  @media (max-width:560px){ .board{grid-template-columns:1fr} }
+
+  .col{background:var(--panel);border:1px solid var(--border);border-radius:14px;min-height:200px;display:flex;flex-direction:column}
+  .colhead{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)}
+  .colname{font-weight:700}
+  .count{font-size:12px;color:var(--muted)}
+  .zone{padding:12px;display:flex;flex-wrap:wrap;gap:10px;min-height:160px}
+  .zone.dragover{outline:2px dashed var(--accent);outline-offset:-6px}
+
+  .sticky{position:relative;width:210px;min-height:120px;padding:12px 12px 16px;border-radius:10px;color:#111;cursor:grab;box-shadow:0 10px 22px rgba(0,0,0,.35), inset 0 0 0 1px rgba(0,0,0,.06);transform:rotate(var(--rot));transition:box-shadow .15s ease}
+  .sticky:active{cursor:grabbing}
+  .sticky.yellow{background:var(--yellow)}
+  .sticky.pink{background:var(--pink)}
+  .sticky.green{background:var(--green)}
+  .sticky.blue{background:var(--blue)}
+  .sticky.purple{background:var(--purple)}
+  .sticky .title{font-weight:800;margin:0 0 6px}
+  .sticky .meta{font-size:12px;color:#333;opacity:.8}
+  .sticky .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .tag{background:rgba(0,0,0,.08);border-radius:999px;padding:2px 6px;font-size:11px}
+  .actions{position:absolute;right:6px;top:6px;display:flex;gap:4px}
+  .iconbtn{background:rgba(0,0,0,.12);border:none;border-radius:8px;padding:4px 6px;color:#111;cursor:pointer}
+
+  .colfoot{padding:10px 12px;border-top:1px dashed var(--border)}
+  .addNote{width:100%;background:#0f1722;border:1px dashed #2a3a50;color:#c9d9ef;padding:8px;border-radius:8px;cursor:pointer}
+
+  /* modal */
+  .modalWrap{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:50}
+  .modal{width:min(560px,92vw);background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:14px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{display:block;font-size:13px;color:#cfe0ff;margin:6px 0 4px}
+  input[type="text"], input[type="date"], textarea, select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--border);background:#0f1722;color:var(--text)}
+  textarea{min-height:90px;resize:vertical}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+  <h1>Sticky Kanban</h1>
+  <p class="sub">Lightweight Kanban board with drag & drop sticky notes. Persists in your browser. Export/Import JSON, CSV, Markdown, and PNG snapshot.</p>
+</header>
+
+<main>
+  <div class="toolbar">
+    <button class="primary" id="addColumnBtn" type="button">+ Add Column</button>
+    <button id="newNoteBtn" type="button">+ New Note</button>
+    <span class="tiny">|</span>
+    <button id="exportJson" type="button">Export JSON</button>
+    <label class="btn" for="importJson">Import JSON<input id="importJson" type="file" accept="application/json"></label>
+    <button id="exportCsv" type="button">Export CSV</button>
+    <button id="exportMd" type="button">Export Markdown</button>
+    <button id="exportPng" type="button">Export PNG</button>
+    <span class="tiny">|</span>
+    <button class="warn" id="clearBoard" type="button">Clear Board</button>
+  </div>
+  <div id="board" class="board"></div>
+</main>
+
+<!-- New/Edit Note Modal -->
+<div id="modalWrap" class="modalWrap">
+  <div class="modal">
+    <h3 id="modalTitle" style="margin:0 0 8px">New Note</h3>
+    <div class="grid">
+      <div>
+        <label>Title</label>
+        <input type="text" id="noteTitle" placeholder="e.g., Draft spec" />
+      </div>
+      <div>
+        <label>Column</label>
+        <select id="noteColumn"></select>
+      </div>
+      <div>
+        <label>Due date</label>
+        <input type="date" id="noteDue" />
+      </div>
+      <div>
+        <label>Color</label>
+        <select id="noteColor">
+          <option value="yellow">Yellow</option>
+          <option value="pink">Pink</option>
+          <option value="blue">Blue</option>
+          <option value="green">Green</option>
+          <option value="purple">Purple</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1">
+        <label>Details</label>
+        <textarea id="noteText" placeholder="Optional details..."></textarea>
+      </div>
+      <div style="grid-column:1/-1">
+        <label>Tags (comma separated)</label>
+        <input type="text" id="noteTags" placeholder="backend, ui, urgent" />
+      </div>
+    </div>
+    <div class="row" style="justify-content:flex-end;margin-top:10px">
+      <button id="cancelNote" type="button">Cancel</button>
+      <button id="saveNote" class="primary" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+// ======= State =======
+const LS_KEY = 'sticky_kanban_state_v1';
+let state = loadState() || defaultState();
+let editingId = null; // for modal
+
+function defaultState(){
+  return {
+    columns:[
+      {id: uid('col'), name:'Backlog', notes:[]},
+      {id: uid('col'), name:'In Progress', notes:[]},
+      {id: uid('col'), name:'Review', notes:[]},
+      {id: uid('col'), name:'Done', notes:[]}
+    ]
+  }
+}
+
+function uid(prefix){ return `${prefix}_${Math.random().toString(36).slice(2,9)}` }
+function saveState(){ localStorage.setItem(LS_KEY, JSON.stringify(state)) }
+function loadState(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'') }catch(e){ return null } }
+
+// ======= Render =======
+const board = document.getElementById('board');
+function render(){
+  board.innerHTML = '';
+  state.columns.forEach(col => {
+    const colEl = document.createElement('section');
+    colEl.className = 'col';
+    colEl.dataset.colId = col.id;
+
+    const head = document.createElement('div');
+    head.className = 'colhead';
+    head.innerHTML = `<span class="colname">${col.name}</span><span class="count">${col.notes.length}</span>`;
+
+    const zone = document.createElement('div');
+    zone.className = 'zone';
+    zone.dataset.colId = col.id;
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('dragover'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('dragover'));
+    zone.addEventListener('drop', e=>{
+      e.preventDefault(); zone.classList.remove('dragover');
+      const noteId = e.dataTransfer.getData('text/plain');
+      moveNoteToColumn(noteId, col.id);
+    });
+
+    col.notes.forEach(note => zone.appendChild(stickyEl(note)));
+
+    const foot = document.createElement('div');
+    foot.className = 'colfoot';
+    const addBtn = document.createElement('button');
+    addBtn.className = 'addNote';
+    addBtn.textContent = '+ Add note';
+    addBtn.addEventListener('click', ()=> openModal(null, col.id));
+    foot.appendChild(addBtn);
+
+    colEl.appendChild(head);
+    colEl.appendChild(zone);
+    colEl.appendChild(foot);
+    board.appendChild(colEl);
+  });
+  refreshColumnSelect();
+  saveState();
+}
+
+function stickyEl(note){
+  const el = document.createElement('article');
+  el.className = `sticky ${note.color||'yellow'}`;
+  el.style.setProperty('--rot', note.rot||'0deg');
+  el.draggable = true;
+  el.dataset.noteId = note.id;
+  el.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', note.id); });
+
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  const edit = document.createElement('button'); edit.className='iconbtn'; edit.title='Edit'; edit.textContent='✎';
+  const del  = document.createElement('button'); del.className='iconbtn';  del.title='Delete'; del.textContent='🗑';
+  edit.onclick = ()=>openModal(note.id);
+  del.onclick = ()=>{ if(confirm('Delete this note?')) deleteNote(note.id); };
+  actions.append(edit, del);
+
+  const title = document.createElement('h4'); title.className='title'; title.textContent = note.title || 'Untitled';
+  const text  = document.createElement('div'); text.textContent = note.text || '';
+  const meta  = document.createElement('div'); meta.className='meta'; meta.textContent = note.due ? `Due: ${note.due}` : '';
+  const tags  = document.createElement('div'); tags.className='tags';
+  (note.tags||[]).filter(Boolean).forEach(t=>{ const s=document.createElement('span'); s.className='tag'; s.textContent=t; tags.appendChild(s); });
+
+  el.append(actions, title, text, meta, tags);
+  return el;
+}
+
+function findColumnByNoteId(noteId){
+  return state.columns.find(c => c.notes.some(n=>n.id===noteId));
+}
+
+function moveNoteToColumn(noteId, colId){
+  const from = findColumnByNoteId(noteId);
+  const to = state.columns.find(c=>c.id===colId);
+  if(!from || !to) return;
+  const idx = from.notes.findIndex(n=>n.id===noteId);
+  const note = from.notes.splice(idx,1)[0];
+  to.notes.push(note);
+  render();
+}
+
+function deleteNote(noteId){
+  const col = findColumnByNoteId(noteId);
+  if(!col) return;
+  col.notes = col.notes.filter(n=>n.id!==noteId);
+  render();
+}
+
+// ======= Modal =======
+const modalWrap = document.getElementById('modalWrap');
+const modalTitle = document.getElementById('modalTitle');
+const fTitle = document.getElementById('noteTitle');
+const fColumn = document.getElementById('noteColumn');
+const fDue = document.getElementById('noteDue');
+const fColor = document.getElementById('noteColor');
+const fText = document.getElementById('noteText');
+const fTags = document.getElementById('noteTags');
+
+function refreshColumnSelect(){
+  fColumn.innerHTML = state.columns.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+function openModal(noteId=null, presetColId=null){
+  editingId = noteId;
+  const note = noteId ? (findColumnByNoteId(noteId).notes.find(n=>n.id===noteId)) : {title:'', text:'', color:'yellow', due:'', tags:[], rot:randRot()};
+  modalTitle.textContent = noteId ? 'Edit Note' : 'New Note';
+  fTitle.value = note.title || '';
+  fDue.value = note.due || '';
+  fColor.value = note.color || 'yellow';
+  fText.value = note.text || '';
+  fTags.value = (note.tags||[]).join(', ');
+  refreshColumnSelect();
+  fColumn.value = noteId ? findColumnByNoteId(noteId)?.id : (presetColId || state.columns[0].id);
+  modalWrap.style.display='flex';
+}
+
+function randRot(){ const r = (Math.random()*2-1)*2; return r.toFixed(2)+'deg' }
+
+function closeModal(){ modalWrap.style.display='none'; }
+
+function upsertNote(){
+  const data = {
+    id: editingId || uid('note'),
+    title: fTitle.value.trim() || 'Untitled',
+    text: fText.value.trim(),
+    color: fColor.value,
+    due: fDue.value,
+    tags: fTags.value.split(',').map(s=>s.trim()).filter(Boolean),
+    rot: editingId ? (findColumnByNoteId(editingId).notes.find(n=>n.id===editingId).rot) : randRot()
+  };
+  const targetCol = state.columns.find(c=>c.id === fColumn.value) || state.columns[0];
+  if(editingId){
+    // update existing
+    const from = findColumnByNoteId(editingId);
+    const idx = from.notes.findIndex(n=>n.id===editingId);
+    // if column changed
+    if(from.id !== targetCol.id){
+      from.notes.splice(idx,1);
+      targetCol.notes.push(data);
+    }else{
+      from.notes[idx] = data;
+    }
+  }else{
+    targetCol.notes.push(data);
+  }
+  closeModal();
+  render();
+}
+
+document.getElementById('saveNote').addEventListener('click', upsertNote);
+
+document.getElementById('cancelNote').addEventListener('click', ()=>{ closeModal(); editingId=null; });
+
+// ======= Toolbar actions =======
+document.getElementById('newNoteBtn').addEventListener('click', ()=> openModal());
+
+document.getElementById('addColumnBtn').addEventListener('click', ()=>{
+  const name = prompt('Column name');
+  if(!name) return;
+  state.columns.push({id:uid('col'), name, notes:[]});
+  render();
+});
+
+document.getElementById('clearBoard').addEventListener('click', ()=>{
+  if(confirm('Clear the entire board?')){ state = defaultState(); render(); }
+});
+
+// Export JSON
+function download(filename, blob){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000); }
+
+document.getElementById('exportJson').addEventListener('click', ()=>{
+  download('kanban_board.json', new Blob([JSON.stringify(state,null,2)], {type:'application/json'}));
+});
+
+// Import JSON
+const importInput = document.getElementById('importJson');
+importInput.addEventListener('change', ()=>{
+  const f = importInput.files?.[0]; if(!f) return; const r = new FileReader();
+  r.onload = ()=>{ try{ const s = JSON.parse(r.result); if(!s.columns) throw new Error('Invalid board JSON'); state=s; render(); }catch(e){ alert('Import error: '+e.message); } };
+  r.readAsText(f);
+  importInput.value='';
+});
+
+// Export CSV (flat notes list)
+function toCSV(){
+  const rows = [['Column','Title','Details','Due','Color','Tags']];
+  state.columns.forEach(c=> c.notes.forEach(n=> rows.push([c.name, n.title, n.text||'', n.due||'', n.color||'', (n.tags||[]).join(' ')])) );
+  return rows.map(r => r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+}
+document.getElementById('exportCsv').addEventListener('click', ()=>{
+  download('kanban_board.csv', new Blob([toCSV()], {type:'text/csv'}));
+});
+
+// Export Markdown
+function toMarkdown(){
+  let md = `# Kanban Board\n\n`;
+  state.columns.forEach(c=>{
+    md += `## ${c.name} (${c.notes.length})\n`;
+    c.notes.forEach(n=>{
+      md += `- **${n.title}**` + (n.due?` _(due: ${n.due})_`:'') + (n.tags?.length?` \`${n.tags.join('` `')}\``:'') + `\n`;
+      if(n.text) md += `  - ${n.text.replace(/\n/g,' ')}\n`;
+    });
+    md += `\n`;
+  });
+  return md;
+}
+document.getElementById('exportMd').addEventListener('click', ()=>{
+  download('kanban_board.md', new Blob([toMarkdown()], {type:'text/markdown'}));
+});
+
+// Export PNG snapshot
+const boardEl = document.getElementById('board');
+document.getElementById('exportPng').addEventListener('click', async ()=>{
+  const canvas = await html2canvas(boardEl, {backgroundColor:'#ffffff', scale:2, useCORS:true});
+  canvas.toBlob(blob => download('kanban_board.png', blob));
+});
+
+// ======= Init =======
+render();
+</script>
+</body>
+</html>
