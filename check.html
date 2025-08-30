@@ -45,7 +45,19 @@
 
   /* Print stylesheet */
   @media print{
+    /* Print only the check, not the whole page */
     body{background:#fff}
+    /* Hide everything by default */
+    body *{visibility:hidden !important}
+    /* Only the check stays visible */
+    #check, #check *{visibility:visible !important}
+    #check{position:fixed; left:0; top:0; margin:0; box-shadow:none}
+    /* Just in case: never show app chrome */
+    header, .controls, .notes, .history, .noprint{display:none !important}
+    .previewWrap{border:none;padding:0}
+    /* Fit page to the physical check size + small margins */
+    @page { size: 7.75in 3.5in; margin: 0.2in; }
+  }
     header, .controls, .notes, .history, .noprint{display:none !important}
     .previewWrap{border:none;padding:0}
     .check{box-shadow:none;margin:0 auto}
