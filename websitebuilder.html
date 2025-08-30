@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Free Page Builder — Templates & Drag‑Drop</title>
-  <meta name="description" content="Generate free web pages from templates and drag‑and‑drop blocks. Frontend on GitHub Pages, templates served by Cloudflare Workers." />
+  <title>Free Page Builder — Templates & Drag-Drop</title>
+  <meta name="description" content="Generate free web pages from templates and drag-and-drop blocks. Frontend on GitHub Pages, templates served by Cloudflare Workers." />
 
-  <!-- JSZip for client‑side ZIP export -->
+  <!-- JSZip for client-side ZIP export -->
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" defer></script>
 
@@ -93,12 +93,11 @@
     </section>
   </main>
 
-  <div class="sticky-footer">Educational demo — not legal advice. You own your content. No sign‑in needed.</div>
+  <div class="sticky-footer">Educational demo — not legal advice. You own your content. No sign-in needed.</div>
 
   <script>
     // ======== CONFIG ========
-    // Set this to your deployed Cloudflare Worker base URL (no trailing slash)
-    // Or pass ?worker=https://your.worker.workers.dev in the page URL
+    // Your deployed Cloudflare Worker base URL (no trailing slash)
     const CF_WORKER_BASE = "https://builder-templates.sadik-kucuk3739342.workers.dev";
 
     // ======== STATE ========
@@ -111,9 +110,8 @@
     const applyTemplateBtn = document.getElementById('applyTemplate');
     const hint = document.getElementById('hint');
 
-    // HTML escape util
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-
+    // HTML escape util (fixed)
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
     // Theme
     document.getElementById('applyTheme').addEventListener('click', ()=>{
@@ -126,7 +124,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
     const FALLBACK = {
       blocks: {
         'header-basic': { id:'header-basic', name:'Header (Basic)', html:'<header style="padding:18px 0;border-bottom:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;padding:0 20px"><strong data-edit>My Brand</strong><nav><a data-edit href="#">Home</a></nav></div></header>' },
-        'hero-simple': { id:'hero-simple', name:'Hero (Simple)', html:'<section style="padding:60px 20px;background:linear-gradient(135deg, var(--accent), #60a5fa);color:#fff"><div class="container" style="max-width:1100px;margin:0 auto;text-align:center"><h1 data-edit style="font-size: clamp(28px, 5vw, 52px); margin: 0 0 10px;">It works without Worker</h1><p data-edit style="opacity:.95;max-width:780px;margin:0 auto 20px;">Set CF_WORKER_BASE or use ?worker=… to load remote templates.</p><a data-edit href="#" style="display:inline-block;background:#111827;color:#fff;padding:12px 18px;border-radius:10px;font-weight:700;">Get Started</a></div></section>' },
+        'hero-simple': { id:'hero-simple', name:'Hero (Bold)', html:'<section style="padding:72px 20px;background:linear-gradient(135deg,var(--accent),#60a5fa);color:#fff;"><div class="container" style="max-width:1100px;margin:0 auto;text-align:center;"><h1 data-edit style="font-size:clamp(30px,6vw,56px);margin:0 0 12px;">It works without Worker</h1><p data-edit style="opacity:.98;max-width:780px;margin:0 auto 22px;">Set CF_WORKER_BASE correctly to load remote templates.</p><a data-edit href="#" class="btn" style="background:#111827;color:#fff;">Get Started</a></div></section>' },
         'footer-simple': { id:'footer-simple', name:'Footer (Simple)', html:'<footer style="padding:24px 20px;border-top:1px solid #e5e7eb"><div class="container" style="max-width:1100px;margin:0 auto"><span data-edit>© 2025 Your Name</span></div></footer>' }
       },
       templates: [{ id:'fallback', name:'Fallback template', blocks:['header-basic','hero-simple','footer-simple'] }]
@@ -135,17 +133,15 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
     async function bootstrap() {
       try {
         const url = `${CF_WORKER_BASE}/templates`;
-        console.log('[builder] Fetching templates from', url);
         const res = await fetch(url, { mode:'cors' });
         if (!res.ok) throw new Error(`Failed to load templates: ${res.status}`);
         const data = await res.json();
         hydrateUI(data);
       } catch (e) {
-        console.warn('[builder] Worker unreachable, using fallback. Reason:', e);
         hydrateUI(FALLBACK);
         const note = document.createElement('div');
         note.className = 'hint';
-        note.innerHTML = '⚠️ Templates service not reachable. Using local fallback. Set <code>CF_WORKER_BASE</code> or open with <code>?worker=YOUR_URL</code>.';
+        note.innerHTML = '⚠️ Templates service not reachable. Using local fallback. Check CF_WORKER_BASE.';
         document.querySelector('.palette').prepend(note);
       }
     }
@@ -272,9 +268,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':
       if (blocks.length === 0) return alert('Add some blocks first.');
       const title = document.getElementById('siteTitle').value || 'My Site';
       const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0ea5e9';
-      const html = renderDocument(title, blocks.join('
-
-'), accent);
+      const html = renderDocument(title, blocks.join('\n\n'), accent);
       const zip = new JSZip();
       zip.file('index.html', html);
       const blob = await zip.generateAsync({ type: 'blob' });
