@@ -181,6 +181,44 @@
     replaceImageTarget(img);
   });
 
+function addBlock(blockId, htmlOverride) {
+  const def = state.blocks[blockId];
+  if (!def) return;
+  hint.style.display = 'none';
+
+  const wrapper = document.createElement('section');
+  wrapper.className = 'placed';
+  wrapper.dataset.blockId = blockId;
+
+  const controls = document.createElement('div');
+  controls.className = 'controls';
+  controls.innerHTML = `
+    <button class="ctl" title="Yukarı">↑</button>
+    <button class="ctl" title="Aşağı">↓</button>
+    <button class="ctl" title="Kopya">⎘</button>
+    <button class="ctl" title="Sil">✕</button>
+  `;
+  controls.addEventListener('click', (e)=>{
+    const b = e.target.closest('button.ctl'); if(!b) return;
+    if (b.title === 'Sil') wrapper.remove();
+    if (b.title === 'Kopya') wrapper.after(wrapper.cloneNode(true));
+    if (b.title === 'Yukarı') wrapper.previousElementSibling?.before(wrapper);
+    if (b.title === 'Aşağı') wrapper.nextElementSibling?.after(wrapper);
+  });
+
+  // *** SADECE İÇERİK BURADA ***
+  const content = document.createElement('div');
+  content.className = 'content';
+  content.innerHTML = htmlOverride || def.html;
+  content.querySelectorAll('[data-edit]').forEach(n=> n.setAttribute('contenteditable','true'));
+  // tüm img’ler değiştirilebilir olsun
+  content.querySelectorAll('img').forEach(n=> n.setAttribute('data-img',''));
+
+  wrapper.append(controls, content);
+  canvas.appendChild(wrapper);
+}
+
+  
 function replaceImage(wrapper){
   const imgs = Array.from(wrapper.querySelectorAll('[data-img], img'));
   if (!imgs.length) return alert('Bu blokta görsel yok.');
@@ -267,6 +305,20 @@ function promptAndSetImage(target){
     const id = e.dataTransfer.getData('text/plain');
     if (id) addBlock(id);
   });
+
+  function serializeCanvasToHTML(){
+  const parts = [];
+  canvas.querySelectorAll('.placed > .content').forEach(node=>{
+    const clone = node.cloneNode(true);
+    // editöre özel şeyleri temizle
+    clone.querySelectorAll('[contenteditable]').forEach(el=>el.removeAttribute('contenteditable'));
+    clone.querySelectorAll('[data-edit]').forEach(el=>el.removeAttribute('data-edit'));
+    clone.querySelectorAll('[data-img]').forEach(el=>el.removeAttribute('data-img'));
+    clone.querySelectorAll('.selected-edit').forEach(el=>el.classList.remove('selected-edit'));
+    parts.push(clone.innerHTML);
+  });
+  return parts.join('\n\n');
+}
 
   // Blok ekle
   function addBlock(blockId, htmlOverride){
@@ -360,17 +412,18 @@ html: sec.querySelector(':scope > .content').innerHTML
   });
 
   // ZIP export — tam olarak canvas’taki HTML’e göre (YANLIŞ sayfa çıkma problemi burada çözüldü)
-  document.getElementById('exportZip').addEventListener('click', async ()=>{
-    const bodies = Array.from(canvas.querySelectorAll('.placed')).map(sec => sec.querySelector(':scope > div').innerHTML);
-    if (!bodies.length) return alert('Önce blok ekle');
-    const title = document.getElementById('siteTitle').value || 'Benim Sitem';
-    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0ea5e9';
-    const html = renderDocument(title, bodies.join('\n\n'), accent);
-    const zip = new JSZip();
-    zip.file('index.html', html);
-    const blob = await zip.generateAsync({type:'blob'});
-    saveAs(blob, 'site.zip');
-  });
+document.getElementById('exportZip').addEventListener('click', async ()=>{
+  const bodyHtml = serializeCanvasToHTML();
+  if (!bodyHtml.trim()) return alert('Önce blok ekle');
+  const title  = document.getElementById('siteTitle').value || 'Benim Sitem';
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#0ea5e9';
+  const html = renderDocument(title, bodyHtml, accent);
+  const zip = new JSZip();
+  zip.file('index.html', html);
+  const blob = await zip.generateAsync({ type:'blob' });
+  saveAs(blob, 'site.zip');
+});
+
 
   function renderDocument(title, bodyHtml, accent){
     // Export edilen sayfa: açık tema, yüksek kontrast (silik renk yok)
