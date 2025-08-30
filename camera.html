@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Motion Detector — Webcam (Up to 100 snaps)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Webcam motion detector. Schedule a start time, capture up to 100 snapshots on motion, download as ZIP." />
+  <style>
+    :root{
+      --bg:#0b0f14; --panel:#121923; --muted:#6b7a90; --text:#eaf0f7; --accent:#5cc8ff; --warn:#ffb84d; --good:#5BDB8A;
+      --card:#0f141b; --border:#233040;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;background:linear-gradient(180deg, #0a0f15 0%, #0b1219 100%);
+      color:var(--text); font: 16px/1.5 Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    header{
+      padding:24px 18px 10px; max-width:1100px; margin:0 auto;
+    }
+    h1{margin:0 0 8px; font-size:28px}
+    p.sub{margin:0; color:var(--muted)}
+    main{max-width:1100px; margin:16px auto 60px; padding:0 18px}
+    .wrap{display:grid; grid-template-columns: 1.1fr 1fr; gap:18px}
+    .card{background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow: 0 8px 24px rgba(0,0,0,.35)}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 12px}
+    label{display:flex; gap:8px; align-items:center; color:var(--muted); font-size:14px}
+    input, select, button{
+      border-radius:10px; border:1px solid var(--border); background:#0e1520; color:var(--text);
+      padding:8px 10px; font-size:14px;
+    }
+    input[type="range"]{width:180px}
+    button{cursor:pointer; background:#142032; transition:.15s transform ease, .15s opacity ease}
+    button:hover{transform:translateY(-1px)}
+    button.primary{background:linear-gradient(180deg, #1f3758, #172a44); border-color:#264466}
+    button.good{background:linear-gradient(180deg,#1f4a34,#173826); border-color:#295b40}
+    button.warn{background:linear-gradient(180deg,#5c3d16,#3f2a0e); border-color:#6a4b22}
+    button.ghost{background:transparent}
+    .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    .status{margin-top:6px; font-size:13px; color:var(--muted)}
+    .media{position:relative; background:var(--card); border:1px dashed var(--border); border-radius:12px; overflow:hidden}
+    video{width:100%; height:auto; display:block; background:#000}
+    canvas{display:none}
+    .dot{width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px}
+    .dot.live{background:var(--good); box-shadow:0 0 0 6px rgba(91,219,138,.12)}
+    .dot.idle{background:#999}
+    .grid{display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px; margin-top:10px}
+    .cap{position:relative; background:#0a0f14; border:1px solid #1c2635; border-radius:12px; overflow:hidden}
+    .cap img{display:block; width:100%; height:100%; object-fit:cover}
+    .cap .meta{
+      position:absolute; bottom:0; left:0; right:0; padding:6px 8px;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.7));
+      font-size:12px; color:#cfe0ff
+    }
+    footer{
+      position:fixed; bottom:0; left:0; right:0; background:rgba(10,14,20,.8); backdrop-filter: blur(6px);
+      border-top:1px solid var(--border); padding:8px 14px; font-size:12px; color:var(--muted); text-align:center
+    }
+    .nowrap{white-space:nowrap}
+    .counter{font-weight:600; color:#cce9ff}
+    .sep{opacity:.25}
+  </style>
+
+  <!-- JSZip + FileSaver (for ZIP download) -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>Motion Detector — Webcam</h1>
+    <p class="sub">Schedule a start time, capture up to <strong>100</strong> motion snapshots, then download them as a ZIP. Nothing leaves your device.</p>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <div class="row">
+        <span class="dot idle" id="liveDot"></span>
+        <span id="liveLabel" class="muted">Idle</span>
+      </div>
+
+      <div class="toolbar">
+        <label>Start date &amp; time
+          <input id="startAt" type="datetime-local" />
+        </label>
+        <label>Max snaps
+          <input id="maxSnaps" type="number" min="1" max="1000" value="100" />
+        </label>
+        <label>Diff threshold
+          <input id="diffThr" type="range" min="10" max="120" value="45" />
+        </label>
+        <label>Min changed px
+          <input id="minPx" type="number" min="50" step="50" value="5000" />
+        </label>
+        <label title="Min seconds between captures">Min gap (s)
+          <input id="minGap" type="number" min="0" step="0.1" value="1.5" />
+        </label>
+        <label title="Optional beep on capture">
+          <input id="beep" type="checkbox" /> Beep on capture
+        </label>
+      </div>
+
+      <div class="toolbar">
+        <button id="btnGrant" class="primary">Grant Camera</button>
+        <button id="btnStart" class="good">Start now</button>
+        <button id="btnArm" class="primary">Arm for start time</button>
+        <button id="btnStop" class="warn">Stop</button>
+        <button id="btnClear" class="ghost">Clear snaps</button>
+      </div>
+
+      <div class="media">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="frame"></canvas>
+      </div>
+
+      <div class="status" id="status">Ready.</div>
+    </section>
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <span class="counter" id="count">0</span> / <span id="limit">100</span> captured
+          <span class="sep">•</span>
+          <span id="fps" class="muted nowrap">~0 fps</span>
+        </div>
+        <div class="row">
+          <button id="btnDownload" class="primary">Download ZIP</button>
+        </div>
+      </div>
+      <div class="grid" id="captures"></div>
+    </section>
+  </main>
+
+  <footer>Educational demo — camera stays local in your browser. For best results, keep this tab visible. </footer>
+
+<script>
+(function(){
+  const els = {
+    video: document.getElementById('video'),
+    canvas: document.getElementById('frame'),
+    status: document.getElementById('status'),
+    startAt: document.getElementById('startAt'),
+    maxSnaps: document.getElementById('maxSnaps'),
+    diffThr: document.getElementById('diffThr'),
+    minPx: document.getElementById('minPx'),
+    minGap: document.getElementById('minGap'),
+    beep: document.getElementById('beep'),
+    captures: document.getElementById('captures'),
+    count: document.getElementById('count'),
+    limit: document.getElementById('limit'),
+    btnGrant: document.getElementById('btnGrant'),
+    btnStart: document.getElementById('btnStart'),
+    btnArm: document.getElementById('btnArm'),
+    btnStop: document.getElementById('btnStop'),
+    btnClear: document.getElementById('btnClear'),
+    btnDownload: document.getElementById('btnDownload'),
+    fps: document.getElementById('fps'),
+    dot: document.getElementById('liveDot'),
+    liveLabel: document.getElementById('liveLabel'),
+  };
+
+  // Defaults
+  els.startAt.value = (function(){
+    const d = new Date(Date.now() + 60*1000);
+    d.setSeconds(0,0);
+    const pad = n => String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  })();
+  els.limit.textContent = els.maxSnaps.value;
+
+  // State
+  let stream = null;
+  let running = false;
+  let loopId = null;
+  let scheduleId = null;
+  let lastData = null;
+  let lastSnapAt = 0;
+  let samples = []; // { url, ts }
+  let frameCount = 0, lastFpsAt = performance.now();
+
+  const ctx = els.canvas.getContext('2d', { willReadFrequently: true });
+
+  function setLive(on){
+    els.dot.classList.toggle('live', on);
+    els.dot.classList.toggle('idle', !on);
+    els.liveLabel.textContent = on ? 'Live' : 'Idle';
+  }
+
+  function log(msg){ els.status.textContent = msg; }
+
+  async function grantCamera(){
+    if(stream) return;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+      els.video.srcObject = stream;
+      await els.video.play();
+      // size canvas to video
+      const w = els.video.videoWidth || 640;
+      const h = els.video.videoHeight || 480;
+      els.canvas.width = w;
+      els.canvas.height = h;
+      log('Camera granted. Ready.');
+    }catch(err){
+      log('Camera error: ' + (err && err.message ? err.message : err));
+    }
+  }
+
+  function stopCamera(){
+    if(stream){
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      els.video.srcObject = null;
+    }
+  }
+
+  function resetLoop(){
+    if(loopId){ cancelAnimationFrame(loopId); loopId = null; }
+  }
+
+  function clearSnaps(){
+    samples.forEach(s => URL.revokeObjectURL(s.url));
+    samples = [];
+    els.captures.innerHTML = '';
+    els.count.textContent = '0';
+  }
+
+  function beep(){
+    try{
+      const actx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator();
+      const g = actx.createGain();
+      o.type = 'square'; o.frequency.value = 880;
+      o.connect(g); g.connect(actx.destination);
+      g.gain.setValueAtTime(0.05, actx.currentTime);
+      o.start();
+      setTimeout(()=>{ o.stop(); actx.close(); }, 120);
+    }catch(e){}
+  }
+
+  function addCard(url, ts){
+    const wrap = document.createElement('div');
+    wrap.className = 'cap';
+    wrap.innerHTML = `<img src="${url}" alt="capture" /><div class="meta">${new Date(ts).toLocaleString()}</div>`;
+    els.captures.prepend(wrap);
+  }
+
+  function capture(){
+    const max = Math.max(1, Math.min(1000, Number(els.maxSnaps.value)||100));
+    els.limit.textContent = max;
+    if(samples.length >= max){
+      log('Reached max snapshots. Stopping.');
+      stopDetection();
+      return;
+    }
+    els.canvas.toBlob(blob=>{
+      if(!blob) return;
+      const url = URL.createObjectURL(blob);
+      const ts = Date.now();
+      samples.push({url, ts});
+      addCard(url, ts);
+      els.count.textContent = String(samples.length);
+      if(els.beep.checked) beep();
+    }, 'image/jpeg', 0.85);
+  }
+
+  function startDetection(){
+    if(!stream){ log('Please click “Grant Camera” first.'); return; }
+    if(running) return;
+    running = true; setLive(true); log('Detecting motion…');
+    lastData = null; frameCount = 0; lastFpsAt = performance.now();
+
+    const step = ()=>{
+      if(!running) return;
+      const w = els.canvas.width, h = els.canvas.height;
+      ctx.drawImage(els.video, 0, 0, w, h);
+      const img = ctx.getImageData(0,0,w,h);
+
+      let changed = 0;
+      if(lastData){
+        const thr = Number(els.diffThr.value) || 45;   // per-pixel RGB sum threshold
+        const stride = 4; // RGBA stride
+        const stepPix = 4; // sample every N pixels for speed (4 = ~25%)
+        const len = img.data.length;
+
+        for(let i=0;i<len;i += stride*stepPix){
+          const dr = Math.abs(img.data[i]   - lastData[i]);
+          const dg = Math.abs(img.data[i+1] - lastData[i+1]);
+          const db = Math.abs(img.data[i+2] - lastData[i+2]);
+          if((dr + dg + db) > thr) changed++;
+        }
+      }
+      lastData = img.data.slice(0); // copy
+
+      // FPS
+      frameCount++;
+      const now = performance.now();
+      if(now - lastFpsAt > 1000){
+        els.fps.textContent = `~${Math.round((frameCount * 1000) / (now - lastFpsAt))} fps`;
+        frameCount = 0; lastFpsAt = now;
+      }
+
+      // Trigger?
+      const minChanged = Number(els.minPx.value) || 5000;
+      const minGapMs = Math.max(0, (Number(els.minGap.value)||0)*1000);
+      if(changed >= minChanged && (now - lastSnapAt) >= minGapMs){
+        lastSnapAt = now;
+        capture();
+      }
+
+      loopId = requestAnimationFrame(step);
+    };
+    loopId = requestAnimationFrame(step);
+  }
+
+  function stopDetection(){
+    running = false; setLive(false);
+    resetLoop();
+    log('Stopped.');
+  }
+
+  function armSchedule(){
+    if(scheduleId){ clearTimeout(scheduleId); scheduleId = null; }
+    const when = new Date(els.startAt.value);
+    if(!isFinite(when.getTime())){ log('Invalid date/time.'); return; }
+
+    const delay = when.getTime() - Date.now();
+    if(delay <= 0){
+      log('Start time is in the past — starting now.');
+      startDetection();
+      return;
+    }
+    log('Armed. Will start at ' + when.toLocaleString());
+    // ensure camera is already granted (user gesture now)
+    grantCamera();
+    scheduleId = setTimeout(()=>{
+      scheduleId = null;
+      startDetection();
+    }, delay);
+  }
+
+  // Bindings
+  els.btnGrant.addEventListener('click', grantCamera);
+  els.btnStart.addEventListener('click', ()=>{ grantCamera().then(startDetection); });
+  els.btnArm.addEventListener('click', armSchedule);
+  els.btnStop.addEventListener('click', ()=>{ stopDetection(); });
+  els.btnClear.addEventListener('click', ()=>{ clearSnaps(); log('Snapshots cleared.'); });
+
+  els.btnDownload.addEventListener('click', async ()=>{
+    if(!window.JSZip || !window.saveAs){ log('ZIP libs not loaded yet. Please try again in a second.'); return; }
+    if(samples.length === 0){ log('No snapshots to download.'); return; }
+    const zip = new JSZip();
+    const folder = zip.folder('motion_snaps');
+    // fetch blobs (they’re already blobs under ObjectURLs; we can re-fetch via fetch)
+    let idx = 1;
+    for(const s of samples){
+      const res = await fetch(s.url);
+      const blob = await res.blob();
+      const name = `snap_${String(idx).padStart(3,'0')}_${new Date(s.ts).toISOString().replace(/[:.]/g,'-')}.jpg`;
+      folder.file(name, blob);
+      idx++;
+    }
+    const z = await zip.generateAsync({type:'blob'});
+    saveAs(z, `motion_snaps_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.zip`);
+    log('ZIP downloaded.');
+  });
+
+  // Clean up on unload
+  window.addEventListener('beforeunload', ()=>{
+    stopDetection(); stopCamera(); clearSnaps();
+  });
+})();
+</script>
+</body>
+</html>
