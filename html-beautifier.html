@@ -135,7 +135,13 @@ el.file.addEventListener('change', async (e)=>{
   const t = await f.text(); el.src.value = t;
 });
 el.example.addEventListener('click', ()=>{
-  el.src.value = `<!doctype html><html><head><title>Demo</title></head><body><div><p>Hello <strong>world</strong>!</p><!-- note --><img src="x.jpg"><script>console.log("hi");</script></div></body></html>`;
+  // NOTE: escape </script> as <\/script> so it doesn't close THIS script block
+  el.src.value =
+    '<!doctype html><html><head><title>Demo</title></head><body>' +
+    '<div><p>Hello <strong>world</strong>!</p><!-- note -->' +
+    '<img src="x.jpg">' +
+    '<script>console.log("hi");<\/script>' +
+    '</div></body></html>';
 });
 
 function updateStats(inp, out){
