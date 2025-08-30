@@ -110,7 +110,7 @@
 
 
 <script>
-const HB_API_URL_BASE = "https://YOUR-WORKER-SUBDOMAIN.workers.dev"; // ← set this
+const HB_API_URL_BASE = "https://billowing-wind-92bc.sadik-kucuk3739342.workers.dev"; // ← set this
 const HB_CALC_URL     = HB_API_URL_BASE + "/beautify-html";
 
 const el = {
@@ -135,7 +135,6 @@ el.file.addEventListener('change', async (e)=>{
   const t = await f.text(); el.src.value = t;
 });
 el.example.addEventListener('click', ()=>{
-  // NOTE: escape </script> as <\/script> so it doesn't close THIS script block
   el.src.value =
     '<!doctype html><html><head><title>Demo</title></head><body>' +
     '<div><p>Hello <strong>world</strong>!</p><!-- note -->' +
