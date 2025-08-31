@@ -113,6 +113,16 @@ require(['vs/editor/editor.main'], function () {
 <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 
 <!-- texlive.js with fallback loader -->
+  <script>
+// Shim for old texlive.js builds that expect lowercase `promise`
+if (typeof promise === "undefined" && typeof Promise !== "undefined") {
+  window.promise = Promise;
+}
+</script>
+<script src="https://cdn.jsdelivr.net/gh/manuels/texlive.js/pdftex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zauguin/texlive.js@0.4.0/pdftex.js"></script>
+
+
 <script>
 (function loadTexlive(){
   // We’ll try a primary CDN and a fallback. The library fetches its WASM relative to the script path.
@@ -253,7 +263,8 @@ async function compileLocal(){
   if (typeof window.PDFTeX !== 'function'){ toast('texlive.js is not ready — use Remote mode or wait.'); return; }
   toast('Compiling locally…'); logEl.textContent=''; lastDataURI=null;
   try{
-    const pdftex = new PDFTeX();
+const pdftex = new TeXLive.PDFTeX();
+const result = await pdftex.compile(latexSource);
     // pdftex.compile returns a data: URL with the PDF
     const pdf = await pdftex.compile(code, (e)=>{ if(e && e.msg) log(e.msg); });
     lastDataURI = pdf;
