@@ -174,7 +174,22 @@
     <h1 class="doc-title" id="titleOut">My Cheat-Sheet</h1>
 
     <!-- Content -->
-    
+    <div id="sheet" aria-live="polite">
+      <div class="block">
+        <div class="controls screen-only">
+          <button class="ctrl" data-act="up" title="Move up">↑</button>
+          <button class="ctrl" data-act="down" title="Move down">↓</button>
+          <button class="ctrl danger" data-act="remove" title="Delete">✕</button>
+        </div>
+        <div class="content" contenteditable="true">
+          <h2>Quick Keys</h2>
+          <ul>
+            <li><b>Ctrl/⌘ + F</b> – Find</li>
+            <li><b>Ctrl/⌘ + Shift + P</b> – Command palette</li>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 
 <script>
