@@ -7,29 +7,24 @@
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Page + print layout */
-    :root { --page-width: 210mm; --page-height: 297mm; }
+    :root { --page-width: 210mm; --page-height: 297mm; --export-margin-mm: 10mm; }
     @media print {
       #toolbar, #leftbar, .block-controls, .editor-only { display: none !important; }
       body { background: white !important; }
       #pageWrap { box-shadow: none !important; padding: 0 !important; }
-      #sheet { width: 100% !important; min-height: auto !important; }
+      /* shrink width by margins to avoid right-side cut-off */
+      #sheet { width: calc(var(--page-width) - 2 * var(--export-margin-mm)) !important; min-height: auto !important; }
     }
-    /* Make contenteditable nicer */
     [contenteditable="true"]:focus { outline: 2px dashed rgba(99,102,241,0.6); outline-offset: 2px; }
     .drag-handle { cursor: grab; }
+    /* Tables generated from LaTeX */
+    table.cs { width: 100%; border-collapse: collapse; }
+    table.cs td, table.cs th { border: 1px solid rgba(120,120,120,.4); padding: .35rem .45rem; vertical-align: top; }
   </style>
 
-  <!-- MathJax (LaTeX rendering) -->
+  <!-- MathJax (LaTeX math) -->
   <script>
-    window.MathJax = {
-      tex: {
-        inlineMath: [["$","$"],["\\(","\\)"]],
-        displayMath: [["$$","$$"],["\\[","\\]"]]
-      },
-      options: { renderActions: { addMenu: [] } },
-      startup: { typeset: false }
-    };
+    window.MathJax = { tex: { inlineMath: [["$","$"],["\\(","\\)"]], displayMath: [["$$","$$"],["\\[","\\]"]] }, options: { renderActions: { addMenu: [] } }, startup: { typeset: false } };
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
@@ -51,7 +46,7 @@
           <option value="list">List</option>
           <option value="code">Code</option>
           <option value="formula">LaTeX Formula</option>
-          <option value="two-col">Two Columns</option>
+          <option value="columns">Multi-Columns</option>
           <option value="divider">Divider</option>
         </select>
         <div class="hidden md:flex items-center gap-2 px-2 py-1.5 rounded-lg bg-neutral-800 border border-neutral-700">
@@ -80,7 +75,7 @@
         <button data-quick="section" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700">Add Section</button>
         <button data-quick="list" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700">Add Bullet List</button>
         <button data-quick="formula" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700">Add Formula</button>
-        <button data-quick="twocol" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700">Add 2 Columns</button>
+        <button data-quick="columns3" class="px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 border border-neutral-700">Add 3 Columns</button>
         <button id="btnFromLatex" class="px-3 py-1.5 rounded-lg bg-indigo-700 hover:bg-indigo-600">Import from LaTeX</button>
       </div>
       <hr class="border-neutral-800"/>
@@ -91,17 +86,16 @@
       </div>
     </aside>
 
-    <!-- Page wrapper (visual page) -->
+    <!-- Page wrapper -->
     <section id="pageWrap" class="bg-neutral-950/60 border border-neutral-800 rounded-2xl p-4">
       <div class="mb-3 text-xs text-neutral-400 flex items-center gap-2 editor-only">
         <span>Drag blocks with</span>
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700"><span class="drag-handle">☰</span> handle</span>
       </div>
 
-      <!-- The sheet (editable content) -->
       <article id="sheet" class="mx-auto bg-white text-neutral-900 dark:bg-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-800 rounded-xl p-6" style="width: var(--page-width); min-height: var(--page-height);">
         <h1 id="docTitle" class="text-3xl font-extrabold tracking-tight text-center mb-4" contenteditable="true">Your Cheat Sheet Title</h1>
-        <p class="text-center text-sm text-neutral-500 dark:text-neutral-400 mb-6" contenteditable="true">Click to edit. Add blocks from the toolbar. Use LaTeX between <code>$...$</code> or <code>$$...$$</code>.</p>
+        <p class="text-center text-sm text-neutral-500 dark:text-neutral-400 mb-6" contenteditable="true">Click to edit. Add blocks from the toolbar. Use LaTeX between <code>$...$</code> or <code>$$...$$</code>. Import long LaTeX; layout packages are approximated in HTML.</p>
 
         <div id="blocks" class="space-y-4"></div>
       </article>
@@ -110,12 +104,12 @@
       <dialog id="latexModal" class="backdrop:bg-black/60 rounded-xl p-0 max-w-3xl w-[90vw]">
         <div class="bg-neutral-900 text-neutral-100 rounded-xl border border-neutral-800 overflow-hidden">
           <div class="px-4 py-3 flex items-center justify-between border-b border-neutral-800">
-            <h3 class="font-semibold">Import from LaTeX (basic commands)</h3>
+            <h3 class="font-semibold">Import from LaTeX (extended)</h3>
             <button onclick="latexModal.close()" class="px-2 py-1 rounded-lg bg-neutral-800 border border-neutral-700">Close</button>
           </div>
           <div class="p-4 grid gap-3">
-            <textarea id="latexInput" class="w-full h-56 p-3 rounded-lg bg-neutral-800 border border-neutral-700" placeholder="Example:\n\\section{Algebra}\nKey identity: $$a^2+b^2=c^2$$\n\\subsection{Binomial}\n\\begin{itemize}\n  \\item (x+y)^2 = x^2+2xy+y^2\\\n  \\item (x-y)^2 = x^2-2xy+y^2\\\n\\end{itemize}"></textarea>
-            <div class="text-sm text-neutral-300">Supported mappings: \section → H2, \subsection → H3, \textbf, \textit, \underline, itemize/enumerate, line breaks \\ . Math is rendered by MathJax. Paste your LaTeX and convert.</div>
+            <textarea id="latexInput" class="w-full h-56 p-3 rounded-lg bg-neutral-800 border border-neutral-700" placeholder="Paste LaTeX. Supported: sections, textbf/it/underline, definecolor+textcolor, itemize/enumerate, multicols (with columnbreak), tabular/tabularx/tabulary (basic), math."></textarea>
+            <div class="text-sm text-neutral-300">Headers/footers (fancyhdr), exact spacing, and some table features are simulated. Define colors with <code>\definecolor{Name}{HTML}{RRGGBB}</code>.</div>
             <div class="flex gap-2">
               <button id="btnPreviewLatex" class="px-3 py-1.5 rounded-xl bg-neutral-800 border border-neutral-700">Preview</button>
               <button id="btnInsertLatex" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500">Insert as Blocks</button>
@@ -148,10 +142,7 @@
 
     // THEME
     const btnTheme = document.getElementById('btnTheme');
-    btnTheme.addEventListener('click', () => {
-      document.documentElement.classList.toggle('dark');
-      queueMathTypeset();
-    });
+    btnTheme.addEventListener('click', () => { document.documentElement.classList.toggle('dark'); queueMathTypeset(); });
 
     // PAPER SIZE
     const paper = document.getElementById('paper');
@@ -176,7 +167,7 @@
       if (k==='section') addBlock('text', {text:'Explain your concept here…'});
       if (k==='list') addBlock('list');
       if (k==='formula') addBlock('formula');
-      if (k==='twocol') addBlock('two-col');
+      if (k==='columns3') addBlock('columns', {cols:3});
     }));
 
     function addBlock(type, opts={}){
@@ -190,11 +181,7 @@
         body.innerHTML = `<div contenteditable="true" class="leading-relaxed">${opts.text||'Add notes here. Use $a^2+b^2=c^2$ for inline math or $$\\int e^x dx$$ for display.'}</div>`;
       }
       if (type === 'list'){
-        body.innerHTML = `<ul contenteditable="true" class="list-disc pl-6 space-y-1">
-          <li>Item one</li>
-          <li>Item two</li>
-          <li>Item three</li>
-        </ul>`;
+        body.innerHTML = `<ul contenteditable="true" class="list-disc pl-6 space-y-1"><li>Item one</li><li>Item two</li><li>Item three</li></ul>`;
       }
       if (type === 'code'){
         body.innerHTML = `<pre class="bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 rounded-lg p-3 overflow-auto"><code contenteditable="true" spellcheck="false">// paste code…</code></pre>`;
@@ -206,21 +193,28 @@
             <textarea id="${id}" class="editor-only w-full p-2 rounded-lg bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-700" placeholder="Type LaTeX, e.g. \\frac{a}{b} = c"></textarea>
             <div class="render p-3 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 min-h-10">Type LaTeX above…</div>
           </div>`;
-        // Wire textarea change
         setTimeout(() => {
           const ta = body.querySelector('textarea');
           const render = body.querySelector('.render');
-          ta.addEventListener('input', () => {
-            render.textContent = `$$${ta.value}$$`;
-            queueMathTypeset(render);
-          });
+          ta.addEventListener('input', () => { render.textContent = `$$${ta.value}$$`; queueMathTypeset(render); });
         });
       }
-      if (type === 'two-col'){
-        body.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div contenteditable="true" class="rounded-lg border border-neutral-300 dark:border-neutral-700 p-2">Column A…</div>
-          <div contenteditable="true" class="rounded-lg border border-neutral-300 dark:border-neutral-700 p-2">Column B…</div>
-        </div>`;
+      if (type === 'columns'){
+        const cols = Number(opts.cols||prompt('How many columns? (2–6)','3')) || 3;
+        const clamp = Math.max(2, Math.min(6, cols));
+        body.dataset.cols = clamp;
+        body.innerHTML = makeColumnsHTML(clamp);
+        // small control bar
+        const bar = document.createElement('div');
+        bar.className = 'editor-only text-xs text-neutral-400 flex gap-2 mt-2';
+        bar.innerHTML = `<span>Columns:</span><button class="px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700" data-cols-delta="-1">-</button><span class="col-count">${clamp}</span><button class="px-2 py-0.5 rounded bg-neutral-800 border border-neutral-700" data-cols-delta="1">+</button>`;
+        body.appendChild(bar);
+        bar.querySelectorAll('[data-cols-delta]').forEach(btn=>btn.addEventListener('click', (e)=>{
+          const d = Number(e.currentTarget.getAttribute('data-cols-delta'));
+          const now = Number(body.dataset.cols||3);
+          const next = Math.max(2, Math.min(6, now + d));
+          if (next!==now){ body.dataset.cols = next; body.querySelector('.col-count').textContent = next; body.querySelector('.cols-grid').style.gridTemplateColumns = `repeat(${next}, minmax(0,1fr))`; ensureColBoxes(body, next); }
+        }));
       }
       if (type === 'divider'){
         body.innerHTML = `<hr class="border-neutral-300 dark:border-neutral-700">`;
@@ -228,68 +222,53 @@
 
       // Controls
       node.querySelector('[data-act="delete"]').addEventListener('click', (e)=>{ e.currentTarget.closest('.block').remove(); });
-      node.querySelector('[data-act="duplicate"]').addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        const clone = b.cloneNode(true);
-        wireControls(clone);
-        b.after(clone);
-        queueMathTypeset(clone);
-      });
-      node.querySelector('[data-act="up"]').addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        if (b.previousElementSibling) b.parentElement.insertBefore(b, b.previousElementSibling);
-      });
-      node.querySelector('[data-act="down"]').addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        if (b.nextElementSibling) b.parentElement.insertBefore(b.nextElementSibling, b);
-      });
+      node.querySelector('[data-act="duplicate"]').addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); const clone = b.cloneNode(true); wireControls(clone); b.after(clone); queueMathTypeset(clone); });
+      node.querySelector('[data-act="up"]').addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); if (b.previousElementSibling) b.parentElement.insertBefore(b, b.previousElementSibling); });
+      node.querySelector('[data-act="down"]').addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); if (b.nextElementSibling) b.parentElement.insertBefore(b.nextElementSibling, b); });
 
       const inserted = blocksEl.appendChild(node);
       queueMathTypeset(inserted);
     }
 
+    function makeColumnsHTML(n){
+      let cols = '';
+      for (let i=0;i<n;i++) cols += `<div contenteditable="true" class="rounded-lg border border-neutral-300 dark:border-neutral-700 p-2 min-h-10">Column ${i+1}…</div>`;
+      return `<div class="cols-grid grid gap-3" style="grid-template-columns: repeat(${n}, minmax(0,1fr));">${cols}</div>`;
+    }
+    function ensureColBoxes(body, n){
+      const grid = body.querySelector('.cols-grid');
+      const current = grid.children.length;
+      if (current < n){ for (let i=current;i<n;i++){ const d=document.createElement('div'); d.contentEditable = true; d.className = 'rounded-lg border border-neutral-300 dark:border-neutral-700 p-2 min-h-10'; d.textContent = `Column ${i+1}…`; grid.appendChild(d);} }
+      if (current > n){ for (let i=current;i>n;i--){ grid.lastElementChild.remove(); } }
+    }
+
     function wireControls(block){
       block.querySelectorAll('[data-act="delete"]').forEach(btn=>btn.addEventListener('click', (e)=>{ e.currentTarget.closest('.block').remove(); }));
-      block.querySelectorAll('[data-act="duplicate"]').forEach(btn=>btn.addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        const clone = b.cloneNode(true);
-        wireControls(clone);
-        b.after(clone);
-        queueMathTypeset(clone);
-      }));
-      block.querySelectorAll('[data-act="up"]').forEach(btn=>btn.addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        if (b.previousElementSibling) b.parentElement.insertBefore(b, b.previousElementSibling);
-      }));
-      block.querySelectorAll('[data-act="down"]').forEach(btn=>btn.addEventListener('click', (e)=>{
-        const b = e.currentTarget.closest('.block');
-        if (b.nextElementSibling) b.parentElement.insertBefore(b.nextElementSibling, b);
-      }));
+      block.querySelectorAll('[data-act="duplicate"]').forEach(btn=>btn.addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); const clone = b.cloneNode(true); wireControls(clone); b.after(clone); queueMathTypeset(clone); }));
+      block.querySelectorAll('[data-act="up"]').forEach(btn=>btn.addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); if (b.previousElementSibling) b.parentElement.insertBefore(b, b.previousElementSibling); }));
+      block.querySelectorAll('[data-act="down"]').forEach(btn=>btn.addEventListener('click', (e)=>{ const b = e.currentTarget.closest('.block'); if (b.nextElementSibling) b.parentElement.insertBefore(b.nextElementSibling, b); }));
     }
 
     // EXPORTS
     document.getElementById('btnPrint').addEventListener('click', ()=> window.print());
 
-    function getExportNode(){
-      // Clone sheet and strip editor-only controls
+    function getExportNode(adjustForMargins=false){
       const sheet = document.getElementById('sheet').cloneNode(true);
       sheet.querySelectorAll('.block-controls, .editor-only, textarea').forEach(el=> el.remove());
       sheet.removeAttribute('contenteditable');
       sheet.querySelectorAll('[contenteditable]').forEach(el=> el.removeAttribute('contenteditable'));
+      if (adjustForMargins){ sheet.style.width = 'calc(var(--page-width) - 2 * var(--export-margin-mm))'; }
       return sheet;
     }
 
     document.getElementById('btnPDF').addEventListener('click', async () => {
-      const node = getExportNode();
-      const wrap = document.createElement('div');
-      wrap.appendChild(node);
-      // Ensure MathJax finished typesetting current DOM before export
+      const node = getExportNode(true);
       await typesetNow();
       const opt = {
         margin:       10,
         filename:     (document.getElementById('docTitle').innerText || 'cheatsheet') + '.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
         jsPDF:        { unit: 'mm', format: paper.value.includes('a4') ? 'a4' : 'letter', orientation: paper.value.endsWith('l') ? 'landscape' : 'portrait' }
       };
       html2pdf().set(opt).from(node).save();
@@ -303,77 +282,100 @@
       window.saveAs(blob, (document.getElementById('docTitle').innerText || 'cheatsheet') + '.docx');
     });
 
-    // LaTeX IMPORT
+    // LaTeX IMPORT (extended)
     const latexModal = document.getElementById('latexModal');
     document.getElementById('btnFromLatex').addEventListener('click', ()=> latexModal.showModal());
-    document.getElementById('btnPreviewLatex').addEventListener('click', ()=>{
-      const src = document.getElementById('latexInput').value || '';
-      const html = latexToHtml(src);
-      const prev = document.getElementById('latexPreview');
-      prev.innerHTML = html;
-      queueMathTypeset(prev);
-    });
+    document.getElementById('btnPreviewLatex').addEventListener('click', ()=>{ const src = document.getElementById('latexInput').value || ''; const html = latexToHtml(src).html; const prev = document.getElementById('latexPreview'); prev.innerHTML = html; queueMathTypeset(prev); });
     document.getElementById('btnInsertLatex').addEventListener('click', ()=>{
       const src = document.getElementById('latexInput').value || '';
-      const html = latexToHtml(src);
-      // Insert as a single Text block with rendered HTML
-      const node = tpl.content.cloneNode(true);
-      node.querySelector('.block-body').dataset.type = 'text';
-      node.querySelector('.block-body').innerHTML = `<div class="leading-relaxed">${html}</div>`;
-      const inserted = blocksEl.appendChild(node);
-      wireControls(inserted);
-      queueMathTypeset(inserted);
+      const { html, blocks } = latexToHtml(src);
+      if (blocks && blocks.length){
+        blocks.forEach(b=>{
+          if (b.type==='columns'){
+            addBlock('columns', {cols:b.cols});
+            const last = blocksEl.lastElementChild; const body = last.querySelector('.block-body'); const grid = body.querySelector('.cols-grid');
+            grid.innerHTML = '';
+            b.columns.forEach(col=>{ const d=document.createElement('div'); d.className='rounded-lg border border-neutral-300 dark:border-neutral-700 p-2 min-h-10'; d.contentEditable = true; d.innerHTML = col; grid.appendChild(d); });
+            queueMathTypeset(last);
+          } else {
+            const node = tpl.content.cloneNode(true);
+            node.querySelector('.block-body').dataset.type='text';
+            node.querySelector('.block-body').innerHTML = `<div class="leading-relaxed">${b.html}</div>`;
+            const inserted = blocksEl.appendChild(node); wireControls(inserted); queueMathTypeset(inserted);
+          }
+        });
+      } else {
+        const node = tpl.content.cloneNode(true);
+        node.querySelector('.block-body').dataset.type='text';
+        node.querySelector('.block-body').innerHTML = `<div class="leading-relaxed">${html}</div>`;
+        const inserted = blocksEl.appendChild(node); wireControls(inserted); queueMathTypeset(inserted);
+      }
       latexModal.close();
     });
 
     function latexToHtml(src){
-      // very small, tolerant mapping for common LaTeX markup to HTML
-      // Escape HTML first
+      // Colors via \definecolor{Name}{HTML}{RRGGBB}
+      const colorMap = {};
+      src.replace(/\\definecolor\{([^}]+)\}\{HTML\}\{([0-9A-Fa-f]{6})\}/g, (_, name, hex)=>{ colorMap[name]=`#${hex}`; return ''; });
       const esc = (s)=> s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
       let t = esc(src);
-      // headings
+      // Drop preamble bits we can't emulate
+      t = t.replace(/\\documentclass[\s\S]*?\n/g, '');
+      t = t.replace(/\\usepackage[\s\S]*?\n/g, '');
+      t = t.replace(/\\pagestyle\{[^}]*\}|\\fancyhead\[[^\]]*\]\{[\s\S]*?\}|\\fancyfoot\[[^\]]*\]\{[\s\S]*?\}/g, '');
+      t = t.replace(/\\begin\{document\}|\\end\{document\}/g, '');
+      // Headings
       t = t.replace(/\\section\{([^}]*)\}/g, '<h2 class="text-xl font-bold my-2">$1</h2>');
       t = t.replace(/\\subsection\{([^}]*)\}/g, '<h3 class="text-lg font-semibold my-1">$1</h3>');
-      // emphasis
+      // Emphasis
       t = t.replace(/\\textbf\{([^}]*)\}/g, '<strong>$1</strong>');
       t = t.replace(/\\textit\{([^}]*)\}/g, '<em>$1</em>');
       t = t.replace(/\\underline\{([^}]*)\}/g, '<u>$1</u>');
-      // lists
-      t = t.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (_, inner)=>{
-        const items = inner.replace(/\\item\s*/g, '</li><li>').replace(/^<\/li>/,'');
-        return `<ul class="list-disc pl-6 my-2 space-y-1"><li>${items}</li></ul>`;
-      });
-      t = t.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (_, inner)=>{
-        const items = inner.replace(/\\item\s*/g, '</li><li>').replace(/^<\/li>/,'');
-        return `<ol class="list-decimal pl-6 my-2 space-y-1"><li>${items}</li></ol>`;
-      });
-      // line breaks
+      // Colors
+      t = t.replace(/\\textcolor\{([^}]*)\}\{([^}]*)\}/g, (_, name, inner)=>{ const c = colorMap[name]||name; return `<span style="color:${c}">${inner}</span>`; });
+      // Lists
+      t = t.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (_, inner)=>{ const items = inner.replace(/\\item\s*/g, '</li><li>').replace(/^<\/li>/,''); return `<ul class="list-disc pl-6 my-2 space-y-1"><li>${items}</li></ul>`; });
+      t = t.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (_, inner)=>{ const items = inner.replace(/\\item\s*/g, '</li><li>').replace(/^<\/li>/,''); return `<ol class="list-decimal pl-6 my-2 space-y-1"><li>${items}</li></ol>`; });
+      // Line breaks
       t = t.replace(/\\\\/g, '<br/>');
-      // math: leave $...$ and $$...$$ as-is; MathJax will handle
-      // de-escape backslashes in math blocks by re-inserting original text portions
-      // (We already escaped HTML, which is good.)
-      return t;
-    }
 
-    // MATHJAX TYPESSET QUEUE (to avoid spamming typeset calls)
-    let mjTimer = null;
-    function queueMathTypeset(scope){
-      if (mjTimer) cancelAnimationFrame(mjTimer);
-      mjTimer = requestAnimationFrame(()=> typesetNow(scope));
-    }
-    async function typesetNow(scope){
-      try {
-        if (scope) await MathJax.typesetPromise([scope]);
-        else await MathJax.typesetPromise();
-      } catch (e) {
-        // ignore tiny MathJax hiccups during rapid edits
+      // Tables (basic tabular/tabularx/tabulary)
+      function tabularToTable(all, inner){
+        let rows = inner.trim().split(/\\\\/).map(r=>r.trim()).filter(Boolean);
+        let htmlRows = rows.map(r=>{
+          if (/^\\hline$/.test(r)) return '';
+          const cells = r.split(/\s*&\s*/).map(c=> c.replace(/\\multicolumn\{(\d+)\}\{[^}]*\}\{([^}]*)\}/g, '<td colspan="$1">$2</td>'));
+          const tds = cells.map(c=> c.startsWith('<td') ? c : `<td>${c}</td>`).join('');
+          return `<tr>${tds}</tr>`;
+        }).join('');
+        return `<table class="cs my-2"><tbody>${htmlRows}</tbody></table>`;
       }
+      t = t.replace(/\\begin\{tabularx\}[^}]*\}[^}]*\}([\s\S]*?)\\end\{tabularx\}/g, (_, inner)=> tabularToTable(_, inner));
+      t = t.replace(/\\begin\{tabulary\}[^}]*\}[^}]*\}([\s\S]*?)\\end\{tabulary\}/g, (_, inner)=> tabularToTable(_, inner));
+      t = t.replace(/\\begin\{tabular\}[^}]*\}([\s\S]*?)\\end\{tabular\}/g, (_, inner)=> tabularToTable(_, inner));
+
+      // Multicols -> split by \columnbreak into our columns block
+      const blocks = [];
+      t = t.replace(/\\begin\{multicols\}\{(\d+)\}([\s\S]*?)\\end\{multicols\}/g, (_, n, inner)=>{
+        const parts = inner.split(/\\columnbreak/);
+        const cols = Math.max(2, Math.min(6, Number(n)||3));
+        const colsArr = [];
+        for (let i=0;i<cols;i++){ colsArr[i] = esc(parts[i]||''); }
+        blocks.push({ type:'columns', cols, columns: colsArr });
+        return '';
+      });
+
+      return { html: t, blocks };
     }
 
-    // Seed a couple of starter blocks
+    // MATHJAX TYPESSET QUEUE
+    let mjTimer = null; function queueMathTypeset(scope){ if (mjTimer) cancelAnimationFrame(mjTimer); mjTimer = requestAnimationFrame(()=> typesetNow(scope)); }
+    async function typesetNow(scope){ try { if (scope) await MathJax.typesetPromise([scope]); else await MathJax.typesetPromise(); } catch (e) {} }
+
+    // Seed
     addBlock('heading', {text:'Key Formulas'});
+    addBlock('columns', {cols:3});
     addBlock('formula');
-    addBlock('two-col');
   </script>
 </body>
 </html>
