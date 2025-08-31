@@ -1,0 +1,79 @@
+name: Build tr-index.json
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-index:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build tr-index.json
+        run: |
+          mkdir -p .tmp
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const FOLDER = 'tr';
+          const BASE = `/${FOLDER}/`;
+
+          function extract(html) {
+            const get = (re) => (html.match(re)?.[1] || '').trim();
+            const title = get(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)
+                       || get(/<title[^>]*>([\s\S]*?)<\/title>/i)
+                       || get(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+            const desc  = get(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)
+                       || get(/<p[^>]*>([\s\S]*?)<\/p>/i).replace(/<[^>]+>/g,'');
+            const ogimg = get(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+                       || get(/<img[^>]+src=["']([^"']+)["']/i);
+            return { title, desc, ogimg };
+          }
+
+          function normalizeImg(linkBase, src) {
+            if (!src) return "";
+            try { new URL(src); return src; } catch {}
+            return src.startsWith('/') ? src : (linkBase.replace(/\/+$/,'') + '/' + src);
+          }
+
+          const files = fs.readdirSync(FOLDER)
+            .filter(f => /\.html?$/i.test(f))
+            .sort();
+
+          const items = files.map(name => {
+            const filePath = path.join(FOLDER, name);
+            const html = fs.readFileSync(filePath, 'utf8');
+            const { title, desc, ogimg } = extract(html);
+            const date = (name.match(/\d{4}-\d{2}-\d{2}/) || [])[0] || "";
+            const link = BASE + encodeURIComponent(name);
+            return {
+              file: name,
+              link,
+              title: title || name.replace(/\.html?$/i,''),
+              desc:  desc || "",
+              img:   normalizeImg(BASE, ogimg),
+              date
+            };
+          });
+
+          // Yeni olan en üste (tarih varsa)
+          items.sort((a,b) => (a.date && b.date) ? (a.date < b.date ? 1 : -1) : a.file.localeCompare(b.file));
+
+          fs.writeFileSync('tr-index.json', JSON.stringify(items, null, 2));
+          console.log(`Wrote tr-index.json with ${items.length} items`);
+          NODE
+
+      - name: Commit tr-index.json
+        run: |
+          if [ -n "$(git status --porcelain tr-index.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add tr-index.json
+            git commit -m "Update tr-index.json"
+            git push
+          else
+            echo "No changes."
+          fi
