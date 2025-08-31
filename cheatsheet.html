@@ -8,138 +8,75 @@
   :root{
     --cols: 2;
     --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    --text: #e8edf6;         /* screen text */
-    --bg: #0d0f12;
+    --text: #e8edf6;
     --panel: #151921;
-    --accent: #2eaadc;
-    --danger: #c62842;
-    --btn:#1f2530;
-    --btnText:#fff;
-    --radius: 14px;
-    --gap: 14px;
-    --fs: 16px;     /* screen */
-    --lh: 1.5;
+    --btn:#1f2530; --btnText:#fff; --accent:#2eaadc; --danger:#c62842;
+    --radius: 14px; --fs: 16px; --lh: 1.5;
   }
-
-  /* Page */
-  body{
-    margin:0;
-    color:var(--text);
-    background:linear-gradient(#0b0e13, #0a0c10) fixed;
-    font: 400 var(--fs)/var(--lh) var(--font);
-  }
-  .wrap{
-    max-width: 1100px;
-    margin: 24px auto;
-    padding: 0 16px 48px;
-  }
+  body{ margin:0; color:var(--text); background:linear-gradient(#0b0e13,#0a0c10) fixed;
+        font:400 var(--fs)/var(--lh) var(--font);}
+  .wrap{ max-width:1100px; margin:24px auto; padding:0 16px 48px; }
 
   /* Toolbar */
-  .bar{
-    position: sticky; top: 0; z-index: 10;
-    background: linear-gradient(180deg, #121722, #0f141e);
-    border: 1px solid #202737;
-    color: #eaeef5;
-    padding: 12px;
-    border-radius: var(--radius);
-    box-shadow: 0 8px 24px rgba(0,0,0,.35);
-    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-  }
-  .bar input[type="text"]{
-    flex: 1 1 280px;
-    min-width: 200px;
-    padding:12px 14px;
-    border-radius: 12px;
-    border: 1px solid #2a3346;
-    background:#0c1018;
-    color:#e8edf6;
-    outline:none;
-  }
+  .bar{ position:sticky; top:0; z-index:10; background:linear-gradient(180deg,#121722,#0f141e);
+        border:1px solid #202737; padding:12px; border-radius:var(--radius);
+        box-shadow:0 8px 24px rgba(0,0,0,.35); display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .bar input[type="text"]{ flex:1 1 280px; min-width:200px; padding:12px 14px; border-radius:12px;
+        border:1px solid #2a3346; background:#0c1018; color:#e8edf6; outline:none; }
   .field{ display:flex; align-items:center; gap:8px; white-space:nowrap }
-  .bar label{color:#b7c3d9; font-size:.95rem}
-  .bar select{
-    padding:12px 14px;
-    border-radius: 12px;
-    border: 1px solid #2a3346;
-    background:#0c1018; color:#e8edf6;
-  }
-  .btn{
-    display:inline-flex; align-items:center; justify-content:center;
-    gap:8px;
-    padding:12px 14px;
-    border:0; border-radius: 12px;
-    background: var(--btn); color: var(--btnText);
-    font-weight:600; cursor:pointer; white-space:nowrap;
-    box-shadow: 0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px #2a3346;
-    transition: transform .06s ease, filter .2s ease;
-  }
-  .btn:hover{ filter:brightness(1.08) }
-  .btn:active{ transform: translateY(1px) }
-  .btn.primary{ background: #1b7bb1 }
-  .btn.accent{ background: var(--accent) }
+  .bar label{ color:#b7c3d9; font-size:.95rem }
+  .bar select{ padding:12px 14px; border-radius:12px; border:1px solid #2a3346; background:#0c1018; color:#e8edf6; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:12px 14px;
+        border:0; border-radius:12px; background:var(--btn); color:var(--btnText); font-weight:600; cursor:pointer;
+        white-space:nowrap; box-shadow:0 6px 16px rgba(0,0,0,.35), inset 0 0 0 1px #2a3346; }
+  .btn:hover{ filter:brightness(1.08) } .btn:active{ transform:translateY(1px) }
+  .btn.primary{ background:#1b7bb1 } .btn.accent{ background:var(--accent) }
 
-  /* Title */
-  h1.doc-title{ color:#ecf2ff; font-weight:800; letter-spacing:.2px; margin: 22px 6px 8px; }
-  .hint{ color:#93a0b7; margin: 0 6px 14px; font-size:.95rem }
+  h1.doc-title{ color:#ecf2ff; font-weight:800; letter-spacing:.2px; margin:22px 6px 8px; }
 
   /* Content columns */
   #sheet{
-    background: var(--panel);
-    border: 1px solid #202737;
-    border-radius: var(--radius);
-    padding: 18px;
-    box-shadow: 0 16px 40px rgba(0,0,0,.5);
-    column-count: var(--cols);
-    column-gap: 22px;
+    background:var(--panel); border:1px solid #202737; border-radius:var(--radius);
+    padding:18px; box-shadow:0 16px 40px rgba(0,0,0,.5);
+    column-count:var(--cols); column-gap:22px; column-fill:auto;
   }
-
   .block{
-    break-inside: avoid; -webkit-column-break-inside: avoid;
-    margin: 0 0 16px;
-    background: #0f1420;
-    border: 1px solid #273149;
-    border-radius: 12px;
-    padding: 12px 12px 8px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.4);
+    break-inside:avoid; -webkit-column-break-inside:avoid;
+    margin:0 0 16px; background:#0f1420; border:1px solid #273149; border-radius:12px;
+    padding:12px 12px 8px; box-shadow:0 10px 24px rgba(0,0,0,.4);
   }
-
   .controls{ display:flex; gap:8px; justify-content:flex-end; margin-bottom:8px; }
-  .ctrl{
-    width:38px; height:38px; border:0; border-radius: 10px;
-    background:#222833; color:#e9eef8; cursor:pointer;
-    box-shadow: inset 0 0 0 1px #2b3447, 0 6px 14px rgba(0,0,0,.35);
-    font-size: 16px; font-weight:700;
-  }
-  .ctrl:hover{ filter:brightness(1.1)}
-  .ctrl.danger{ background:#c62842}
+  .ctrl{ width:38px; height:38px; border:0; border-radius:10px; background:#222833; color:#e9eef8; cursor:pointer;
+         box-shadow:inset 0 0 0 1px #2b3447, 0 6px 14px rgba(0,0,0,.35); font-size:16px; font-weight:700; }
+  .ctrl:hover{ filter:brightness(1.1) } .ctrl.danger{ background:#c62842 }
 
-  .content{ color:#e5ecff }             /* << fix: readable default text */
-  .content[contenteditable="true"]{ outline:none; min-height: 60px; caret-color:#fff; }
+  .content{ color:#e5ecff; overflow-wrap:anywhere; }
+  .content[contenteditable="true"]{ outline:none; min-height:60px; caret-color:#fff; }
   .content:empty:before{ content:"Type your cheat-sheet note here…"; color:#8a96aa; }
   .content h2{ margin:.2em 0 .3em; font-size:1.15em; color:#f0f4ff }
   .content h3{ margin:.35em 0 .3em; font-size:1.05em; color:#e1e8ff }
-  .content code{
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-    background:#0b101a; padding:.15em .35em; border-radius:8px;
-  }
+  .content code{ font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+                 background:#0b101a; padding:.15em .35em; border-radius:8px; }
   .content pre{ background:#0b101a; padding:10px; border-radius:10px; overflow:auto; }
 
-  /* PRINT: clean, borderless, single page when content fits */
-  @page { size: A4; margin: 12mm }
+  /* PRINT */
+  @page { size:A4; margin:12mm }
   @media print{
-    html, body{ height:auto; }
-    .screen-only, .bar{ display:none !important }
+    html,body{ height:auto; }
+    .screen-only,.bar{ display:none!important }
     body{ background:#fff; color:#000 }
     .wrap{ margin:0; padding:0 }
-    h1.doc-title, .hint{ color:#000 }
+    h1.doc-title{ color:#000 }
     #sheet{
       background:#fff; border:none; box-shadow:none; border-radius:0;
-      column-gap: 14pt;
+      column-gap:14pt; column-fill:balance !important;   /* ensure 1–4 columns render */
     }
     .block{
-      background:#fff; border:none; box-shadow:none; padding:0; margin: 0 0 8pt;
+      background:#fff; border:none; box-shadow:none; padding:0; margin:0 0 8pt;
+      break-inside:auto !important; -webkit-column-break-inside:auto !important; /* allow split */
+      page-break-inside:auto;
     }
-    .content, .content *{ color:#000 !important; background:transparent !important; }
+    .content, .content *{ color:#000 !important; background:transparent !important; overflow-wrap:anywhere; }
   }
 </style>
 </head>
@@ -170,26 +107,11 @@
       <button id="printBtn" class="btn accent" title="Export to PDF">⤓ Export PDF</button>
     </div>
 
-    <!-- Title + notes -->
+    <!-- Title -->
     <h1 class="doc-title" id="titleOut">My Cheat-Sheet</h1>
 
-    <!-- Content -->
-    <div id="sheet" aria-live="polite">
-      <div class="block">
-        <div class="controls screen-only">
-          <button class="ctrl" data-act="up" title="Move up">↑</button>
-          <button class="ctrl" data-act="down" title="Move down">↓</button>
-          <button class="ctrl danger" data-act="remove" title="Delete">✕</button>
-        </div>
-        <div class="content" contenteditable="true">
-          <h2>Quick Keys</h2>
-          <ul>
-            <li><b>Ctrl/⌘ + F</b> – Find</li>
-            <li><b>Ctrl/⌘ + Shift + P</b> – Command palette</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+    <!-- Content: starts EMPTY -->
+    <div id="sheet" aria-live="polite"></div>
   </div>
 
 <script>
@@ -200,7 +122,7 @@
   const titleIn = document.getElementById('docTitle');
   const titleOut = document.getElementById('titleOut');
 
-  function focusLastBlock(){ const last = sheet.querySelector('.block:last-child .content'); last && last.focus(); }
+  const focusLastBlock = () => { const last = sheet.querySelector('.block:last-child .content'); last && last.focus(); };
   function createBlock(html=""){
     const block = document.createElement('div');
     block.className = 'block';
@@ -210,12 +132,10 @@
         <button class="ctrl" data-act="down" title="Move down">↓</button>
         <button class="ctrl danger" data-act="remove" title="Delete">✕</button>
       </div>
-      <div class="content" contenteditable="true">${html}</div>
-    `;
+      <div class="content" contenteditable="true">${html}</div>`;
     return block;
   }
-
-  addBlockBtn.addEventListener('click', () => { sheet.appendChild(createBlock("")); focusLastBlock(); });
+  addBlockBtn.addEventListener('click', () => { sheet.appendChild(createBlock()); focusLastBlock(); });
 
   const setCols = n => document.documentElement.style.setProperty('--cols', n);
   setCols(colsSel.value);
@@ -226,13 +146,11 @@
   fsSel.addEventListener('change', e => setFS(e.target.value));
 
   const syncTitle = () => titleOut.textContent = titleIn.value.trim() || ' ';
-  titleIn.addEventListener('input', syncTitle);
-  syncTitle();
+  titleIn.addEventListener('input', syncTitle); syncTitle();
 
   sheet.addEventListener('click', (e) => {
     const btn = e.target.closest('.ctrl'); if(!btn) return;
-    const act = btn.dataset.act;
-    const block = btn.closest('.block');
+    const act = btn.dataset.act; const block = btn.closest('.block');
     if (act === 'remove'){ block.remove(); return; }
     if (act === 'up'){ const prev = block.previousElementSibling; if (prev) sheet.insertBefore(block, prev); return; }
     if (act === 'down'){ const next = block.nextElementSibling; if (next) sheet.insertBefore(next, block); return; }
@@ -246,9 +164,8 @@
     if(!text.endsWith('/**')) return;
     e.preventDefault();
     if (node.nodeType === 3){ node.textContent = node.textContent.replace('/**',''); }
-    const pre = document.createElement('pre'); const code = document.createElement('code'); code.textContent='// type here';
-    pre.appendChild(code);
-    const range = sel.getRangeAt(0); range.collapse(false); range.insertNode(pre);
+    const pre=document.createElement('pre'); const code=document.createElement('code'); code.textContent='// type here';
+    pre.appendChild(code); const range = sel.getRangeAt(0); range.collapse(false); range.insertNode(pre);
     setTimeout(()=>{ const r=document.createRange(); r.selectNodeContents(code); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); },0);
   });
 
