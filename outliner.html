@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MiniFlow — Outliner with PDF & Word Export</title>
+<style>
+  :root{
+    --bg:#0e0f13;
+    --panel:#151823;
+    --ink:#e8ecf1;
+    --muted:#97a3b6;
+    --accent:#6ea8fe;
+    --danger:#ff6b6b;
+    --ok:#46d39a;
+    --border:#263043;
+    --focus:#3b82f6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial;
+  }
+  header{
+    position:sticky; top:0; z-index:10;
+    background:linear-gradient(180deg,var(--bg),rgba(14,15,19,.85));
+    backdrop-filter:saturate(1.2) blur(6px);
+    border-bottom:1px solid var(--border);
+  }
+  .bar{
+    display:flex; gap:.5rem; align-items:center; padding:.75rem 1rem; flex-wrap:wrap;
+  }
+  .brand{font-weight:700; letter-spacing:.3px; margin-right:.5rem}
+  .muted{color:var(--muted)}
+  input[type="text"]{
+    padding:.55rem .75rem; border:1px solid var(--border); border-radius:.6rem; background:#0b0c10; color:var(--ink);
+    min-width:240px; flex:1 1 260px; outline:none;
+  }
+  input[type="text"]:focus{border-color:var(--focus); box-shadow:0 0 0 3px rgba(59,130,246,.25)}
+  .btn{
+    border:1px solid var(--border); background:var(--panel); color:var(--ink);
+    padding:.5rem .75rem; border-radius:.6rem; cursor:pointer; transition:.15s ease; user-select:none; white-space:nowrap;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.25)}
+  .btn:active{transform:none}
+  .btn.primary{border-color:#2b3348; background:#1b2030}
+  .btn.ok{border-color:#235e48; background:#153227; color:#d9ffef}
+  .btn.danger{border-color:#4d262a; background:#2a1517; color:#ffd9de}
+  .small{font-size:.9rem}
+  .sep{width:1px; height:28px; background:var(--border); margin:0 .25rem}
+
+  /* Breadcrumbs */
+  .crumbs{padding:.4rem 1rem; border-top:1px solid var(--border); border-bottom:1px solid var(--border); background: #0b0c12}
+  .crumbs a{color:var(--accent); text-decoration:none; margin-right:.35rem}
+  .crumbs a:hover{text-decoration:underline}
+  .crumbs .slash{color:var(--muted); margin:0 .25rem}
+
+  /* Canvas */
+  .container{max-width:980px; margin:1rem auto 5rem; padding:0 1rem}
+  #outline{
+    background:#0b0c12; border:1px solid var(--border); border-radius:14px; padding:14px 8px;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+  }
+
+  ul.tree{list-style:none; margin:0; padding-left:22px}
+  li.node{position:relative; margin:.1rem 0 .25rem .2rem; padding-left:24px}
+  .bullet{
+    position:absolute; left:0; top:.35rem;
+    width:18px;height:18px; border:1px solid var(--border); border-radius:50%; background:#0b0c12;
+    display:grid; place-items:center; cursor:pointer; font-size:.75rem; color:var(--muted);
+  }
+  .bullet:hover{border-color:var(--focus); color:var(--ink)}
+  .node.collapsed > ul{display:none}
+
+  .line{
+    display:flex; align-items:flex-start; gap:.4rem;
+  }
+  .text{
+    min-height:22px; outline:none; padding:.15rem .25rem; border-radius:.4rem; flex:1 1 auto;
+  }
+  .text:focus{background:#111525; box-shadow:inset 0 0 0 1px #21304b}
+  .text.completed{color:#9aa6b8; text-decoration:line-through; text-decoration-thickness:2px}
+  .actions{
+    display:flex; gap:.25rem; opacity:.65; transition:.15s; margin-top:.1rem;
+  }
+  li.node:hover .actions{opacity:1}
+  .iconbtn{
+    border:1px solid var(--border); background:#101420; color:var(--muted);
+    padding:.25rem .4rem; border-radius:.45rem; cursor:pointer; font-size:.8rem
+  }
+  .iconbtn:hover{color:var(--ink); border-color:#2d3a56}
+
+  /* Search filter */
+  .filtered{opacity:.28}
+
+  /* Footer help */
+  .help{
+    position:fixed; bottom:0; left:0; right:0; background:linear-gradient(180deg,rgba(14,15,19,.0),rgba(14,15,19,.9));
+    padding:10px 14px; border-top:1px solid var(--border); color:var(--muted); font-size:.9rem;
+  }
+  .kbd{display:inline-block; border:1px solid var(--border); border-bottom-color:#1f2738; background:#0b0d14; padding:.1rem .35rem; border-radius:.35rem; color:#d6deeb}
+
+  /* Print = PDF */
+  @media print{
+    @page{ margin:16mm }
+    body{ background:white; color:#111 }
+    header,.crumbs,.help,.no-print{ display:none !important }
+    #outline{ box-shadow:none; border:none; background:white }
+    .text{ background:white !important; color:#111 !important; box-shadow:none !important }
+    /* Ensure all visible for export */
+    .node > ul{ display:block !important }
+    .bullet,.actions{ display:none !important }
+    ul.tree{ padding-left:14px }
+    li.node{ padding-left:0; margin:.2rem 0 }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div class="brand">MiniFlow</div>
+      <div class="muted small">Nested outliner with zoom & export</div>
+      <span class="sep"></span>
+      <input id="search" type="text" placeholder="Search (supports #tags)…" />
+      <button class="btn" id="clearSearch" title="Clear search">Clear</button>
+      <span class="sep"></span>
+      <button class="btn primary" id="addTop">Add top-level item</button>
+      <button class="btn" id="expandAll">Expand</button>
+      <button class="btn" id="collapseAll">Collapse</button>
+      <span class="sep"></span>
+      <button class="btn ok" id="exportPDF" title="Print current view to PDF">Export PDF</button>
+      <button class="btn ok" id="exportDOC" title="Export current view to a Word-compatible .doc file">Export Word</button>
+      <span class="sep"></span>
+      <button class="btn danger" id="reset" title="Start fresh (clears content)">New / Reset</button>
+    </div>
+    <div class="crumbs" id="breadcrumbs"></div>
+  </header>
+
+  <div class="container">
+    <div id="outline"></div>
+  </div>
+
+  <div class="help">
+    <b>Shortcuts:</b>
+    <span class="kbd">Enter</span> new sibling •
+    <span class="kbd">Shift</span>+<span class="kbd">Enter</span> newline •
+    <span class="kbd">Tab</span>/<span class="kbd">Shift</span>+<span class="kbd">Tab</span> indent/outdent •
+    <span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> complete •
+    <span class="kbd">Ctrl</span>+<span class="kbd">Backspace</span> delete •
+    Click bullet to collapse • Click title to <i>zoom</i>
+  </div>
+
+<script>
+/* ---------------- Data Model ---------------- */
+const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const STORAGE_KEY = "miniflow.outline.v1";
+let state = {
+  rootId: null,      // zoom root
+  nodes: {},         // id -> {id,text,children[],collapsed,done}
+  top: []            // top-level ids
+};
+let lastFocusedId = null;
+let searchQuery = "";
+
+/* ---------------- Persistence ---------------- */
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw){
+    bootstrapEmpty();
+    return;
+  }
+  try{
+    state = JSON.parse(raw);
+  }catch(e){
+    console.warn("Corrupt data, starting clean.", e);
+    bootstrapEmpty();
+  }
+}
+function bootstrapEmpty(){
+  const a = newNode("");
+  state.top = [a.id];
+  state.rootId = null;
+  save();
+}
+
+/* ---------------- Node helpers ---------------- */
+function newNode(text=""){
+  const n = {id: uid(), text, children: [], collapsed: false, done:false};
+  state.nodes[n.id] = n;
+  return n;
+}
+function findParentOf(id, list = state.top, parent=null){
+  for(const nid of list){
+    if(nid === id) return {parent, list};
+    const childParent = findParentOf(id, state.nodes[nid].children, nid);
+    if(childParent) return childParent;
+  }
+  return null;
+}
+function indentNode(id){
+  const ctx = findParentOf(id);
+  if(!ctx) return;
+  const arr = ctx.list;
+  const idx = arr.indexOf(id);
+  if(idx <= 0) return; // needs a previous sibling
+  const prevId = arr[idx-1];
+  arr.splice(idx,1);
+  state.nodes[prevId].children.push(id);
+}
+function outdentNode(id){
+  const ctx = findParentOf(id);
+  if(!ctx || ctx.parent===null) return; // already top-level
+  const parentId = ctx.parent;
+  const grand = findParentOf(parentId);
+  // remove from current
+  const idx = ctx.list.indexOf(id);
+  ctx.list.splice(idx,1);
+  const targetList = grand ? grand.list : state.top;
+  const afterIndex = targetList.indexOf(parentId)+1;
+  targetList.splice(afterIndex,0,id);
+}
+function deleteNode(id){
+  // remove subtree
+  function removeRec(nid){
+    const n = state.nodes[nid];
+    if(!n) return;
+    for(const c of n.children) removeRec(c);
+    delete state.nodes[nid];
+  }
+  const ctx = findParentOf(id);
+  if(!ctx) return;
+  const idx = ctx.list.indexOf(id);
+  ctx.list.splice(idx,1);
+  removeRec(id);
+}
+
+/* ---------------- Render ---------------- */
+const outlineEl = document.getElementById("outline");
+const crumbsEl = document.getElementById("breadcrumbs");
+
+function render(){
+  // Breadcrumbs
+  renderBreadcrumbs();
+
+  // Determine which list to show (zoom)
+  const rootId = state.rootId;
+  let list = state.top;
+  let title = "All";
+  if(rootId){
+    list = state.nodes[rootId].children;
+    title = state.nodes[rootId].text || "(untitled)";
+  }
+
+  outlineEl.innerHTML = "";
+  const wrapper = document.createElement("ul");
+  wrapper.className = "tree";
+  outlineEl.appendChild(wrapper);
+
+  for(const id of list){
+    wrapper.appendChild(renderNode(id));
+  }
+  applySearchFilter();
+}
+
+function renderNode(id){
+  const node = state.nodes[id];
+  const li = document.createElement("li");
+  li.className = "node" + (node.collapsed?" collapsed":"");
+  li.dataset.id = id;
+
+  // Bullet
+  const bullet = document.createElement("button");
+  bullet.className = "bullet";
+  bullet.title = node.collapsed ? "Expand" : "Collapse";
+  bullet.textContent = node.collapsed ? "▶" : "●";
+  bullet.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    node.collapsed = !node.collapsed;
+    save(); render();
+  });
+  li.appendChild(bullet);
+
+  // Line
+  const line = document.createElement("div");
+  line.className = "line";
+  li.appendChild(line);
+
+  // Text (contenteditable)
+  const text = document.createElement("div");
+  text.className = "text" + (node.done ? " completed":"");
+  text.contentEditable = "true";
+  text.spellcheck = false;
+  text.textContent = node.text;
+  text.dataset.id = id;
+  text.addEventListener("input", ()=>{
+    state.nodes[id].text = text.textContent;
+    save();
+  });
+  text.addEventListener("focus", ()=> lastFocusedId = id);
+  text.addEventListener("click", (e)=>{
+    if(e.detail === 2){ // double click to zoom
+      zoomTo(id);
+    }
+  });
+  text.addEventListener("keydown", (e)=>{
+    // console.log(e.key, e.shiftKey, e.ctrlKey)
+    if(e.key==="Enter" && !e.shiftKey){
+      e.preventDefault();
+      const ctx = findParentOf(id);
+      const idx = ctx.list.indexOf(id);
+      const nn = newNode("");
+      ctx.list.splice(idx+1,0,nn.id);
+      save(); render();
+      focusNode(nn.id);
+    }else if(e.key==="Tab" && !e.shiftKey){
+      e.preventDefault(); indentNode(id); save(); render(); focusNode(id);
+    }else if(e.key==="Tab" && e.shiftKey){
+      e.preventDefault(); outdentNode(id); save(); render(); focusNode(id);
+    }else if(e.key==="Backspace" && e.ctrlKey){
+      e.preventDefault();
+      const prev = getPrevVisible(id);
+      deleteNode(id); save(); render();
+      if(prev) focusNode(prev);
+    }else if(e.key==="Enter" && e.ctrlKey){
+      e.preventDefault();
+      state.nodes[id].done = !state.nodes[id].done;
+      save(); render(); focusNode(id);
+    }
+  });
+  line.appendChild(text);
+
+  // Actions
+  const actions = document.createElement("div");
+  actions.className = "actions no-print";
+  actions.innerHTML = `
+    <button class="iconbtn" title="Add child">＋</button>
+    <button class="iconbtn" title="Zoom into item">⤢</button>
+    <button class="iconbtn" title="Toggle complete">✓</button>
+    <button class="iconbtn" title="Delete">✕</button>
+  `;
+  const [btnAdd, btnZoom, btnDone, btnDel] = actions.children;
+  btnAdd.addEventListener("click", ()=>{
+    const nn = newNode("");
+    node.children.push(nn.id);
+    save(); render(); focusNode(nn.id);
+  });
+  btnZoom.addEventListener("click", ()=> zoomTo(id));
+  btnDone.addEventListener("click", ()=>{
+    node.done = !node.done; save(); render(); focusNode(id);
+  });
+  btnDel.addEventListener("click", ()=>{
+    const prev = getPrevVisible(id);
+    deleteNode(id); save(); render();
+    if(prev) focusNode(prev);
+  });
+  line.appendChild(actions);
+
+  // Children
+  if(node.children.length){
+    const ul = document.createElement("ul");
+    ul.className = "tree";
+    for(const cid of node.children){
+      ul.appendChild(renderNode(cid));
+    }
+    li.appendChild(ul);
+  }
+
+  return li;
+}
+
+function focusNode(id){
+  const el = outlineEl.querySelector(`.text[data-id="${id}"]`);
+  if(el){
+    el.focus();
+    // place caret at end
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
+function getPrevVisible(id){
+  // naive: go to previous sibling text if exists, else parent
+  const ctx = findParentOf(id);
+  if(!ctx) return null;
+  const arr = ctx.list;
+  const idx = arr.indexOf(id);
+  if(idx>0){
+    // deepest last child of previous sibling
+    let nid = arr[idx-1];
+    while(state.nodes[nid].children.length){
+      const ch = state.nodes[nid].children;
+      nid = ch[ch.length-1];
+    }
+    return nid;
+  }
+  return ctx.parent; // may be null
+}
+
+/* ---------------- Zoom & Breadcrumbs ---------------- */
+function pathTo(id){
+  const path = [];
+  function dfs(list=state.top){
+    for(const nid of list){
+      if(nid===id){ path.push(nid); return true; }
+      if(dfs(state.nodes[nid].children)){ path.unshift(nid); return true; }
+    }
+    return false;
+  }
+  if(dfs()) return path;
+  return [];
+}
+function zoomTo(id){
+  state.rootId = id;
+  save(); render();
+}
+function zoomToRoot(){
+  state.rootId = null;
+  save(); render();
+}
+function renderBreadcrumbs(){
+  if(!state.rootId){
+    crumbsEl.innerHTML = `<a href="#" id="homeCrumb">All</a>`;
+    document.getElementById("homeCrumb").onclick = (e)=>{e.preventDefault(); zoomToRoot();};
+    return;
+  }
+  const ids = pathTo(state.rootId);
+  const parts = [`<a href="#" data-id="root">All</a>`];
+  for(let i=0;i<ids.length;i++){
+    const id = ids[i];
+    const name = escapeHtml(state.nodes[id].text || "(untitled)");
+    parts.push(`<span class="slash">/</span><a href="#" data-id="${id}">${name}</a>`);
+  }
+  crumbsEl.innerHTML = parts.join("");
+  crumbsEl.querySelectorAll("a").forEach(a=>{
+    a.addEventListener("click", (e)=>{
+      e.preventDefault();
+      const id = a.dataset.id;
+      if(id==="root") zoomToRoot(); else zoomTo(id);
+    });
+  });
+}
+
+/* ---------------- Search ---------------- */
+function applySearchFilter(){
+  const q = searchQuery.trim().toLowerCase();
+  const allLis = outlineEl.querySelectorAll("li.node");
+  allLis.forEach(li => li.classList.remove("filtered"));
+  if(!q) return;
+
+  // Determine visibility: show item if it or any descendant contains q
+  function containsQuery(nid){
+    const n = state.nodes[nid];
+    if((n.text||"").toLowerCase().includes(q)) return true;
+    return n.children.some(containsQuery);
+  }
+  function mark(list){
+    for(const nid of list){
+      const ok = containsQuery(nid);
+      const li = outlineEl.querySelector(`li.node[data-id="${nid}"]`);
+      if(li && !ok) li.classList.add("filtered");
+      mark(state.nodes[nid].children);
+    }
+  }
+  const base = state.rootId ? state.nodes[state.rootId].children : state.top;
+  mark(base);
+}
+
+/* ---------------- Export ---------------- */
+function exportToPDF(){
+  // We rely on print() with print CSS that hides UI and expands lists.
+  window.print();
+}
+function exportToWord(){
+  // Build a simple Word-compatible HTML (nested lists).
+  const html = `
+  <!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>MiniFlow Export</title>
+      <style>
+        body{font-family:Calibri,Arial,Helvetica,sans-serif; color:#111; line-height:1.4; font-size:12pt}
+        ul{margin:.1in 0 .1in .2in; padding:0}
+        li{margin:.05in 0}
+        .done{text-decoration:line-through; color:#666}
+        h1{font-size:16pt; margin:0 0 .15in 0}
+        .meta{font-size:10pt; color:#555; margin-bottom:.15in}
+      </style>
+    </head>
+    <body>
+      <h1>MiniFlow Export</h1>
+      <div class="meta">Exported on ${new Date().toLocaleString()}</div>
+      ${listHTML(currentListIds())}
+    </body>
+  </html>`.trim();
+
+  const blob = new Blob([html], {type:"application/msword"});
+  const url = URL.createObjectURL(blob);
+  downloadURL(url, `MiniFlow-${dateSlug()}.doc`);
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+}
+function listHTML(ids){
+  if(!ids || !ids.length) return "<p>(empty)</p>";
+  const parts = ["<ul>"];
+  for(const id of ids){
+    const n = state.nodes[id];
+    const text = escapeHtml(n.text || "");
+    parts.push(`<li class="${n.done?'done':''}">${text}`);
+    if(n.children.length) parts.push(listHTML(n.children));
+    parts.push(`</li>`);
+  }
+  parts.push("</ul>");
+  return parts.join("");
+}
+function currentListIds(){
+  return state.rootId ? state.nodes[state.rootId].children : state.top;
+}
+function dateSlug(){
+  const d = new Date();
+  const pad = x => String(x).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+function downloadURL(url, filename){
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* ---------------- Utils ---------------- */
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+/* ---------------- Controls ---------------- */
+document.getElementById("addTop").addEventListener("click", ()=>{
+  const nn = newNode("");
+  state.top.push(nn.id); save(); render(); focusNode(nn.id);
+});
+document.getElementById("expandAll").addEventListener("click", ()=>{
+  Object.values(state.nodes).forEach(n=> n.collapsed=false); save(); render();
+});
+document.getElementById("collapseAll").addEventListener("click", ()=>{
+  Object.values(state.nodes).forEach(n=>{ if(n.children.length) n.collapsed=true; }); save(); render();
+});
+document.getElementById("exportPDF").addEventListener("click", exportToPDF);
+document.getElementById("exportDOC").addEventListener("click", exportToWord);
+document.getElementById("reset").addEventListener("click", ()=>{
+  if(confirm("Start fresh? This will clear all content.")){
+    localStorage.removeItem(STORAGE_KEY);
+    bootstrapEmpty(); save(); render();
+  }
+});
+const searchEl = document.getElementById("search");
+searchEl.addEventListener("input", ()=>{
+  searchQuery = searchEl.value;
+  applySearchFilter();
+});
+document.getElementById("clearSearch").addEventListener("click", ()=>{
+  searchQuery = ""; searchEl.value = ""; applySearchFilter();
+});
+
+/* ---------------- Init ---------------- */
+load();
+render();
+if(state.top.length){ focusNode(state.top[0]); }
+
+/* Optional: keyboard shortcuts at document level for zoom out */
+document.addEventListener("keydown",(e)=>{
+  // Alt + Left: zoom out
+  if(e.altKey && e.key==="ArrowLeft"){
+    if(state.rootId){ zoomToRoot(); }
+  }
+});
+</script>
+</body>
+</html>
