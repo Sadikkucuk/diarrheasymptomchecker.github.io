@@ -8,8 +8,7 @@
   :root{
     --cols: 2;
     --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    --text: #111;
-    --muted:#666;
+    --text: #e8edf6;         /* screen text */
     --bg: #0d0f12;
     --panel: #151921;
     --accent: #2eaadc;
@@ -23,7 +22,6 @@
   }
 
   /* Page */
-  html,body{height:100%}
   body{
     margin:0;
     color:var(--text);
@@ -45,13 +43,11 @@
     padding: 12px;
     border-radius: var(--radius);
     box-shadow: 0 8px 24px rgba(0,0,0,.35);
-    display: grid;
-    gap: 10px;
-    grid-template-columns: 1fr auto auto auto auto auto;
-    align-items: center;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
   }
   .bar input[type="text"]{
-    width:100%;
+    flex: 1 1 280px;
+    min-width: 200px;
     padding:12px 14px;
     border-radius: 12px;
     border: 1px solid #2a3346;
@@ -59,6 +55,8 @@
     color:#e8edf6;
     outline:none;
   }
+  .field{ display:flex; align-items:center; gap:8px; white-space:nowrap }
+  .bar label{color:#b7c3d9; font-size:.95rem}
   .bar select{
     padding:12px 14px;
     border-radius: 12px;
@@ -79,17 +77,12 @@
   .btn:active{ transform: translateY(1px) }
   .btn.primary{ background: #1b7bb1 }
   .btn.accent{ background: var(--accent) }
-  .btn.danger{ background: var(--danger) }
-  .bar label{color:#b7c3d9; font-size:.95rem}
 
-  /* Title above content */
-  h1.doc-title{
-    color:#ecf2ff; font-weight:800; letter-spacing:.2px;
-    margin: 22px 6px 8px;
-  }
+  /* Title */
+  h1.doc-title{ color:#ecf2ff; font-weight:800; letter-spacing:.2px; margin: 22px 6px 8px; }
   .hint{ color:#93a0b7; margin: 0 6px 14px; font-size:.95rem }
 
-  /* Editable content area with CSS multi-columns */
+  /* Content columns */
   #sheet{
     background: var(--panel);
     border: 1px solid #202737;
@@ -101,8 +94,7 @@
   }
 
   .block{
-    break-inside: avoid;
-    -webkit-column-break-inside: avoid;
+    break-inside: avoid; -webkit-column-break-inside: avoid;
     margin: 0 0 16px;
     background: #0f1420;
     border: 1px solid #273149;
@@ -111,54 +103,43 @@
     box-shadow: 0 10px 24px rgba(0,0,0,.4);
   }
 
-  .controls{
-    display:flex; gap:8px; justify-content:flex-end; margin-bottom:8px;
-  }
+  .controls{ display:flex; gap:8px; justify-content:flex-end; margin-bottom:8px; }
   .ctrl{
-    width:38px; height:38px;
-    border:0; border-radius: 10px;
+    width:38px; height:38px; border:0; border-radius: 10px;
     background:#222833; color:#e9eef8; cursor:pointer;
     box-shadow: inset 0 0 0 1px #2b3447, 0 6px 14px rgba(0,0,0,.35);
     font-size: 16px; font-weight:700;
   }
   .ctrl:hover{ filter:brightness(1.1)}
   .ctrl.danger{ background:#c62842}
-  .content[contenteditable="true"]{
-    outline:none; min-height: 60px; caret-color:#fff;
-  }
-  .content:empty:before{
-    content:"Type your cheat-sheet note here…";
-    color:#8a96aa;
-  }
+
+  .content{ color:#e5ecff }             /* << fix: readable default text */
+  .content[contenteditable="true"]{ outline:none; min-height: 60px; caret-color:#fff; }
+  .content:empty:before{ content:"Type your cheat-sheet note here…"; color:#8a96aa; }
   .content h2{ margin:.2em 0 .3em; font-size:1.15em; color:#f0f4ff }
   .content h3{ margin:.35em 0 .3em; font-size:1.05em; color:#e1e8ff }
-  .content p, .content li, .content pre, .content code{ color:#e5ecff }
   .content code{
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     background:#0b101a; padding:.15em .35em; border-radius:8px;
   }
-  .content pre{
-    background:#0b101a; padding:10px; border-radius:10px; overflow:auto;
-  }
-  .small{ font-size:.9em }
-  .tiny{ font-size:.8em }
+  .content pre{ background:#0b101a; padding:10px; border-radius:10px; overflow:auto; }
 
-  /* PRINT: make a clean, borderless PDF */
+  /* PRINT: clean, borderless, single page when content fits */
   @page { size: A4; margin: 12mm }
   @media print{
-    body{ background:#fff }
-    .screen-only{ display:none !important }
+    html, body{ height:auto; }
+    .screen-only, .bar{ display:none !important }
+    body{ background:#fff; color:#000 }
+    .wrap{ margin:0; padding:0 }
     h1.doc-title, .hint{ color:#000 }
     #sheet{
-      background:#fff; border:none; box-shadow:none;
+      background:#fff; border:none; box-shadow:none; border-radius:0;
       column-gap: 14pt;
     }
     .block{
-      background:#fff; border:none; box-shadow:none; padding:0;
-      margin: 0 0 8pt;
+      background:#fff; border:none; box-shadow:none; padding:0; margin: 0 0 8pt;
     }
-    .content{ color:#000 }
-    .content code, .content pre{ background:#fff; border:none; box-shadow:none }
+    .content, .content *{ color:#000 !important; background:transparent !important; }
   }
 </style>
 </head>
@@ -167,20 +148,24 @@
     <!-- Toolbar -->
     <div class="bar screen-only" role="region" aria-label="Toolbar">
       <input id="docTitle" type="text" placeholder="Cheat-sheet title…" value="My Cheat-Sheet" />
-      <label for="cols">Columns</label>
-      <select id="cols" title="Number of columns">
-        <option value="1">1</option>
-        <option value="2" selected>2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-      </select>
-      <label for="fontsize">Text size</label>
-      <select id="fontsize" title="Base text size">
-        <option value="15px">S</option>
-        <option value="16px" selected>M</option>
-        <option value="18px">L</option>
-        <option value="20px">XL</option>
-      </select>
+      <div class="field">
+        <label for="cols">Columns</label>
+        <select id="cols" title="Number of columns">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fontsize">Text size</label>
+        <select id="fontsize" title="Base text size">
+          <option value="15px">S</option>
+          <option value="16px" selected>M</option>
+          <option value="18px">L</option>
+          <option value="20px">XL</option>
+        </select>
+      </div>
       <button id="addBlock" class="btn primary" title="Add a new block">＋ Add Block</button>
       <button id="printBtn" class="btn accent" title="Export to PDF">⤓ Export PDF</button>
     </div>
@@ -191,7 +176,6 @@
 
     <!-- Content -->
     <div id="sheet" aria-live="polite">
-      <!-- Starter blocks -->
       <div class="block">
         <div class="controls screen-only">
           <button class="ctrl" data-act="up" title="Move up">↑</button>
@@ -229,10 +213,7 @@ function clamp(n, a, b){ return Math.min(Math.max(n, a), b); }</code></pre>
   const titleIn = document.getElementById('docTitle');
   const titleOut = document.getElementById('titleOut');
 
-  // Accessibility: focus newly added block
   function focusLastBlock(){ const last = sheet.querySelector('.block:last-child .content'); last && last.focus(); }
-
-  // Create a block
   function createBlock(html=""){
     const block = document.createElement('div');
     block.className = 'block';
@@ -247,83 +228,43 @@ function clamp(n, a, b){ return Math.min(Math.max(n, a), b); }</code></pre>
     return block;
   }
 
-  // Add block button
-  addBlockBtn.addEventListener('click', () => {
-    sheet.appendChild(createBlock(""));
-    focusLastBlock();
-  });
+  addBlockBtn.addEventListener('click', () => { sheet.appendChild(createBlock("")); focusLastBlock(); });
 
-  // Column selector
-  function setCols(n){ document.documentElement.style.setProperty('--cols', n); }
+  const setCols = n => document.documentElement.style.setProperty('--cols', n);
   setCols(colsSel.value);
   colsSel.addEventListener('change', e => setCols(e.target.value));
 
-  // Font size selector
-  function setFS(v){ document.documentElement.style.setProperty('--fs', v); }
+  const setFS = v => document.documentElement.style.setProperty('--fs', v);
   setFS(fsSel.value);
   fsSel.addEventListener('change', e => setFS(e.target.value));
 
-  // Title binding
   const syncTitle = () => titleOut.textContent = titleIn.value.trim() || ' ';
   titleIn.addEventListener('input', syncTitle);
   syncTitle();
 
-  // Move / remove via event delegation
   sheet.addEventListener('click', (e) => {
     const btn = e.target.closest('.ctrl'); if(!btn) return;
     const act = btn.dataset.act;
     const block = btn.closest('.block');
-    if (act === 'remove'){
-      block.remove();
-      return;
-    }
-    if (act === 'up'){
-      const prev = block.previousElementSibling;
-      if (prev) sheet.insertBefore(block, prev);
-      return;
-    }
-    if (act === 'down'){
-      const next = block.nextElementSibling;
-      if (next) sheet.insertBefore(next, block);
-      return;
-    }
+    if (act === 'remove'){ block.remove(); return; }
+    if (act === 'up'){ const prev = block.previousElementSibling; if (prev) sheet.insertBefore(block, prev); return; }
+    if (act === 'down'){ const next = block.nextElementSibling; if (next) sheet.insertBefore(next, block); return; }
   });
 
-  // Quick /** + Enter to start a <pre><code>
+  // /** + Enter => code block
   sheet.addEventListener('keydown', (e) => {
-    if(e.key === 'Enter'){
-      const sel = window.getSelection();
-      if(!sel.rangeCount) return;
-      const node = sel.anchorNode;
-      const text = (node && node.textContent || '').trim();
-      if(text.endsWith('/**')){
-        e.preventDefault();
-        const cont = node.nodeType === 3 ? node.parentElement : node;
-        // replace /** with empty and insert code block
-        if (node.nodeType === 3){
-          node.textContent = node.textContent.replace('/**','');
-        } else {
-          cont.innerHTML = cont.innerHTML.replace('/**','');
-        }
-        const pre = document.createElement('pre');
-        const code = document.createElement('code');
-        code.textContent = '// type here';
-        pre.appendChild(code);
-        const range = sel.getRangeAt(0);
-        range.collapse(false);
-        range.insertNode(pre);
-        // place caret inside code
-        setTimeout(() => {
-          const r = document.createRange();
-          r.selectNodeContents(code);
-          r.collapse(false);
-          sel.removeAllRanges(); sel.addRange(r);
-        }, 0);
-      }
-    }
+    if(e.key !== 'Enter') return;
+    const sel = window.getSelection(); if(!sel.rangeCount) return;
+    const node = sel.anchorNode; const text = (node && node.textContent || '').trim();
+    if(!text.endsWith('/**')) return;
+    e.preventDefault();
+    if (node.nodeType === 3){ node.textContent = node.textContent.replace('/**',''); }
+    const pre = document.createElement('pre'); const code = document.createElement('code'); code.textContent='// type here';
+    pre.appendChild(code);
+    const range = sel.getRangeAt(0); range.collapse(false); range.insertNode(pre);
+    setTimeout(()=>{ const r=document.createRange(); r.selectNodeContents(code); r.collapse(false); sel.removeAllRanges(); sel.addRange(r); },0);
   });
 
-  // Export PDF (uses print)
   document.getElementById('printBtn').addEventListener('click', () => window.print());
 </script>
 </body>
