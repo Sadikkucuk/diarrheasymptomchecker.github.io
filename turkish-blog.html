@@ -29,49 +29,7 @@ footer{margin-top:2rem;color:#888;font-size:.85rem}
 <footer>Bu liste otomatik olarak <code>/tr</code> klasöründeki HTML sayfalardan üretilir.</footer>
 
 <script>
-const LINK_BASE = "/tr/";           // sitende /tr/ sayfalarına böyle gidiyoruz
-const LIMIT = 1000;
-
-// ---- OWNER/REPO otomatik tespit (user.github.io/repo/... veya user.github.io/...) ----
-function guessOwnerRepo(){
-  const host = location.hostname;          // sadik-kucuk3739342.github.io
-  const path1 = location.pathname.split("/").filter(Boolean); // ["my-repo", "tr", "arsiv.html"]
-  const owner = host.split(".")[0];        // "sadik-kucuk3739342"
-  const repo  = (host.endsWith(".github.io") && path1.length>0) ? path1[0] : `${owner}.github.io`;
-  return { owner, repo };
-}
-
-// ---- GitHub API yardımcıları ----
-async function ghListDir(owner, repo, branch, path){
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${branch}`;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`GitHub API ${r.status} ${branch}/${path}`);
-  return r.json();
-}
-async function fetchPage(pathOnSite){
-  const r = await fetch(pathOnSite, { cache: "no-store" });
-  if (!r.ok) throw new Error(`Fetch ${r.status} ${pathOnSite}`);
-  return r.text();
-}
-function extractMeta(html){
-  const doc = new DOMParser().parseFromString(html, "text/html");
-  const title = (doc.querySelector("meta[property='og:title']")?.content
-              || doc.querySelector("title")?.textContent
-              || doc.querySelector("h1")?.textContent || "").trim();
-  const desc  = (doc.querySelector("meta[name='description']")?.content
-              || doc.querySelector("p")?.textContent || "").trim();
-  const img   = (doc.querySelector("meta[property='og:image']")?.content
-              || doc.querySelector("img")?.getAttribute("src") || "");
-  return { title, desc, img };
-}
-function normalizeUrl(base, maybeRelative){
-  if (!maybeRelative) return "";
-  try { new URL(maybeRelative); return maybeRelative; } catch {}
-  if (maybeRelative.startsWith("/")) return maybeRelative;
-  return base.replace(/\/+$/,"") + "/" + maybeRelative;
-}
-
-// ---- UI ----
+const LIST_JSON = "/tr-index.json";   // workflow’un ürettiği manifest
 const container = document.getElementById("list");
 const countEl   = document.getElementById("count");
 const searchEl  = document.getElementById("q");
@@ -93,66 +51,24 @@ function render(list){
   `).join("");
 }
 
-searchEl?.addEventListener("input", e=>{
-  const q = e.target.value.trim().toLowerCase();
-  if(!q) return render(ALL);
-  const filtered = ALL.filter(p =>
-    p.title.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)
-  );
-  render(filtered);
-});
-
-// ---- Ana akış: birkaç kombinasyonu dener ----
 (async ()=>{
   container.innerHTML = "<p>Yükleniyor…</p>";
-
-  const { owner, repo } = guessOwnerRepo();
-  const branches = ["gh-pages", "main", "master"];
-  const paths    = ["tr", "docs/tr"];
-
-  let files = null, ok = null;
-  for (const br of branches){
-    for (const p of paths){
-      try {
-        const list = await ghListDir(owner, repo, br, p);
-        files = list.filter(x => x.type==="file" && /\.html?$/i.test(x.name));
-        ok = { owner, repo, branch: br, folder: p };
-        break;
-      } catch(e) {
-        // 404 ise diğer kombinasyonu dene
-      }
-    }
-    if (ok) break;
+  try{
+    const res = await fetch(LIST_JSON, {cache:"no-store"});
+    if(!res.ok) throw new Error(`Manifest ${res.status}`);
+    ALL = await res.json();
+    render(ALL);
+  }catch(e){
+    container.innerHTML = `<p>Liste alınamadı: ${e.message}</p>`;
   }
-
-  if (!ok){
-    container.innerHTML = `<p>Liste alınamadı: GitHub API 404 (owner/repo/branch/klasör uyuşmuyor veya repo private)</p>
-    <ul class="muted">
-      <li>Repo public mi?</li>
-      <li>Dosyalar hangi branch'te? (gh-pages / main / master)</li>
-      <li>Klasör yolu doğru mu? (<code>/tr</code> mi, yoksa <code>/docs/tr</code> mi?)</li>
-    </ul>`;
-    return;
-  }
-
-  const items = await Promise.all(files.map(async f=>{
-    const link = LINK_BASE + encodeURIComponent(f.name);
-    const html = await fetchPage(link);
-    const meta = extractMeta(html);
-    const img  = normalizeUrl(LINK_BASE, meta.img);
-    const dt   = f.name.match(/\d{4}-\d{2}-\d{2}/)?.[0] || "";
-    return { title: meta.title || f.name.replace(/\.html?$/i,""),
-             desc: meta.desc || "",
-             img, link, file: f.name, date: dt };
-  }));
-
-  ALL = items.sort((a,b)=>{
-    if (a.date && b.date) return a.date < b.date ? 1 : -1;
-    return a.file.localeCompare(b.file);
-  });
-  render(ALL);
 })();
+
+searchEl?.addEventListener("input", e=>{
+  const q = e.target.value.trim().toLowerCase();
+  render(q ? ALL.filter(p => (p.title+p.desc).toLowerCase().includes(q)) : ALL);
+});
 </script>
+
 
 </body>
 </html>
