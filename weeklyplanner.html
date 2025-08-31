@@ -6,123 +6,66 @@
 <title>DeuxLite — Weekly To-Do (PDF & Word Export)</title>
 <style>
   :root{
-    --bg:#0e1116;       /* dark theme like TeuxDeux but noir */
-    --panel:#141922;
-    --ink:#e8eef7;
-    --muted:#9fb0c6;
-    --accent:#7ab8ff;
-    --ok:#5cdfa6;
-    --danger:#ff6b6b;
-    --line:#263142;
-    --today:#1b2638;
-    --input:#0b0f16;
+    --bg:#0e1116; --panel:#141922; --ink:#e8eef7; --muted:#9fb0c6; --accent:#7ab8ff;
+    --ok:#5cdfa6; --danger:#ff6b6b; --line:#263142; --today:#1b2638; --input:#0b0f16;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--ink);
-    font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-  }
-
-  header{
-    position:sticky; top:0; z-index:30;
-    background:linear-gradient(180deg,rgba(14,17,22,.95),rgba(14,17,22,.75));
-    backdrop-filter:saturate(1.1) blur(6px);
-    border-bottom:1px solid var(--line);
-  }
-  .bar{
-    display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; padding:.75rem 1rem;
-  }
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  header{position:sticky; top:0; z-index:30; background:linear-gradient(180deg,rgba(14,17,22,.95),rgba(14,17,22,.75));
+    backdrop-filter:saturate(1.1) blur(6px); border-bottom:1px solid var(--line)}
+  .bar{display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; padding:.75rem 1rem}
   .brand{font-weight:700; letter-spacing:.3px; margin-right:.5rem}
   .muted{color:var(--muted)}
-  .btn{
-    border:1px solid var(--line); background:var(--panel); color:var(--ink);
-    padding:.45rem .7rem; border-radius:.6rem; cursor:pointer; transition:.15s;
-  }
+  .btn{border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    padding:.45rem .7rem; border-radius:.6rem; cursor:pointer; transition:.15s}
   .btn:hover{transform:translateY(-1px); box-shadow:0 8px 20px rgba(0,0,0,.25)}
   .btn:active{transform:none}
   .btn.ok{background:#14261d; border-color:#214f3b; color:#dff9ee}
   .btn.warn{background:#2a1b1b; border-color:#4d2b2b; color:#ffd9d9}
   .sep{width:1px; height:28px; background:var(--line); margin:0 .25rem}
-  .right{margin-left:auto; display:flex; gap:.5rem}
+  .right{margin-left:auto; display:flex; gap:.5rem; flex-wrap:wrap}
 
-  /* Range / Nav */
   .range{display:flex; align-items:center; gap:.35rem}
-  .navbtn{
-    width:32px; height:32px; border-radius:.55rem; border:1px solid var(--line);
-    background:var(--panel); color:var(--ink); cursor:pointer;
-  }
+  .navbtn{width:32px; height:32px; border-radius:.55rem; border:1px solid var(--line);
+    background:var(--panel); color:var(--ink); cursor:pointer}
 
-  /* Board */
   .wrap{max-width:1200px; margin:1rem auto 5rem; padding:0 12px}
-  .grid{
-    display:grid; gap:10px;
-    grid-template-columns: repeat(7, minmax(150px, 1fr));
-  }
-  .col{
-    display:flex; flex-direction:column;
-    border:1px solid var(--line); border-radius:12px;
-    background:var(--panel); min-height:220px; overflow:hidden;
-  }
+  .grid{display:grid; gap:10px; grid-template-columns: repeat(7, minmax(150px, 1fr))}
+  .col{display:flex; flex-direction:column; border:1px solid var(--line); border-radius:12px;
+    background:var(--panel); min-height:220px; overflow:hidden}
   .col.today{background:var(--today)}
-  .hdr{
-    padding:.6rem .75rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;
-  }
+  .hdr{padding:.6rem .75rem; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
   .hdr .dname{font-weight:600}
   .hdr .dnum{color:var(--muted); font-size:.9rem}
   .list{padding:.6rem .6rem 0 .6rem; display:flex; flex-direction:column; gap:.35rem; min-height:90px}
-  .task{
-    display:flex; align-items:stretch; gap:.4rem;
-    border:1px solid var(--line); border-radius:.55rem; background:#0f141e;
-  }
+  .task{display:flex; align-items:stretch; gap:.4rem; border:1px solid var(--line); border-radius:.55rem; background:#0f141e}
   .task[draggable="true"]{cursor:grab}
-  .drag{
-    width:28px; display:grid; place-items:center; user-select:none; border-right:1px dashed var(--line); color:var(--muted)
-  }
-  .txt{
-    flex:1; padding:.45rem .55rem; outline:none; background:transparent; color:var(--ink); border:0;
-  }
+  .drag{width:28px; display:grid; place-items:center; user-select:none; border-right:1px dashed var(--line); color:var(--muted)}
+  .txt{flex:1; padding:.45rem .55rem; outline:none; background:transparent; color:var(--ink); border:0}
   .txt.done{color:#9cb0c8; text-decoration:line-through; text-decoration-thickness:2px}
   .actions{display:flex; gap:.25rem; align-items:center; padding:.25rem .35rem}
-  .iconbtn{
-    border:1px solid var(--line); background:#0c1119; color:var(--muted);
-    padding:.25rem .4rem; border-radius:.45rem; cursor:pointer; font-size:.85rem
-  }
+  .iconbtn{border:1px solid var(--line); background:#0c1119; color:var(--muted); padding:.25rem .4rem; border-radius:.45rem; cursor:pointer; font-size:.85rem}
   .iconbtn:hover{color:var(--ink); border-color:#32415b}
   .dropline{height:6px; border-radius:6px; margin:.15rem .25rem; background:transparent}
   .dropline.on{background:rgba(122,184,255,.5)}
-  .adder{
-    display:flex; gap:.4rem; padding:.6rem; border-top:1px dashed var(--line); background:#0d1320;
-  }
-  .adder input{
-    flex:1; padding:.5rem .6rem; border-radius:.55rem; border:1px solid var(--line);
-    background:var(--input); color:var(--ink);
-  }
-  .adder button{white-space:nowrap}
+  .adder{display:flex; gap:.4rem; padding:.6rem; border-top:1px dashed var(--line); background:#0d1320; align-items:center}
+  .adder input{flex:1; padding:.5rem .6rem; border-radius:.55rem; border:1px solid var(--line); background:var(--input); color:var(--ink)}
+  .count{font-size:.8rem; color:var(--muted); min-width:3ch; text-align:right}
 
-  /* Someday */
-  .someday{
-    margin-top:12px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#121826;
-  }
+  .someday{margin-top:12px; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#121826}
   .someday .hdr{background:#0e1422}
   .someday .list{min-height:80px}
 
-  /* Footer help */
-  .help{
-    position:fixed; left:0; right:0; bottom:0; z-index:5;
-    background:linear-gradient(0deg,rgba(14,17,22,.95),rgba(14,17,22,.6));
-    border-top:1px solid var(--line); color:var(--muted); padding:8px 12px; font-size:.92rem;
-  }
+  .help{position:fixed; left:0; right:0; bottom:0; z-index:5; background:linear-gradient(0deg,rgba(14,17,22,.95),rgba(14,17,22,.6));
+    border-top:1px solid var(--line); color:var(--muted); padding:8px 12px; font-size:.92rem}
   .kbd{display:inline-block; border:1px solid var(--line); background:#0b0f16; padding:.05rem .35rem; border-radius:.35rem}
 
-  /* Responsive */
   @media (max-width:980px){
     .grid{grid-auto-flow:column; grid-auto-columns: 80%; overflow-x:auto; padding-bottom:.5rem}
   }
 
-  /* Print (PDF) */
   @media print{
     @page{ margin:14mm }
     body{ background:#fff; color:#000 }
@@ -153,8 +96,10 @@
       Auto-carry unfinished → next week
     </label>
     <div class="right">
-      <button class="btn ok" id="exportPdf" title="Print board only">Export PDF</button>
+      <button class="btn ok" id="exportPdf" title="Print current week">Export PDF</button>
       <button class="btn ok" id="exportDoc">Export Word</button>
+      <button class="btn ok" id="exportPdfMulti" title="Print multiple weeks">Export Weeks (PDF)</button>
+      <button class="btn ok" id="exportDocMulti" title="Download multiple weeks (.doc)">Export Weeks (Word)</button>
       <button class="btn warn" id="reset">New / Reset</button>
     </div>
   </div>
@@ -170,7 +115,8 @@
     </div>
     <div class="list" data-day="-1"></div>
     <div class="adder">
-      <input type="text" placeholder="Add a someday task and press Enter…" id="somedayInput">
+      <input type="text" placeholder="Add a someday task… (max 14 chars)" id="somedayInput" maxlength="14">
+      <span class="count" id="sdCount">0/14</span>
       <button class="btn" id="somedayAdd">Add</button>
     </div>
   </section>
@@ -178,20 +124,25 @@
 
 <div class="help">
   <b>Tips:</b>
-  Click text to toggle done • Drag ⠿ to reorder/move across days •
+  Click task text to toggle done • Drag ⠿ to reorder/move •
   <span class="kbd">Enter</span> adds •
   <span class="kbd">Ctrl</span>+<span class="kbd">Backspace</span> deletes focused task •
-  <span class="kbd">P</span> for PDF, <span class="kbd">W</span> for Word
+  <span class="kbd">P</span> for PDF, <span class="kbd">W</span> for Word •
+  <b>Limit:</b> 14 characters per task
 </div>
 
 <script>
+/* ======= Config ======= */
+const MAX_LEN = 14;
+
 /* ======= Utilities & Dates ======= */
 const pad = n => String(n).padStart(2,'0');
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parseYMD = s => { const [Y,M,D]=s.split('-').map(Number); return new Date(Y, M-1, D); }
-const mondayOf = (d)=>{ const x = new Date(d); const day = x.getDay(); // 0..6 Sun..Sat
-  const diff = (day===0? -6 : 1 - day); x.setDate(x.getDate() + diff); x.setHours(0,0,0,0); return x; };
+const mondayOf = (d)=>{ const x = new Date(d); const day = x.getDay(); const diff = (day===0? -6 : 1 - day);
+  x.setDate(x.getDate() + diff); x.setHours(0,0,0,0); return x; };
 const addDays = (d,n)=>{ const x = new Date(d); x.setDate(x.getDate()+n); return x; }
+const addWeeks = (d,n)=> addDays(d, 7*n);
 
 /* ======= State & Persistence ======= */
 const KEY = "deuxlite.v1";
@@ -212,6 +163,7 @@ function load(){
   save();
 }
 function emptyWeek(){ return { days:[[],[],[],[],[],[],[]] }; }
+function limitText(s=''){ return String(s).slice(0, MAX_LEN); }
 
 /* ======= DOM build ======= */
 const board = document.getElementById('board');
@@ -226,7 +178,6 @@ function buildBoard(){
   const todayYMD = ymd(new Date());
   for(let d=0; d<7; d++){
     const date = addDays(start, d);
-    const id = `col-${d}`;
     const col = document.createElement('div');
     col.className = 'col' + (ymd(date)===todayYMD ? ' today' : '');
     col.innerHTML = `
@@ -236,7 +187,8 @@ function buildBoard(){
       </div>
       <div class="list" data-day="${d}"></div>
       <div class="adder">
-        <input type="text" placeholder="Add a task for ${DAYNAMES[d]}…">
+        <input type="text" placeholder="Add a task… (max ${MAX_LEN} chars)" maxlength="${MAX_LEN}">
+        <span class="count">0/${MAX_LEN}</span>
         <button class="btn">Add</button>
       </div>`;
     board.appendChild(col);
@@ -260,9 +212,7 @@ function renderWeek(){
     const day = Number(ul.dataset.day);
     if(day<0) return;
     ul.innerHTML = '';
-    for(const tid of wk.days[day]){
-      ul.appendChild(renderTask(tid));
-    }
+    for(const tid of wk.days[day]) ul.appendChild(renderTask(tid));
     ul.appendChild(dropLine());
     wireDroppable(ul);
   });
@@ -271,11 +221,9 @@ function renderWeek(){
 function renderSomeday(){
   const ul = document.querySelector('#someday .list');
   ul.innerHTML = '';
-  for(const tid of state.someday){
-    ul.appendChild(renderTask(tid));
-  }
+  for(const tid of state.someday) ul.appendChild(renderTask(tid));
   ul.appendChild(dropLine());
-  wireDroppable(ul); // day = -1
+  wireDroppable(ul);
 }
 
 /* ======= Task nodes ======= */
@@ -291,7 +239,7 @@ function renderTask(id){
   const input = document.createElement('input');
   input.className = 'txt' + (t.done?' done':'');
   input.value = t.text; input.title = 'Click text to toggle done';
-  input.readOnly = true;
+  input.readOnly = true; input.maxLength = MAX_LEN;
   input.addEventListener('click', ()=>{
     t.done = !t.done; save(); refreshTask(li, t);
   });
@@ -312,12 +260,12 @@ function renderTask(id){
     input.readOnly = false; input.focus();
     input.selectionStart = input.selectionEnd = input.value.length;
   });
-  input.addEventListener('blur', ()=>{ t.text = input.value.trim(); input.readOnly = true; save(); refreshTask(li,t); });
+  input.addEventListener('input', ()=>{ if(input.value.length > MAX_LEN) input.value = input.value.slice(0,MAX_LEN); });
+  input.addEventListener('blur', ()=>{ t.text = limitText(input.value.trim()); input.readOnly = true; save(); refreshTask(li,t); });
   bDupe.addEventListener('click', ()=> duplicateTask(id));
   bDel.addEventListener('click', ()=> deleteTask(id));
   li.appendChild(act);
 
-  // drag handlers
   li.addEventListener('dragstart', e=>{
     e.dataTransfer.setData('text/plain', id);
     e.dataTransfer.effectAllowed = 'move';
@@ -331,18 +279,26 @@ function refreshTask(el, t){ el.querySelector('.txt').classList.toggle('done', !
 /* ======= Add / Duplicate / Delete ======= */
 function wireAdders(){
   board.querySelectorAll('.adder').forEach((ad,idx)=>{
-    const input = ad.querySelector('input'); const btn = ad.querySelector('button');
-    btn.addEventListener('click', ()=>{ if(!input.value.trim()) return; createTask(idx, input.value.trim()); input.value=''; });
+    const input = ad.querySelector('input'); const btn = ad.querySelector('button'); const cnt = ad.querySelector('.count');
+    const updateCount = ()=> cnt.textContent = `${input.value.length}/${MAX_LEN}`;
+    input.addEventListener('input', ()=>{ if(input.value.length>MAX_LEN) input.value=input.value.slice(0,MAX_LEN); updateCount(); });
+    updateCount();
+    btn.addEventListener('click', ()=>{ const val = limitText(input.value.trim()); if(!val) return; createTask(idx, val); input.value=''; updateCount(); });
     input.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ btn.click(); }});
   });
   // Someday
-  document.getElementById('somedayAdd').onclick = ()=>{
-    const input = document.getElementById('somedayInput');
-    if(!input.value.trim()) return;
-    const id = newTask(input.value.trim());
-    state.someday.push(id); save(); renderSomeday(); input.value='';
+  const sdIn = document.getElementById('somedayInput');
+  const sdBtn = document.getElementById('somedayAdd');
+  const sdCount = document.getElementById('sdCount');
+  const upd = ()=> sdCount.textContent = `${sdIn.value.length}/${MAX_LEN}`;
+  sdIn.addEventListener('input', ()=>{ if(sdIn.value.length>MAX_LEN) sdIn.value = sdIn.value.slice(0,MAX_LEN); upd(); });
+  upd();
+  sdBtn.onclick = ()=>{
+    const text = limitText(sdIn.value.trim()); if(!text) return;
+    const id = newTask(text);
+    state.someday.push(id); save(); renderSomeday(); sdIn.value=''; upd();
   };
-  document.getElementById('somedayInput').addEventListener('keydown',(e)=>{ if(e.key==='Enter') document.getElementById('somedayAdd').click(); });
+  sdIn.addEventListener('keydown',(e)=>{ if(e.key==='Enter') sdBtn.click(); });
 }
 function createTask(dayIndex, text){
   const id = newTask(text);
@@ -351,36 +307,28 @@ function createTask(dayIndex, text){
 }
 function duplicateTask(id){
   const t = state.tasks[id];
-  const nid = newTask(t.text + '');
-  // find container where original is
+  const nid = newTask(limitText(t.text + ''));
   const loc = findTask(id);
   if(loc.type==='day'){ ensureWeek(state.weekKey).days[loc.index].push(nid); renderWeek(); }
   else { state.someday.push(nid); renderSomeday(); }
   save();
 }
 function deleteTask(id){
-  // remove from containers
   const loc = findTask(id);
   if(loc.type==='day'){
     const arr = ensureWeek(state.weekKey).days[loc.index];
-    arr.splice(arr.indexOf(id),1);
-    renderWeek();
+    arr.splice(arr.indexOf(id),1); renderWeek();
   }else{
-    const arr = state.someday;
-    arr.splice(arr.indexOf(id),1);
-    renderSomeday();
+    const arr = state.someday; arr.splice(arr.indexOf(id),1); renderSomeday();
   }
-  delete state.tasks[id];
-  save();
+  delete state.tasks[id]; save();
 }
-function newTask(text){ const id = uid(); state.tasks[id] = {id, text, done:false}; return id; }
+function newTask(text){ const id = uid(); state.tasks[id] = {id, text:limitText(text), done:false}; return id; }
 function ensureWeek(key){ if(!state.weeks[key]) state.weeks[key]=emptyWeek(); return state.weeks[key]; }
 function findTask(id){
-  // search current week days
   const wk = ensureWeek(state.weekKey);
   for(let i=0;i<7;i++) if(wk.days[i].includes(id)) return {type:'day', index:i};
   if(state.someday.includes(id)) return {type:'someday'};
-  // fall back: search other weeks
   for(const k of Object.keys(state.weeks)){
     const w = state.weeks[k]; for(let i=0;i<7;i++) if(w.days[i].includes(id)) return {type:'day', index:i, week:k};
   }
@@ -414,14 +362,12 @@ function getDragAfterElement(container, y){
   }, {offset: Number.NEGATIVE_INFINITY}).element;
 }
 function moveTaskToList(id, listEl, y){
-  // remove from current container
   const loc = findTask(id);
   if(loc.type==='day'){
     const arr = ensureWeek(state.weekKey).days[loc.index]; arr.splice(arr.indexOf(id),1);
   }else if(loc.type==='someday'){
     const arr = state.someday; arr.splice(arr.indexOf(id),1);
   }
-  // destination
   const after = getDragAfterElement(listEl, y);
   const isSomeday = Number(listEl.dataset.day)===-1;
   const targetArr = isSomeday ? state.someday : ensureWeek(state.weekKey).days[Number(listEl.dataset.day)];
@@ -433,9 +379,7 @@ function moveTaskToList(id, listEl, y){
 
 /* ======= Week navigation & carry over ======= */
 function gotoWeek(newKey){
-  if(state.carryOver){
-    carryUnfinishedTo(newKey);
-  }
+  if(state.carryOver){ carryUnfinishedTo(newKey); }
   state.weekKey = newKey;
   if(!state.weeks[state.weekKey]) state.weeks[state.weekKey]=emptyWeek();
   save(); buildBoard();
@@ -445,9 +389,7 @@ function carryUnfinishedTo(nextKey){
   const next = ensureWeek(nextKey);
   for(let i=0;i<7;i++){
     const undone = cur.days[i].filter(id=>!state.tasks[id].done);
-    // remove them from current
     cur.days[i] = cur.days[i].filter(id=> state.tasks[id].done);
-    // append to next
     next.days[i].push(...undone);
   }
 }
@@ -460,68 +402,160 @@ document.getElementById('nextWeek').onclick = ()=>{
 document.getElementById('thisWeek').onclick = ()=> gotoWeek(ymd(mondayOf(new Date())));
 document.getElementById('carry').onchange = (e)=>{ state.carryOver = !!e.target.checked; save(); };
 
-/* ======= Exports ======= */
+/* ======= Single-week Exports ======= */
 document.getElementById('exportPdf').onclick = ()=> window.print();
 
-document.getElementById('exportDoc').onclick = ()=>{
-  const start = parseYMD(state.weekKey), end = addDays(start,6);
-  const wk = ensureWeek(state.weekKey);
-  const html = `
-<!doctype html>
-<html><head><meta charset="utf-8">
-<title>DeuxLite Export</title>
-<style>
-  body{font-family:Calibri,Arial,Helvetica,sans-serif; color:#111; line-height:1.4; font-size:12pt}
-  h1{font-size:18pt; margin:0 0 .15in}
-  .meta{font-size:10pt; color:#555; margin-bottom:.15in}
-  table{border-collapse:collapse; width:100%}
-  th,td{border:1px solid #bbb; padding:.1in; vertical-align:top}
-  th{background:#f0f3f8}
-  ul{margin:.05in 0 .05in .18in; padding:0}
-  li{margin:.02in 0}
-  .done{text-decoration:line-through; color:#666}
-  h2{font-size:14pt; margin:.2in 0 .1in}
-</style>
-</head>
-<body>
-  <h1>Weekly To-Do</h1>
-  <div class="meta">${start.toDateString()} – ${end.toDateString()} • Exported ${new Date().toLocaleString()}</div>
-  <table>
-    <tr>${DAYNAMES.map(d=>`<th>${d}</th>`).join('')}</tr>
-    <tr>
-      ${wk.days.map(dayIds=>{
-        const items = dayIds.map(id=>{
-          const t = state.tasks[id];
-          return `<li class="${t.done?'done':''}">${escapeHtml(t.text)}</li>`;
-        }).join('');
-        return `<td><ul>${items||''}</ul></td>`;
-      }).join('')}
-    </tr>
-  </table>
-  <h2>Someday</h2>
-  <ul>
-    ${state.someday.map(id=>`<li class="${state.tasks[id]?.done?'done':''}">${escapeHtml(state.tasks[id]?.text||'')}</li>`).join('')}
-  </ul>
-</body></html>`.trim();
-
+document.getElementById('exportDoc').onclick = ()=> {
+  const html = buildWeeksDocHTML([{key: state.weekKey, title: weekTitle(state.weekKey)}]);
   const blob = new Blob([html], {type:"application/msword"});
   const url = URL.createObjectURL(blob);
   download(url, `DeuxLite-${state.weekKey}.doc`);
   setTimeout(()=>URL.revokeObjectURL(url), 1500);
 };
 
-function download(url, name){
-  const a = document.createElement('a'); a.href=url; a.download=name;
-  document.body.appendChild(a); a.click(); a.remove();
+/* ======= Multi-week Exports ======= */
+document.getElementById('exportDocMulti').onclick = ()=>{
+  const cfg = askWeeksRange();
+  if(!cfg) return;
+  const keys = weekKeysRange(cfg.startKey, cfg.count);
+  const sections = keys.map(k => ({key:k, title: weekTitle(k)}));
+  const html = buildWeeksDocHTML(sections);
+  const blob = new Blob([html], {type:"application/msword"});
+  const url = URL.createObjectURL(blob);
+  download(url, `DeuxLite-${cfg.startKey}-x${cfg.count}.doc`);
+  setTimeout(()=>URL.revokeObjectURL(url), 1500);
+};
+
+document.getElementById('exportPdfMulti').onclick = ()=>{
+  const cfg = askWeeksRange();
+  if(!cfg) return;
+  const keys = weekKeysRange(cfg.startKey, cfg.count);
+  const html = buildWeeksPrintHTML(keys);
+  const w = window.open('', '_blank');
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  w.print();
+  // w.close(); // optional
+};
+
+/* ======= Build multi-week HTML ======= */
+function weekTitle(weekKey){
+  const s = parseYMD(weekKey), e = addDays(s,6);
+  return `${s.toDateString()} – ${e.toDateString()}`;
 }
-function escapeHtml(s=''){
-  return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+function askWeeksRange(){
+  const defStart = state.weekKey;
+  const start = prompt(`Start Monday (YYYY-MM-DD)`, defStart);
+  if(!start) return null;
+  const m = parseYMD(start); if(isNaN(m)) { alert('Invalid date. Use YYYY-MM-DD.'); return null; }
+  const isMon = m.getDay()===1; const adj = ymd(mondayOf(m));
+  if(!isMon){ alert(`Not a Monday. Using nearest Monday: ${adj}`); }
+  let n = prompt(`Number of weeks to export`, '4'); if(!n) return null;
+  n = Math.max(1, Math.min(52, parseInt(n,10)||1));
+  return { startKey: adj, count: n };
 }
+function weekKeysRange(startKey, count){
+  const keys = []; const startDate = parseYMD(startKey);
+  for(let i=0;i<count;i++){
+    const d = addWeeks(startDate, i); const k = ymd(d);
+    if(!state.weeks[k]) state.weeks[k] = emptyWeek(); // ensure exists
+    keys.push(k);
+  }
+  return keys;
+}
+function buildWeeksDocHTML(sections){
+  const tableFor = (k)=>{
+    const wk = ensureWeek(k);
+    return `
+    <h2>${escapeHtml(weekTitle(k))}</h2>
+    <table>
+      <tr>${DAYNAMES.map(d=>`<th>${d}</th>`).join('')}</tr>
+      <tr>
+        ${wk.days.map(dayIds=>{
+          const items = dayIds.map(id=>{
+            const t = state.tasks[id];
+            return `<li class="${t.done?'done':''}">${escapeHtml(t.text)}</li>`;
+          }).join('');
+          return `<td><ul>${items||''}</ul></td>`;
+        }).join('')}
+      </tr>
+    </table>`;
+  };
+  return `<!doctype html>
+<html><head><meta charset="utf-8">
+<title>DeuxLite Export</title>
+<style>
+  body{font-family:Calibri,Arial,Helvetica,sans-serif; color:#111; line-height:1.4; font-size:12pt}
+  h1{font-size:18pt; margin:0 0 .15in}
+  .meta{font-size:10pt; color:#555; margin-bottom:.15in}
+  table{border-collapse:collapse; width:100%; margin:.15in 0}
+  th,td{border:1px solid #bbb; padding:.1in; vertical-align:top}
+  th{background:#f0f3f8}
+  ul{margin:.05in 0 .05in .18in; padding:0}
+  li{margin:.02in 0}
+  .done{text-decoration:line-through; color:#666}
+  h2{font-size:14pt; margin:.25in 0 .1in}
+  h3{font-size:13pt; margin:.2in 0 .08in}
+</style>
+</head>
+<body>
+  <h1>Weekly To-Do (Multi-week)</h1>
+  <div class="meta">Exported ${new Date().toLocaleString()}</div>
+  ${sections.map(s=>tableFor(s.key)).join('')}
+  <h3>Someday</h3>
+  <ul>
+    ${state.someday.map(id=>`<li class="${state.tasks[id]?.done?'done':''}">${escapeHtml(state.tasks[id]?.text||'')}</li>`).join('')}
+  </ul>
+</body></html>`.trim();
+}
+function buildWeeksPrintHTML(keys){
+  const tableFor = (k)=>{
+    const wk = ensureWeek(k);
+    return `
+      <section style="page-break-after:always">
+        <h2 style="margin:0 0 8px 0;font:700 18px system-ui,Segoe UI"> ${escapeHtml(weekTitle(k))}</h2>
+        <table style="border-collapse:collapse;width:100%;font:14px system-ui,Segoe UI">
+          <tr>${DAYNAMES.map(d=>`<th style="border:1px solid #bbb;background:#f0f3f8;padding:6px">${d}</th>`).join('')}</tr>
+          <tr>
+            ${wk.days.map(dayIds=>{
+              const items = dayIds.map(id=>{
+                const t = state.tasks[id];
+                const sty = t.done ? 'text-decoration:line-through;color:#666' : '';
+                return `<li style="${sty}">${escapeHtml(t.text)}</li>`;
+              }).join('');
+              return `<td style="border:1px solid #bbb;vertical-align:top;padding:6px"><ul style="margin:.2em 0 0 1.1em;padding:0">${items||''}</ul></td>`;
+            }).join('')}
+          </tr>
+        </table>
+      </section>`;
+  };
+  return `<!doctype html><html><head><meta charset="utf-8">
+  <title>DeuxLite Multi-week Print</title>
+  <style>@media print{@page{margin:14mm}}</style>
+  </head><body>
+    ${keys.map(k=>tableFor(k)).join('')}
+    <section><h2 style="font:700 18px system-ui,Segoe UI;margin:0 0 6px 0">Someday</h2>
+      <ul style="font:14px system-ui,Segoe UI; margin:.2em 0 0 1.1em">
+      ${state.someday.map(id=>{
+        const t=state.tasks[id]; const sty = t?.done?'text-decoration:line-through;color:#666':'';
+        return `<li style="${sty}">${escapeHtml(t?.text||'')}</li>`;
+      }).join('')}
+      </ul>
+    </section>
+  </body></html>`;
+}
+
+/* ======= Helpers ======= */
+function download(url, name){ const a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+function escapeHtml(s=''){ return s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
 
 /* ======= Global keys ======= */
 document.addEventListener('keydown', (e)=>{
-  if(e.target.tagName==='INPUT' && e.target.classList.contains('txt')===false){
-    // shortcuts only when not editing a task text
+  if(e.target.tagName==='INPUT' && !e.target.classList.contains('txt')){
+    // not stealing typing in adders
+  }else{
     if(e.key==='p' || e.key==='P'){ e.preventDefault(); window.print(); }
     if(e.key==='w' || e.key==='W'){ e.preventDefault(); document.getElementById('exportDoc').click(); }
   }
@@ -539,8 +573,6 @@ document.getElementById('reset').onclick = ()=>{
 load();
 buildBoard();
 document.getElementById('somedayInput').value='';
-
-/* ======= Helpers for DnD ordering ======= */
 </script>
 </body>
 </html>
