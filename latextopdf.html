@@ -151,6 +151,7 @@ if (typeof promise === "undefined" && typeof Promise !== "undefined") {
   tryNext(0);
 })();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@zauguin/texlive.js@0.4.0/pdftex.js"></script>
 
 <script>
 /* --- App logic --- */
@@ -267,13 +268,17 @@ function log(msg){ logEl.textContent += (msg + '\n'); logEl.scrollTop = logEl.sc
 
 // Local compile (texlive.js)
 // local compile
+  <!-- replace old script with a modern build that defines TeXLive.* -->
+
 async function compileLocal() {
   const code = editor.getValue();
-  const pdftex = new PDFTeX();        // <-- classic global
+  // Some builds expose a namespaced class:
+  const pdftex = new TeXLive.PDFTeX();   // if this exists
   const pdf = await pdftex.compile(code, (e)=> e?.msg && log(e.msg));
-  pdfFrame.src = pdf;                  // data:application/pdf;base64,...
+  pdfFrame.src = pdf;
   lastDataURI = pdf;
 }
+
 
 // Remote compile (LaTeX.Online) using url= (never huge query strings)
 function compileRemote(openInNew=false){
