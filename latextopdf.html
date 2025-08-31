@@ -119,6 +119,15 @@ if (typeof promise === "undefined" && typeof Promise !== "undefined") {
   window.promise = Promise;
 }
 </script>
+  <!-- put these BEFORE your old pdftex.min.js -->
+<script>
+  // old texlive.js expects lowercase `promise`
+  if (typeof window.promise === "undefined" && typeof window.Promise !== "undefined") {
+    window.promise = window.Promise;
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/gh/manuels/texlive.js/pdftex.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/gh/manuels/texlive.js/pdftex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@zauguin/texlive.js@0.4.0/pdftex.js"></script>
 
@@ -257,23 +266,13 @@ function toast(msg){ compileStatus.textContent = msg; }
 function log(msg){ logEl.textContent += (msg + '\n'); logEl.scrollTop = logEl.scrollHeight; }
 
 // Local compile (texlive.js)
-async function compileLocal(){
+// local compile
+async function compileLocal() {
   const code = editor.getValue();
-  if (!code.trim()){ toast('Paste LaTeX first.'); return; }
-  if (typeof window.PDFTeX !== 'function'){ toast('texlive.js is not ready — use Remote mode or wait.'); return; }
-  toast('Compiling locally…'); logEl.textContent=''; lastDataURI=null;
-  try{
-const pdftex = new TeXLive.PDFTeX();
-const result = await pdftex.compile(latexSource);
-    // pdftex.compile returns a data: URL with the PDF
-    const pdf = await pdftex.compile(code, (e)=>{ if(e && e.msg) log(e.msg); });
-    lastDataURI = pdf;
-    pdfFrame.src = pdf;
-    toast('Local compile complete.');
-  }catch(err){
-    console.error(err);
-    log(String(err.stack||err)); toast('Local compile failed. See log.');
-  }
+  const pdftex = new PDFTeX();        // <-- classic global
+  const pdf = await pdftex.compile(code, (e)=> e?.msg && log(e.msg));
+  pdfFrame.src = pdf;                  // data:application/pdf;base64,...
+  lastDataURI = pdf;
 }
 
 // Remote compile (LaTeX.Online) using url= (never huge query strings)
