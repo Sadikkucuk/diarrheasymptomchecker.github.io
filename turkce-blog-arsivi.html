@@ -1,0 +1,143 @@
+---
+layout: none
+title: Türkçe Blog Arşivi
+---
+
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Türkçe Blog Arşivi</title>
+<meta name="description" content="tr klasöründeki tüm Türkçe blog yazılarının başlık, açıklama ve görselleriyle listesi.">
+<style>
+  :root{--fg:#111;--muted:#666;--border:#e9e9e9;--bg:#fff}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6}
+  header{padding:2rem 1rem 1rem;max-width:1000px;margin:auto}
+  h1{margin:.2rem 0 .6rem}
+  .controls{display:flex;gap:.5rem;flex-wrap:wrap;max-width:1000px;margin:0 auto 1rem;padding:0 1rem}
+  input[type="search"]{padding:.6rem .8rem;border:1px solid #ddd;border-radius:.6rem;min-width:260px}
+  .grid{display:grid;gap:1rem;padding:0 1rem 2rem;max-width:1000px;margin:auto;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+  .card{border:1px solid var(--border);border-radius:.9rem;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+  .thumb{width:100%;height:180px;object-fit:cover;background:#f6f6f6}
+  .card-content{padding:1rem}
+  .card h2{font-size:1.05rem;margin:.1rem 0 .4rem;line-height:1.35}
+  .card p{margin:0;color:#555}
+  .meta{font-size:.85rem;color:var(--muted);margin-top:.4rem}
+  footer{max-width:1000px;margin:0 auto 2rem;padding:0 1rem;color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Türkçe Blog Arşivi</h1>
+  <p class="meta">Bu liste, repodaki <code>/tr/</code> klasöründeki HTML sayfalardan otomatik oluşturulur. API kullanılmaz.</p>
+</header>
+
+<div class="controls">
+  <input id="q" type="search" placeholder="Ara (başlık / açıklama)…">
+  <span id="count" class="meta"></span>
+</div>
+
+<div id="list" class="grid" aria-live="polite"></div>
+
+<footer>
+  Başlık ve görsellerin doğru çıkması için her yazıda <code>&lt;title&gt;</code>, 
+  <code>&lt;meta name="description"&gt;</code> ve (varsa) 
+  <code>&lt;meta property="og:image"&gt;</code> kullanın.
+</footer>
+
+<!-- Jekyll: /tr altındaki .html dosyalarının tam yollarını build sırasında gömelim -->
+<script id="files" type="application/json">[
+{% assign n = 0 %}
+{% for f in site.static_files %}
+  {% if f.path contains '/tr/' and f.extname == '.html' %}
+    {% if n > 0 %},{% endif %}"{{ f.path | relative_url }}"
+    {% assign n = n | plus: 1 %}
+  {% endif %}
+{% endfor %}
+]</script>
+
+<script>
+// -------- Helpers --------
+const escapeHtml = s => s.replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+function resolveUrl(baseHref, maybeRel){
+  if(!maybeRel) return "";
+  try{ return new URL(maybeRel, baseHref).href }catch{ return ""; }
+}
+function extractMeta(html){
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const title = (doc.querySelector('meta[property="og:title"]')?.content
+              || doc.querySelector("title")?.textContent
+              || doc.querySelector("h1")?.textContent || "").trim();
+  const desc  = (doc.querySelector('meta[name="description"]')?.content
+              || doc.querySelector("p")?.textContent || "").trim();
+  const img   = (doc.querySelector('meta[property="og:image"]')?.content
+              || doc.querySelector("img")?.getAttribute("src") || "");
+  return { title, desc, img };
+}
+
+// -------- Main --------
+const paths = JSON.parse(document.getElementById("files").textContent || "[]");
+const container = document.getElementById("list");
+const countEl   = document.getElementById("count");
+const searchEl  = document.getElementById("q");
+let ALL = [];
+
+async function fetchOne(path){
+  const res = await fetch(path, {cache:"no-store"});
+  if(!res.ok) throw new Error(`Fetch ${res.status} ${path}`);
+  const html = await res.text();
+  const {title, desc, img} = extractMeta(html);
+  const url = new URL(path, location.origin);
+  const fullImg = resolveUrl(url.href, img);
+  const date = (path.match(/\\d{4}-\\d{2}-\\d{2}/) || [])[0] || "";
+  return { link: path, title: title || path.split("/").pop().replace(/\\.html?$/i,""), desc, img: fullImg, date, file: path };
+}
+
+async function load(){
+  container.innerHTML = "<p>Yükleniyor…</p>";
+  try{
+    // Basit throttle: 8'li paralel gruplar
+    const chunk = 8;
+    const items = [];
+    for(let i=0;i<paths.length;i+=chunk){
+      const slice = paths.slice(i,i+chunk).map(fetchOne);
+      items.push(...await Promise.all(slice));
+    }
+    ALL = items.sort((a,b)=>{
+      if(a.date && b.date) return a.date < b.date ? 1 : -1;
+      return a.file.localeCompare(b.file);
+    });
+    render(ALL);
+  }catch(e){
+    container.innerHTML = `<p>Liste alınamadı: ${escapeHtml(e.message)}</p>`;
+  }
+}
+
+function render(list){
+  countEl.textContent = `${list.length} yazı`;
+  container.innerHTML = list.map(p=>`
+    <article class="card">
+      <a href="${p.link}">
+        ${p.img ? `<img class="thumb" src="${p.img}" alt="${escapeHtml(p.title)}">` : `<div class="thumb" aria-hidden="true"></div>`}
+        <div class="card-content">
+          <h2>${escapeHtml(p.title)}</h2>
+          ${p.desc ? `<p>${escapeHtml(p.desc)}</p>` : ""}
+          ${p.date ? `<div class="meta">${p.date}</div>` : ""}
+        </div>
+      </a>
+    </article>
+  `).join("");
+}
+
+searchEl.addEventListener("input", e=>{
+  const q = e.target.value.trim().toLowerCase();
+  if(!q) return render(ALL);
+  render(ALL.filter(p => (p.title + " " + p.desc).toLowerCase().includes(q)));
+});
+
+load();
+</script>
+</body>
+</html>
