@@ -1,205 +1,404 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>LaTeX → PDF (No 414)</title>
+<title>Mini Overleaf — LaTeX Editor & PDF</title>
 <style>
-  :root{--bg:#0b0d10;--panel:#111418;--muted:#9aa4af;--text:#e9eef3;--accent:#7cd2ff}
+  :root{--bg:#0b0d10;--panel:#111418;--muted:#9aa4af;--text:#e9eef3;--accent:#7cd2ff;--ok:#3cd67a;--warn:#ffcf66;--bad:#ff7a7a}
   html,body{height:100%} body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-  .wrap{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:100vh;padding:14px;box-sizing:border-box}
-  .card{background:var(--panel);border-radius:14px;display:flex;flex-direction:column;min-height:0;box-shadow:0 0 0 1px #1a1e24 inset}
-  h2{margin:14px;font-size:16px;letter-spacing:.2px}
-  .tabs{display:flex;gap:8px;padding:0 14px 8px}
+  .app{display:grid;grid-template-rows:auto 1fr auto; height:100vh}
+  .top{display:flex;gap:12px;align-items:center;padding:10px 14px;border-bottom:1px solid #1a1e24;background:#0e1216}
+  .top h1{margin:0;font-size:16px;letter-spacing:.2px}
+  .spacer{flex:1}
+  .btn{background:linear-gradient(180deg,#1b2530,#141a21);color:#eaf6ff;border:1px solid #26303b;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+  .btn.secondary{background:#141a21}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  select,input[type="text"]{background:#0f1317;color:var(--text);border:1px solid #1c2128;padding:8px 10px;border-radius:8px}
+  .main{display:grid;grid-template-columns: minmax(320px,1fr) minmax(420px,1fr); gap:12px; padding:12px; min-height:0}
+  .panel{background:#111418;border-radius:12px;display:flex;flex-direction:column;min-height:0;box-shadow:0 0 0 1px #1a1e24 inset}
+  .panel h2{margin:10px 12px;font-size:13px;color:#cdd6df;opacity:.9}
+  .row{display:flex;gap:8px;align-items:center;padding:0 12px 10px;flex-wrap:wrap}
+  .hint{color:var(--muted);font-size:12px;padding:6px 12px 10px}
+  #editor{flex:1;min-height:0;border-top:1px solid #1a1e24;border-bottom:1px solid #1a1e24}
+  #pdf{flex:1;min-height:0;border:0;border-radius:10px;background:#0f1317;margin:10px}
+  .statusbar{display:flex;gap:10px;align-items:center;padding:8px 12px;border-top:1px solid #1a1e24;background:#0e1216}
+  .pill{font-size:12px;border-radius:999px;padding:2px 8px;border:1px solid #26303b}
+  .ok{color:#0b2b17;background:var(--ok)}
+  .warn{color:#2b230b;background:var(--warn)}
+  .bad{color:#2b0b0b;background:var(--bad)}
+  .log{flex:0 0 160px; background:#0f1317; color:#b8c4cf; font:12px ui-monospace,SFMono-Regular,Consolas,monospace; border-top:1px solid #1a1e24; padding:8px 12px; overflow:auto; white-space:pre-wrap}
+  .tabs{display:flex; gap:8px; padding:0 12px 8px}
   .tab{border:1px solid #26303b;border-radius:999px;padding:6px 10px;cursor:pointer}
   .tab.active{background:linear-gradient(180deg,#1b2530,#141a21)}
-  .controls{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 12px}
-  .controls label{font-size:12px;color:var(--muted)}
-  .row{display:flex;gap:8px;align-items:center}
-  textarea{flex:1;min-height:200px;resize:none;width:100%;padding:12px 14px;border:none;outline:none;background:#0f1317;color:var(--text);font:12.5px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;border-radius:10px}
-  select,input[type="text"]{background:#0f1317;color:var(--text);border:1px solid #1c2128;padding:8px 10px;border-radius:8px}
-  .btn{background:linear-gradient(180deg,#1b2530,#141a21);color:#eaf6ff;border:1px solid #26303b;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
-  .btn.secondary{background:#141a21}
-  .hint{color:var(--muted);font-size:12px;padding:0 14px 12px}
-  .status{padding:8px 14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;color:#b8c4cf;border-top:1px solid #1a1e24}
-  iframe{flex:1;min-height:0;border:0;border-radius:10px;background:#0f1317}
-  @media (max-width:1100px){.wrap{grid-template-columns:1fr;height:auto;min-height:100vh} iframe{height:60vh}}
+  @media (max-width: 1100px){ .main{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <!-- LEFT: editor & controls -->
-  <section class="card">
-    <h2>LaTeX Editor</h2>
+<div class="app">
+  <!-- Header -->
+  <div class="top">
+    <h1>Mini Overleaf</h1>
+    <div class="spacer"></div>
+    <label>Backend&nbsp;
+      <select id="backend">
+        <option value="local" selected>Local (texlive.js)</option>
+        <option value="remote">Remote (LaTeX.Online via URL)</option>
+      </select>
+    </label>
+    <label id="remoteURLWrap" style="display:none;">.tex URL&nbsp;<input id="remoteURL" type="text" size="36" placeholder="https://raw.githubusercontent.com/.../main.tex"></label>
+    <label id="engineWrap" style="display:none;">Engine&nbsp;
+      <select id="engine">
+        <option value="pdflatex" selected>pdfLaTeX</option>
+        <option value="xelatex">XeLaTeX</option>
+        <option value="lualatex">LuaLaTeX</option>
+      </select>
+    </label>
+    <label>Output name&nbsp;<input id="outName" type="text" value="output.pdf" size="14"></label>
+    <button class="btn" id="compileBtn" title="Ctrl/Cmd+Enter">Compile</button>
+    <button class="btn secondary" id="downloadBtn">Download</button>
+    <button class="btn secondary" id="shareBtn">Copy Share Link</button>
+    <button class="btn secondary" id="templateBtn">Templates</button>
+  </div>
 
-    <div class="tabs">
-      <button class="tab active" id="tabLocal" title="Compile in your browser (no server)">Local (texlive.js)</button>
-      <button class="tab" id="tabRemote" title="Compile on LaTeX.Online using a .tex URL">Remote (LaTeX.Online)</button>
-    </div>
-
-    <div class="controls" id="localCtl">
+  <!-- Main -->
+  <div class="main">
+    <!-- Editor -->
+    <section class="panel">
+      <h2>Editor</h2>
       <div class="row">
-        <label>Output name&nbsp;</label><input id="outName" type="text" value="output.pdf" size="16"/>
+        <small class="hint">Ctrl/Cmd+Enter compiles • Autosaves to your browser • Monaco editor syntax highlighting</small>
       </div>
-      <div class="row">
-        <button class="btn" id="compileLocal">Compile (Local)</button>
-        <button class="btn secondary" id="downloadLocal">Download PDF</button>
-        <button class="btn secondary" id="loadSample">Load Sample</button>
-        <button class="btn secondary" id="clear">Clear</button>
+      <div id="editor"></div>
+      <div class="log" id="log"></div>
+    </section>
+
+    <!-- PDF Preview -->
+    <section class="panel">
+      <h2>PDF Preview</h2>
+      <iframe id="pdf" title="PDF"></iframe>
+      <div class="hint" id="hint">
+        Local mode runs TeX in your browser. If you reference images/bibs, prefer Remote mode with a public repo URL.
       </div>
-    </div>
+    </section>
+  </div>
 
-    <div class="controls" id="remoteCtl" style="display:none">
-      <div class="row"><label>.tex file URL&nbsp;</label><input id="texURL" type="text" placeholder="https://raw.githubusercontent.com/.../main.tex" size="48"/></div>
-      <div class="row">
-        <label>Engine&nbsp;</label>
-        <select id="engine">
-          <option value="pdflatex" selected>pdfLaTeX</option>
-          <option value="xelatex">XeLaTeX</option>
-          <option value="lualatex">LuaLaTeX</option>
-        </select>
-      </div>
-      <div class="row">
-        <label>Filename&nbsp;</label><input id="remoteName" type="text" value="output.pdf" size="16"/>
-      </div>
-      <div class="row">
-        <button class="btn" id="compileRemote">Compile (Remote)</button>
-        <button class="btn secondary" id="openRemote">Open direct link</button>
-      </div>
-    </div>
-
-    <div class="hint" id="hintLocal">
-      Local uses <code>texlive.js</code> to compile entirely in your browser (no 414 risk). Package support is good but not full TeX Live. :contentReference[oaicite:3]{index=3}
-    </div>
-    <div class="hint" id="hintRemote" style="display:none">
-      Remote sends only a short request to LaTeX.Online with <code>url=</code> to your public .tex file — no giant query strings. API info: “REST API allows compiling GIT repositories, URLs and plain text.” :contentReference[oaicite:4]{index=4}
-    </div>
-
-    <div style="padding:0 14px 14px;display:flex;flex:1;flex-direction:column;gap:10px;">
-      <textarea id="tex" placeholder="Paste LaTeX here (used by Local mode)…"></textarea>
-    </div>
-
-    <div class="status" id="status">Ready.</div>
-  </section>
-
-  <!-- RIGHT: preview -->
-  <section class="card">
-    <h2>PDF Preview</h2>
-    <iframe id="viewer" title="PDF preview"></iframe>
-    <div class="status" id="statusR">No PDF yet.</div>
-  </section>
+  <!-- Footer / status -->
+  <div class="statusbar">
+    <span id="engineStatus" class="pill warn">Engine: loading…</span>
+    <span id="compileStatus" class="pill">Ready.</span>
+    <span class="spacer"></span>
+    <small id="about">Inspired by Overleaf • Single-file app</small>
+  </div>
 </div>
 
-<!-- texlive.js (client-side PDFTeX) -->
-<script src="https://manuels.github.io/texlive.js/pdftex.min.js"></script>
+<!-- Monaco Editor -->
+<script>window.require = { paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs' } };</script>
+<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs/loader.min.js"></script>
 <script>
-(function(){
-  const $ = (id)=>document.getElementById(id);
-  const tex = $('tex'), viewer = $('viewer'), status = $('status'), statusR = $('statusR');
+let editor;
+require(['vs/editor/editor.main'], function () {
+  editor = monaco.editor.create(document.getElementById('editor'), {
+    value: '',
+    language: 'latex',
+    theme: 'vs-dark',
+    automaticLayout: true,
+    fontLigatures: true,
+    fontSize: 13
+  });
+});
+</script>
 
-  // tabs
-  const tabLocal=$('tabLocal'), tabRemote=$('tabRemote'), localCtl=$('localCtl'), remoteCtl=$('remoteCtl'), hintLocal=$('hintLocal'), hintRemote=$('hintRemote');
-  function setTab(which){
-    const local = which==='local';
-    tabLocal.classList.toggle('active', local);
-    tabRemote.classList.toggle('active', !local);
-    localCtl.style.display = local ? '' : 'none';
-    remoteCtl.style.display = local ? 'none' : '';
-    hintLocal.style.display = local ? '' : 'none';
-    hintRemote.style.display = local ? 'none' : '';
-  }
-  tabLocal.onclick=()=>setTab('local');
-  tabRemote.onclick=()=>setTab('remote');
+<!-- LZ-String for share links -->
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 
-  // Local compile (texlive.js)
-  let lastPDFDataURI = null;
-  async function compileLocal(){
-    const src = tex.value.trim();
-    if (!src){ status.textContent='Paste LaTeX first.'; return; }
-    if (typeof PDFTeX!=='function'){ status.textContent='texlive.js not loaded.'; return; }
-    status.textContent='Compiling locally (texlive.js)…';
-    statusR.textContent='Running PDFTeX in browser…';
-    try{
-      const pdftex = new PDFTeX();
-      const pdfDataUri = await pdftex.compile(src); // data:application/pdf;base64,...
-      lastPDFDataURI = pdfDataUri;
-      viewer.src = pdfDataUri;
-      status.textContent='Local compile complete.';
-      statusR.textContent='Rendered.';
-    }catch(e){
-      console.error(e);
-      status.textContent='Local compile failed. See console.';
-      statusR.textContent=String(e);
-    }
+<!-- texlive.js with fallback loader -->
+<script>
+(function loadTexlive(){
+  // We’ll try a primary CDN and a fallback. The library fetches its WASM relative to the script path.
+  const urls = [
+    'https://cdn.jsdelivr.net/gh/manuels/texlive.js/pdftex.min.js',
+    'https://manuels.github.io/texlive.js/pdftex.min.js'
+  ];
+  function tryNext(i){
+    if (i>=urls.length){ window.__PDFTEX_LOAD_ERROR__=true; updateEngineStatus(); return; }
+    const s = document.createElement('script');
+    s.src = urls[i];
+    s.async = true;
+    s.onload = ()=>{ window.__PDFTEX_SRC__ = urls[i]; updateEngineStatus(); };
+    s.onerror = ()=> tryNext(i+1);
+    document.head.appendChild(s);
   }
-  function downloadLocal(){
-    if (!lastPDFDataURI){ status.textContent='Nothing to download yet.'; return; }
-    const a = document.createElement('a');
-    a.href = lastPDFDataURI;
-    a.download = ($('outName').value || 'output.pdf').trim();
-    document.body.appendChild(a); a.click(); a.remove();
-  }
-
-  // Remote compile (LaTeX.Online via url=, avoids long URLs)
-  function buildRemoteURL(download){
-    const base = 'https://latexonline.cc/compile';
-    const p = new URLSearchParams();
-    const engine = $('engine').value || 'pdflatex';
-    const url = $('texURL').value.trim();
-    if (!url){ throw new Error('Enter a public .tex URL'); }
-    p.set('url', url);
-    p.set('command', engine);
-    if (download){
-      p.set('download', ($('remoteName').value || 'output.pdf').trim());
-    }
-    return `${base}?${p.toString()}`;
-  }
-  function compileRemote(){
-    try{
-      const u = buildRemoteURL(false);
-      viewer.src = u;
-      status.textContent='Sent to LaTeX.Online (URL mode).';
-      statusR.textContent='Compiling on server…';
-    }catch(e){ status.textContent = e.message; }
-  }
-  function openRemote(){
-    try{
-      window.open(buildRemoteURL(true), '_blank', 'noopener');
-      status.textContent='Opened direct compile link.';
-    }catch(e){ status.textContent = e.message; }
-  }
-
-  // sample/clear
-  $('loadSample').onclick = ()=>{
-    tex.value = `\\documentclass[10pt,a4paper]{article}
-\\usepackage{fancyhdr}\\usepackage{multicol}\\usepackage{tabularx}\\usepackage{tabulary}
-\\usepackage{hhline}\\usepackage{graphicx}\\usepackage{xcolor}\\usepackage[T1]{fontenc}
-\\usepackage{colortbl}\\usepackage{setspace}\\usepackage{lastpage}\\usepackage{seqsplit}
-\\usepackage[normalem]{ulem}\\usepackage{amsmath}\\usepackage{MnSymbol}\\usepackage{wasysym}
-\\author{Skucuk}
-\\pdfinfo{/Title (bulut-bili-im-terimleri.pdf) /Creator (Cheatography) /Author (Skucuk) /Subject (Bulut Bilişim Terimleri Cheat Sheet)}
-\\addtolength{\\textwidth}{6cm}\\addtolength{\\textheight}{-1cm}\\addtolength{\\hoffset}{-3cm}\\addtolength{\\voffset}{-2cm}
-\\setlength{\\tabcolsep}{0.2cm}\\setlength{\\headsep}{-12pt}\\setlength{\\headheight}{85pt}
-\\renewcommand{\\footrulewidth}{0pt}\\renewcommand{\\headrulewidth}{0pt}\\renewcommand{\\arraystretch}{1.3}\\onehalfspacing
-\\begin{document}\\footnotesize
-\\begin{tabularx}{5.377cm}{X}\\hline Temel Tanımlar\\\\ Bulut Bilişim: İnternet üzerinden BT kaynakları.\\\\\\hline\\end{tabularx}
-\\end{document}`;
-    status.textContent='Loaded sample for Local mode.';
-  };
-  $('clear').onclick = ()=>{
-    tex.value=''; viewer.removeAttribute('src'); lastPDFDataURI=null;
-    status.textContent='Cleared.'; statusR.textContent='No PDF yet.';
-  };
-
-  // wire buttons
-  $('compileLocal').onclick = compileLocal;
-  $('downloadLocal').onclick = downloadLocal;
-  $('compileRemote').onclick = compileRemote;
-  $('openRemote').onclick = openRemote;
-
-  // defaults
-  setTab('local');
+  tryNext(0);
 })();
 </script>
+
+<script>
+/* --- App logic --- */
+const $ = (id)=>document.getElementById(id);
+
+const LS_KEY = 'mini-overleaf.tex';
+const pdfFrame = $('pdf');
+const logEl = $('log');
+const backendSel = $('backend');
+const remoteURLWrap = $('remoteURLWrap');
+const engineWrap = $('engineWrap');
+const remoteURL = $('remoteURL');
+const engineSel = $('engine');
+const outName = $('outName');
+const compileBtn = $('compileBtn');
+const downloadBtn = $('downloadBtn');
+const shareBtn = $('shareBtn');
+const templateBtn = $('templateBtn');
+const engineStatus = $('engineStatus');
+const compileStatus = $('compileStatus');
+
+let lastDataURI = null;
+
+// Restore from share hash or localStorage
+function initContent(){
+  const hash = location.hash.replace(/^#/, '');
+  if (hash){
+    try {
+      const decoded = LZString.decompressFromEncodedURIComponent(hash);
+      if (decoded){ editor.setValue(decoded); localStorage.setItem(LS_KEY, decoded); return; }
+    }catch(_){}
+  }
+  const saved = localStorage.getItem(LS_KEY);
+  editor.setValue(saved || defaultSample());
+}
+function saveContent(){ localStorage.setItem(LS_KEY, editor.getValue()); }
+function defaultSample(){
+return `\\documentclass[10pt,a4paper]{article}
+% Minimal sample. Use Templates to insert your long doc.
+\\usepackage{lipsum}
+\\begin{document}
+\\section*{Hello Mini Overleaf}
+This compiles locally via texlive.js. Press \\textbf{Ctrl/Cmd+Enter}.
+\\lipsum[1-2]
+\\end{document}`;
+}
+
+// Update engine pill
+function updateEngineStatus(){
+  const ok = (typeof window.PDFTeX === 'function') && !window.__PDFTEX_LOAD_ERROR__;
+  if (ok){
+    engineStatus.textContent = 'Engine: texlive.js ready';
+    engineStatus.className = 'pill ok';
+    engineStatus.title = 'Loaded from: ' + (window.__PDFTEX_SRC__||'');
+  }else if (window.__PDFTEX_LOAD_ERROR__){
+    engineStatus.textContent = 'Engine: texlive.js failed (use Remote mode)';
+    engineStatus.className = 'pill bad';
+  }else{
+    engineStatus.textContent = 'Engine: loading…';
+    engineStatus.className = 'pill warn';
+  }
+}
+
+// Tabs between backends
+backendSel.addEventListener('change',()=>{
+  const isRemote = backendSel.value === 'remote';
+  remoteURLWrap.style.display = isRemote ? '' : 'none';
+  engineWrap.style.display = isRemote ? '' : 'none';
+});
+
+// Compile shortcuts
+document.addEventListener('keydown', (e)=>{
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); compileNow(); }
+});
+
+// Compile button
+compileBtn.onclick = compileNow;
+
+// Download button
+downloadBtn.onclick = ()=>{
+  if (!lastDataURI){ toast('Nothing to download yet. Compile first.'); return; }
+  const a = document.createElement('a');
+  a.href = lastDataURI;
+  a.download = (outName.value || 'output.pdf').trim();
+  document.body.appendChild(a); a.click(); a.remove();
+};
+
+// Share link
+shareBtn.onclick = ()=>{
+  const code = editor.getValue();
+  const hash = LZString.compressToEncodedURIComponent(code);
+  const url = location.origin + location.pathname + '#' + hash;
+  navigator.clipboard.writeText(url).then(()=> toast('Share link copied.'), ()=> toast('Could not copy.'));
+};
+
+// Templates
+templateBtn.onclick = ()=>{
+  const choices = [
+    {name:'(Your long sample from message)', value: longUserSample()},
+    {name:'Article (barebones)', value: bareArticle()},
+    {name:'Multicol Cheatsheet (simple)', value: cheatsheetTemplate()}
+  ];
+  const names = choices.map((c,i)=> `${i+1}. ${c.name}`).join('\n');
+  const pick = prompt('Choose template:\n'+names+'\n\nType number (1-'+choices.length+')');
+  const i = parseInt(pick||'',10)-1;
+  if (i>=0 && i<choices.length){ editor.setValue(choices[i].value); saveContent(); }
+};
+
+// Toast in status bar
+function toast(msg){ compileStatus.textContent = msg; }
+
+// Append to log
+function log(msg){ logEl.textContent += (msg + '\n'); logEl.scrollTop = logEl.scrollHeight; }
+
+// Local compile (texlive.js)
+async function compileLocal(){
+  const code = editor.getValue();
+  if (!code.trim()){ toast('Paste LaTeX first.'); return; }
+  if (typeof window.PDFTeX !== 'function'){ toast('texlive.js is not ready — use Remote mode or wait.'); return; }
+  toast('Compiling locally…'); logEl.textContent=''; lastDataURI=null;
+  try{
+    const pdftex = new PDFTeX();
+    // pdftex.compile returns a data: URL with the PDF
+    const pdf = await pdftex.compile(code, (e)=>{ if(e && e.msg) log(e.msg); });
+    lastDataURI = pdf;
+    pdfFrame.src = pdf;
+    toast('Local compile complete.');
+  }catch(err){
+    console.error(err);
+    log(String(err.stack||err)); toast('Local compile failed. See log.');
+  }
+}
+
+// Remote compile (LaTeX.Online) using url= (never huge query strings)
+function compileRemote(openInNew=false){
+  const url = (remoteURL.value||'').trim();
+  if (!url){ toast('Enter a public .tex URL.'); return; }
+  const engine = engineSel.value || 'pdflatex';
+  const params = new URLSearchParams({ url, command: engine });
+  const endpoint = 'https://latexonline.cc/compile?' + params.toString();
+  if (openInNew){
+    const dl = new URL(endpoint);
+    dl.searchParams.set('download', (outName.value||'output.pdf').trim());
+    window.open(dl.toString(), '_blank', 'noopener');
+    toast('Opened direct compile link.');
+  }else{
+    pdfFrame.src = endpoint;
+    toast('Remote compile started (LaTeX.Online).');
+  }
+}
+
+// Dispatcher
+function compileNow(){
+  saveContent();
+  if (backendSel.value==='remote') compileRemote(false);
+  else compileLocal();
+}
+
+// Secondary: remote Download
+$('pdf').addEventListener('load',()=>{ /* preview loaded */ });
+$('backend').dispatchEvent(new Event('change'));
+updateEngineStatus();
+setInterval(updateEngineStatus, 1500); // update pill while loader races
+setTimeout(initContent, 400); // after Monaco boots
+
+// Helpers: built-in templates (including YOUR long one)
+function longUserSample(){ return `\\documentclass[10pt,a4paper]{article}
+
+% Packages
+\\usepackage{fancyhdr}           % For header and footer
+\\usepackage{multicol}           % Allows multicols in tables
+\\usepackage{tabularx}           % Intelligent column widths
+\\usepackage{tabulary}           % Used in header and footer
+\\usepackage{hhline}             % Border under tables
+\\usepackage{graphicx}           % For images
+\\usepackage{xcolor}             % For hex colours
+\\usepackage[T1]{fontenc}        % Without this we get weird character replacements
+\\usepackage{colortbl}           % For coloured tables
+\\usepackage{setspace}           % For line height
+\\usepackage{lastpage}           % Needed for total page number
+\\usepackage{seqsplit}           % Splits long words.
+\\usepackage[normalem]{ulem}     % For underlining links
+\\usepackage{amsmath}            % Symbols
+\\usepackage{MnSymbol}           % Symbols
+\\usepackage{wasysym}            % Symbols
+
+% Document Info
+\\author{Skucuk}
+\\pdfinfo{
+  /Title (bulut-bili-im-terimleri.pdf)
+  /Creator (Cheatography)
+  /Author (Skucuk)
+  /Subject (Bulut Bilişim Terimleri Cheat Sheet)
+}
+
+% Lengths and widths
+\\addtolength{\\textwidth}{6cm}
+\\addtolength{\\textheight}{-1cm}
+\\addtolength{\\hoffset}{-3cm}
+\\addtolength{\\voffset}{-2cm}
+\\setlength{\\tabcolsep}{0.2cm}
+\\setlength{\\headsep}{-12pt}
+\\setlength{\\headheight}{85pt}
+\\renewcommand{\\footrulewidth}{0pt}
+\\renewcommand{\\headrulewidth}{0pt}
+\\renewcommand{\\seqinsert}{\\ifmmode\\allowbreak\\else\\-\\fi}
+\\renewcommand{\\arraystretch}{1.3}
+\\onehalfspacing
+
+% Commands
+\\newcommand{\\SetRowColor}[1]{\\noalign{\\gdef\\RowColorName{#1}}\\rowcolor{\\RowColorName}}
+\\newcommand{\\mymulticolumn}[3]{\\multicolumn{#1}{>{\\columncolor{\\RowColorName}}#2}{#3}}
+\\newcolumntype{x}[1]{>{\\raggedright}p{#1}}
+\\newcommand{\\tn}{\\tabularnewline}
+
+% Font and Colours
+\\definecolor{HeadBackground}{HTML}{333333}
+\\definecolor{FootBackground}{HTML}{666666}
+\\definecolor{TextColor}{HTML}{333333}
+\\definecolor{DarkBackground}{HTML}{360FA3}
+\\definecolor{LightBackground}{HTML}{F2F0F9}
+\\renewcommand{\\familydefault}{\\sfdefault}
+\\color{TextColor}
+
+\\pagestyle{fancy}
+\\fancyhead{} \\fancyfoot{}
+
+\\begin{document}
+\\raggedright
+\\raggedcolumns
+\\footnotesize
+
+\\begin{multicols*}{3}
+\\begin{tabularx}{5.377cm}{X}
+\\SetRowColor{DarkBackground}
+\\mymulticolumn{1}{x{5.377cm}}{\\bf\\textcolor{white}{Temel Tanımlar}}  \\\\
+\\SetRowColor{LightBackground}
+Bulut Bilişim: BT kaynaklarının internet üzerinden, ihtiyaca göre sağlanması.\\\\
+\\hhline{>{\\arrayrulecolor{DarkBackground}}-}
+\\end{tabularx}
+\\end{multicols*}
+
+\\end{document}`; }
+
+function bareArticle(){ return `\\documentclass[11pt]{article}
+\\usepackage[T1]{fontenc}
+\\usepackage{lmodern}
+\\title{My Article}
+\\author{You}
+\\begin{document}
+\\maketitle
+Hello world!
+\\end{document}`; }
+
+function cheatsheetTemplate(){ return `\\documentclass[9pt,a4paper]{article}
+\\usepackage{multicol,parskip,geometry}
+\\geometry{margin=10mm}
+\\begin{document}
+\\begin{multicols*}{3}
+\\section*{Cheatsheet}
+Item 1\\\\ Item 2\\\\ Item 3
+\\end{multicols*}
+\\end{document}`; }
+
+// Persist editor
+setInterval(saveContent, 1500);
+</script>
+
 </body>
 </html>
