@@ -88,12 +88,64 @@ async function fetchOne(path){
   const res = await fetch(path, {cache:"no-store"});
   if(!res.ok) throw new Error(`Fetch ${res.status} ${path}`);
   const html = await res.text();
-  const {title, desc, img} = extractMeta(html);
-  const url = new URL(path, location.origin);
-  const fullImg = resolveUrl(url.href, img);
-  const date = (path.match(/\\d{4}-\\d{2}-\\d{2}/) || [])[0] || "";
-  return { link: path, title: title || path.split("/").pop().replace(/\\.html?$/i,""), desc, img: fullImg, date, file: path };
+
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  // Başlık/açıklama/görsel
+  const title = (doc.querySelector('meta[property="og:title"]')?.content
+              || doc.querySelector("title")?.textContent
+              || doc.querySelector("h1")?.textContent || "").trim();
+  const desc  = (doc.querySelector('meta[name="description"]')?.content
+              || doc.querySelector("p")?.textContent || "").trim();
+  const img   = (doc.querySelector('meta[property="og:image"]')?.content
+              || doc.querySelector("img")?.getAttribute("src") || "");
+  const url   = new URL(path, location.origin);
+  const fullImg = (()=>{
+    try{ return new URL(img, url.href).href }catch{ return "" }
+  })();
+
+  // 1) Dosya adında YYYY-MM-DD varsa al
+  let dateStr = (path.match(/\d{4}-\d{2}-\d{2}/) || [])[0] || "";
+
+  // 2) Yoksa meta/time içinden çek
+  if(!dateStr){
+    const picks = [
+      'meta[property="article:published_time"]',
+      'meta[property="og:published_time"]',
+      'meta[property="og:updated_time"]',
+      'meta[name="date"]',
+      'meta[name="pubdate"]',
+      'time[datetime]'
+    ];
+    for (const sel of picks){
+      const el = doc.querySelector(sel);
+      const val = el?.getAttribute("content") || el?.getAttribute("datetime");
+      if(val){
+        const d = new Date(val);
+        if(!isNaN(d)) { dateStr = d.toISOString().slice(0,10); break; }
+      }
+    }
+  }
+
+  // 3) Hâlâ yoksa Last-Modified header’ını dene
+  if(!dateStr){
+    const lm = res.headers.get("last-modified");
+    if(lm){
+      const d = new Date(lm);
+      if(!isNaN(d)) dateStr = d.toISOString().slice(0,10);
+    }
+  }
+
+  return {
+    link: path,
+    title: title || path.split("/").pop().replace(/\.html?$/i,""),
+    desc,
+    img: fullImg,
+    date: dateStr,   // "YYYY-MM-DD" ya da boş
+    file: path
+  };
 }
+
 
 async function load(){
   container.innerHTML = "<p>Yükleniyor…</p>";
@@ -106,9 +158,12 @@ async function load(){
       items.push(...await Promise.all(slice));
     }
 ALL = items.sort((a,b)=>{
-  if (a.date && b.date) return a.date < b.date ? 1 : -1;  // tarih varsa: yeni → eski
-  return b.file.localeCompare(a.file);                    // yoksa Z→A (en son eklenenlar genelde üste gelir)
+  if (a.date && b.date) return a.date < b.date ? 1 : -1; // yeni → eski
+  if (a.date && !b.date) return -1;
+  if (!a.date && b.date) return 1;
+  return b.file.localeCompare(a.file); // tarih yoksa Z→A
 });
+
 
     render(ALL);
   }catch(e){
