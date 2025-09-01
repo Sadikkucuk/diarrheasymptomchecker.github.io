@@ -105,10 +105,11 @@ async function load(){
       const slice = paths.slice(i,i+chunk).map(fetchOne);
       items.push(...await Promise.all(slice));
     }
-    ALL = items.sort((a,b)=>{
-      if(a.date && b.date) return a.date < b.date ? 1 : -1;
-      return a.file.localeCompare(b.file);
-    });
+ALL = items.sort((a,b)=>{
+  if (a.date && b.date) return a.date < b.date ? 1 : -1;  // tarih varsa: yeni → eski
+  return b.file.localeCompare(a.file);                    // yoksa Z→A (en son eklenenlar genelde üste gelir)
+});
+
     render(ALL);
   }catch(e){
     container.innerHTML = `<p>Liste alınamadı: ${escapeHtml(e.message)}</p>`;
