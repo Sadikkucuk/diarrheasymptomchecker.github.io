@@ -130,22 +130,35 @@
       return m;
     }
 
-    // Dünya sırası için: son yıl değerine göre tüm ülkeler arasında sıralama
-    async function computeRank(code, valueYear){
-      try{
-        const res = await fetch(apiAll(code));
-        const js  = await res.json();
-        const arr = (js && js[1]) ? js[1] : [];
-        // son yıl (valueYear) için ülke bazlı değer seti
-        const rows = arr.filter(d => d && +d.date===valueYear && d.value!=null && d.countryiso3code && d.countryiso3code.length===3);
-        const sorted = rows.sort((a,b)=> b.value - a.value);
-        const n = sorted.length;
-        const idx = sorted.findIndex(d => d.countryiso3code===TUR);
-        return {rank: (idx>=0? idx+1 : null), n};
-      }catch(e){
-        return {rank:null, n:null};
-      }
-    }
+    // Ülke listesi (agregat olmayan gerçek ülkeler) -> iso3 kod Set'i
+async function getRealCountryCodes(){
+  const res = await fetch("https://api.worldbank.org/v2/country?format=json&per_page=400");
+  const js  = await res.json();
+  const arr = (js && js[1]) ? js[1] : [];
+  // region.id === 'NA' olanlar "Aggregates" (WLD, EUU, OED, HIC vs.) => dışla
+  return new Set(arr.filter(c => c.region && c.region.id !== "NA").map(c => c.id)); // iso3
+}
+
+// Belirli yıl için dünya sırası (sadece gerçek ülkeler)
+async function computeRank(code, valueYear){
+  try{
+    const valid = await getRealCountryCodes();
+    const res   = await fetch(`https://api.worldbank.org/v2/country/all/indicator/${code}?format=json&per_page=20000`);
+    const js    = await res.json();
+    const rows  = (js && js[1]) ? js[1] : [];
+    const filtered = rows.filter(d =>
+      d && +d.date === valueYear && d.value != null && valid.has(d.countryiso3code)
+    );
+    filtered.sort((a,b) => b.value - a.value);
+    const n   = filtered.length;
+    const idx = filtered.findIndex(d => d.countryiso3code === "TUR");
+    return { rank: (idx >= 0 ? idx + 1 : null), n };
+  }catch(e){
+    console.warn("Rank hesaplanamadı:", e);
+    return { rank: null, n: null };
+  }
+}
+
 
     function fmtUSD(x){
       if (x==null) return '—';
