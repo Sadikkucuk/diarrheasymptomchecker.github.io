@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fed & ECB Faiz Kararları 2025 — Türkiye Saati ile Takvim</title>
+<meta name="description" content="Fed ve ECB 2025 faiz kararları (TSİ), güncel politika faizleri ve 2015–2024 yıllık faiz & enflasyon özetleri.">
+<style>
+  :root{--fg:#0b1220;--muted:#6b7280;--bg:#fff;--card:#f8fafc;--line:#e5e7eb}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px}
+  header{text-align:center;margin-bottom:18px}
+  h1{font-size:28px;margin:0 0 6px}
+  .muted{color:var(--muted)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0}
+  h2{margin:0 0 12px;font-size:22px}
+  p{margin:8px 0}
+  .note{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr;gap:12px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .big{font-size:22px;font-weight:700}
+  .sub{font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{padding:8px;border-bottom:1px dashed #eceff3;font-size:14px;vertical-align:top}
+  th{font-weight:600;text-align:left}
+  td.right,.right{text-align:right}
+  .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 8px;font-size:12px;color:#374151;background:#fff}
+  footer{margin-top:22px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Fed &amp; ECB Faiz Kararları 2025 — Türkiye Saati ile Takvim</h1>
+    <div class="muted">Güncel oranlar, 2025 kronolojik kararlar (TSİ), ve 2015–2024 yıllık faiz &amp; enflasyon özeti</div>
+  </header>
+
+  <!-- Güncel oranlar -->
+  <section id="now">
+    <h2>Güncel Oranlar (02 Eylül 2025, TSİ)</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="sub">ABD • Federal Funds Target Range</div>
+        <div class="big">4,25% – 4,50%</div>
+        <div class="sub">Son karar: 30 Tem 2025 (FOMC)</div>
+      </div>
+      <div class="card">
+        <div class="sub">Euro Bölgesi • ECB Depo / MRO / MLF</div>
+        <div class="big">2,00% • 2,15% • 2,40%</div>
+        <div class="sub">Son karar: 05 Haz 2025 (Yürürlük: 11 Haz)</div>
+      </div>
+    </div>
+    <p class="note">Not: Fed açıklamaları genellikle 14:00 ET’de; ECB karar metni 14:15 CET/CEST’te yayımlanır. Aşağıdaki saatler Türkiye saati (TSİ) olarak çevrilmiştir.</p>
+  </section>
+
+  <!-- 2025 Takvim -->
+  <section id="timeline">
+    <h2>2025 Karar Takvimi — Türkiye Saati ile</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Tarih</th><th>Kurum</th><th>TSİ</th><th>Beklenti</th><th>Karar</th><th>Yeni Seviye</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- FED -->
+        <tr><td>29 Oca 2025</td><td>Fed (FOMC)</td><td>22:00</td><td>Sabit</td><td>Sabit</td><td>FFTR: 4,25–4,50%</td></tr>
+        <tr><td>20 Mar 2025</td><td>Fed (FOMC)</td><td>21:00</td><td>Sabit</td><td>Sabit</td><td>FFTR: 4,25–4,50%</td></tr>
+        <tr><td>07 May 2025</td><td>Fed (FOMC)</td><td>21:00</td><td>Sabit</td><td>Sabit</td><td>FFTR: 4,25–4,50%</td></tr>
+        <tr><td>18 Haz 2025</td><td>Fed (FOMC)</td><td>21:00</td><td>Sabit</td><td>Sabit</td><td>FFTR: 4,25–4,50%</td></tr>
+        <tr><td>30 Tem 2025</td><td>Fed (FOMC)</td><td>21:00</td><td>Sabit</td><td>Sabit</td><td>FFTR: 4,25–4,50%</td></tr>
+
+        <!-- ECB -->
+        <tr><td>30 Oca 2025</td><td>ECB</td><td>16:15</td><td>-25 bp</td><td>Kesinti</td><td>Depo: 2,75%</td></tr>
+        <tr><td>06 Mar 2025</td><td>ECB</td><td>16:15</td><td>-25 bp</td><td>Kesinti</td><td>Depo: 2,50%</td></tr>
+        <tr><td>05 Haz 2025</td><td>ECB</td><td>17:15</td><td>-25 bp</td><td>Kesinti</td><td>Depo: 2,00%</td></tr>
+        <tr><td>24 Tem 2025</td><td>ECB</td><td>17:15</td><td>Sabit</td><td>Sabit</td><td>Depo: 2,00%</td></tr>
+      </tbody>
+    </table>
+    <p class="note">Fed: EST döneminde TSİ ≈ ET+8s (Ocak), EDT döneminde TSİ ≈ ET+7s (Mar–Tem). ECB: CET için TSİ ≈ CET+2s (Oca–Mar), CEST için TSİ ≈ CEST+1s (Haz–Tem).</p>
+  </section>
+
+  <!-- Geçmiş yıllık özet -->
+  <section id="history">
+    <h2>2015–2024 Yıllık Özet — Yıl Sonu Politika Faizi &amp; Gerçekleşen Enflasyon</h2>
+
+    <div class="grid">
+      <div>
+        <div class="tag">ABD (Fed)</div>
+        <table>
+          <thead>
+            <tr><th>Yıl</th><th>Yıl Sonu Politika</th><th>Enflasyon (CPI, Aralık/Aralık)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2024</td><td>FFTR: 4,25–4,50%</td><td class="right">%2,9</td></tr>
+            <tr><td>2023</td><td>FFTR: 5,25–5,50%</td><td class="right">%3,4</td></tr>
+            <tr><td>2022</td><td>FFTR: 4,25–4,50%</td><td class="right">%6,5</td></tr>
+            <tr><td>2021</td><td>FFTR: 0,00–0,25%</td><td class="right">%7,0</td></tr>
+            <tr><td>2020</td><td>FFTR: 0,00–0,25%</td><td class="right">%1,4</td></tr>
+            <tr><td>2019</td><td>FFTR: 1,50–1,75%</td><td class="right">%2,3</td></tr>
+            <tr><td>2018</td><td>FFTR: 2,25–2,50%</td><td class="right">%1,9</td></tr>
+            <tr><td>2017</td><td>FFTR: 1,25–1,50%</td><td class="right">%2,1</td></tr>
+            <tr><td>2016</td><td>FFTR: 0,50–0,75%</td><td class="right">%2,1</td></tr>
+            <tr><td>2015</td><td>FFTR: 0,25–0,50%</td><td class="right">%0,7</td></tr>
+          </tbody>
+        </table>
+        <p class="note">Politika faizi: yıl sonu hedef aralığı (üst/alt bant). Enflasyon: Aralık/Aralık CPI-U.</p>
+      </div>
+
+      <div>
+        <div class="tag">Euro Bölgesi (ECB)</div>
+        <table>
+          <thead>
+            <tr><th>Yıl</th><th>Yıl Sonu Politika</th><th>Enflasyon (HICP, Aralık/Aralık)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>2024</td><td>Depo: %3,00</td><td class="right">%2,4</td></tr>
+            <tr><td>2023</td><td>Depo: %4,00</td><td class="right">%2,9</td></tr>
+            <tr><td>2022</td><td>Depo: %2,00</td><td class="right">%9,2</td></tr>
+            <tr><td>2021</td><td>Depo: %-0,50</td><td class="right">%5,0</td></tr>
+            <tr><td>2020</td><td>Depo: %-0,50</td><td class="right">-%0,3</td></tr>
+            <tr><td>2019</td><td>Depo: %-0,50</td><td class="right">%1,3</td></tr>
+            <tr><td>2018</td><td>Depo: %-0,40</td><td class="right">%1,6</td></tr>
+            <tr><td>2017</td><td>Depo: %-0,40</td><td class="right">%1,4</td></tr>
+            <tr><td>2016</td><td>Depo: %-0,40</td><td class="right">%1,1</td></tr>
+            <tr><td>2015</td><td>Depo: %-0,30</td><td class="right">%0,2</td></tr>
+          </tbody>
+<!-- === YAKLAŞAN TOPLANTILAR — 2025 === -->
+<tr><td colspan="6" class="sub">Yaklaşan toplantılar</td></tr>
+
+<!-- FED (FOMC) — karar metni 14:00 ET -->
+<tr>
+  <td>17 Eyl 2025</td>
+  <td>Fed (FOMC)</td>
+  <td>21:00</td> <!-- 14:00 EDT → TSİ +7 -->
+  <td>—</td>
+  <td>—</td>
+  <td>FFTR: —</td>
+</tr>
+<tr>
+  <td>29 Eki 2025</td>
+  <td>Fed (FOMC)</td>
+  <td>21:00</td> <!-- 14:00 EDT → TSİ +7 -->
+  <td>—</td>
+  <td>—</td>
+  <td>FFTR: —</td>
+</tr>
+<tr>
+  <td>10 Ara 2025</td>
+  <td>Fed (FOMC)</td>
+  <td>22:00</td> <!-- 14:00 EST → TSİ +8 -->
+  <td>—</td>
+  <td>—</td>
+  <td>FFTR: —</td>
+</tr>
+
+<!-- ECB — karar metni 14:15 yerel; basın toplantısı 14:45 -->
+<tr>
+  <td>11 Eyl 2025</td>
+  <td>ECB</td>
+  <td>15:15</td> <!-- 14:15 CEST → TSİ +1 -->
+  <td>—</td>
+  <td>—</td>
+  <td>Depo: —</td>
+</tr>
+<tr>
+  <td>30 Eki 2025</td>
+  <td>ECB (Floransa)</td>
+  <td>16:15</td> <!-- 14:15 CET → TSİ +2 -->
+  <td>—</td>
+  <td>—</td>
+  <td>Depo: —</td>
+</tr>
+<tr>
+  <td>18 Ara 2025</td>
+  <td>ECB</td>
+  <td>16:15</td> <!-- 14:15 CET → TSİ +2 -->
+  <td>—</td>
+  <td>—</td>
+  <td>Depo: —</td>
+</tr>
+
+        </table>
+        <p class="note">Politika faizi: yıl sonu ECB <em>deposit facility</em>; enflasyon: HICP Aralık/Aralık.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Bu sayfa eğitim amaçlıdır; yatırım tavsiyesi değildir.</div>
+    <div class="note">Kaynak özetleri üstte verilmiştir. Beklenti verileri büyük ölçüde Reuters anket/önizleme haberlerinden, karar seviyeleri Fed/ECB metinlerinden derlenmiştir.</div>
+  </footer>
+</div>
+</body>
+</html>
