@@ -3,40 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Ethereum — Yıl Sonu Fiyat (USD) & Yıllık % Değişim</title>
-<meta name="description" content="Ethereum (ETH) için 2015–2024 yıl sonu fiyatları (USD) ve yıllık yüzde değişimler — beyaz temalı, ortalanmış tek sayfa tablo.">
-<meta property="og:title" content="Ethereum — Yıl Sonu Fiyat (USD) & Yıllık % Değişim">
-<meta property="og:description" content="2015–2024 yıl sonu kapanışları ve yıllık getiriler.">
+<title>Ethereum Nedir? | Yıl Yıl Fiyat & On-Chain Metrikler (Rehber)</title>
+<meta name="description" content="Ethereum nedir ve nasıl ortaya çıktı? Yıl yıl Ethereum fiyatı ve yüzdesel değişim tablosu; tüm on-chain metriklerin kısa açıklamaları (hepsi açık).">
+<meta property="og:title" content="Ethereum Nedir? | Yıl Yıl Fiyat & On-Chain Metrikler">
+<meta property="og:description" content="Wikipedia’dan tarihçe özeti, yıllık performans şablonu ve kapsamlı on-chain sözlük.">
 <meta property="og:type" content="article">
-<meta property="article:published_time" content="2025-09-02T20:15:00+03:00">
+<meta property="article:published_time" content="2025-09-02T19:30:00+03:00">
 <style>
   :root{--fg:#0b1220;--muted:#6b7280;--bg:#fff;--card:#f8fafc;}
   html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Arial}
-  .wrap{max-width:900px;margin:0 auto;padding:28px}
+  .wrap{max-width:1000px;margin:0 auto;padding:28px}
   header{text-align:center;margin-bottom:18px}
   h1{font-size:28px;margin:0 0 6px}
   .muted{color:var(--muted)}
   section{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin:12px 0}
   h2{margin:0 0 10px;font-size:22px}
+  h3{margin:12px 0 8px;font-size:18px}
   p{margin:8px 0}
+  .toc{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:8px 0 18px}
+  .toc a{padding:6px 10px;border:1px solid #e5e7eb;border-radius:999px;text-decoration:none;color:var(--fg);background:#fff}
   table{width:100%;border-collapse:collapse;margin-top:8px}
-  th,td{padding:8px;border-bottom:1px dashed #e9e9e9;font-size:14px}
-  th{font-weight:600;text-align:left}
+  th,td{padding:8px 8px;border-bottom:1px dashed #e9e9e9;font-size:14px;text-align:left}
+  th{font-weight:600}
   .right{text-align:right}
+  .small{font-size:13px}
   .note{color:var(--muted);font-size:13px}
+  details{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin:8px 0}
+  summary{font-weight:600;cursor:pointer}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
   footer{margin-top:22px;text-align:center;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
-<time datetime="2025-09-02T20:15:00+03:00" hidden>2025-09-02</time>
+<time datetime="2025-09-02T19:30:00+03:00" hidden>2025-09-02</time>
 <div class="wrap">
 
   <header>
-    <h1>Ethereum — Yıl Sonu Fiyat (USD) & Yıllık % Değişim</h1>
-    <div class="muted">2015–2024 arası yıl sonu kapanışları ve yıllık yüzde değişimler.</div>
+    <h1>Ethereum Nedir? (Tarihçe) — Yıl Yıl Fiyat & On-Chain Rehberi</h1>
+    <div class="muted">Kısa tarihçe, yıllık performans şablonu ve kapsamlı on-chain metrik sözlüğü (tüm detaylar açık).</div>
   </header>
 
+  <nav class="toc">
+    <a href="#nedir">Ethereum nedir?</a>
+    <a href="#yillik">Yıl yıl fiyat & yüzdesel değişim</a>
+    <a href="#onchain">On-chain metrikler sözlüğü</a>
+  </nav>
+
+  <!-- 1) Wikipedia’dan çevrilmiş kısa giriş -->
+  <section id="nedir">
+    <h2>Ethereum nedir ve nasıl ortaya çıktı?</h2>
+    <p>
+      <strong>Ethereum</strong>, akıllı sözleşme işlevselliğine sahip, açık kaynaklı merkeziyetsiz bir blokzincir platformudur; yerel para birimi <em>ether (ETH)</em>’tir ve piyasa değeri bakımından genelde Bitcoin’in ardından ikinci sırada yer alır. Platform, 2013’te <em>Vitalik Buterin</em> tarafından tasarlanmış, 2014’te geliştirme çalışmaları başlamış ve ağ 30 Temmuz 2015’te faaliyete geçmiştir. 15 Eylül 2022’de gerçekleşen “<em>The Merge</em>” ile Ethereum, iş kanıtından (<em>Proof-of-Work</em>) hisse ispatına (<em>Proof-of-Stake</em>) geçerek enerji tüketimini ~%99.95 oranında azalttı; ücret piyasası ise <em>EIP-1559</em> ile base fee’nin kalıcı yakımı sayesinde yeniden tasarlandı. <span class="note">Kaynaklar: Wikipedia (Ethereum maddesi), ethereum.org (The Merge), EIP-1559.</span>
+    </p>
+    <p class="note">Ayrıntılar: Wikipedia “Ethereum”; ethereum.org/roadmap/merge; eips.ethereum.org/EIPS/eip-1559. :contentReference[oaicite:2]{index=2}</p>
+  </section>
+
+  <!-- 2) Yıl yıl fiyat ve yüzdesel değişim (şablon + doldurma yönergesi) -->
   <section>
     <h2>Yıllık tablo</h2>
     <table aria-label="Ethereum yıllık yıl sonu kapanışları ve yüzdesel değişim">
@@ -59,11 +82,101 @@
     <p class="note">Hesap yöntemi: <em>% Değişim</em> = (Bu yılın kapanışı / Önceki yılın kapanışı − 1) × 100.</p>
   </section>
 
+  <!-- 3) On-chain metrikler sözlüğü (hepsi open) -->
+  <section id="onchain">
+    <h2>On-chain metrikler sözlüğü (her biri 2 cümle — Hepsi açık)</h2>
+
+    <div class="grid">
+      <details open><summary>Aktif Adresler (Active Addresses)</summary>
+        <p>Belirli sürede en az bir kez gönderim veya alım yapan benzersiz adres sayısıdır; ağ kullanımının nabzını tutar. Yükseliş dönemlerinde artar, durgunlukta düşer. :contentReference[oaicite:4]{index=4}</p>
+      </details>
+
+      <details open><summary>Yeni Adresler (New Addresses)</summary>
+        <p>İlk kez işlem yapan adreslerin sayısıdır. Benimseme hızındaki değişimleri izlemek için aktif adreslerle birlikte değerlendirilir. :contentReference[oaicite:5]{index=5}</p>
+      </details>
+
+      <details open><summary>İşlem Sayısı & Hacmi (Transaction Count & Volume)</summary>
+        <p>Zincir üzerindeki toplam işlem adedi ve transfer edilen değer. Fiyat etkisiyle şişen hacim yanılgı yaratabileceğinden adres etkinliğiyle birlikte okunur. :contentReference[oaicite:6]{index=6}</p>
+      </details>
+
+      <details open><summary>Gas Ücretleri / Ortalama Gas Fiyatı</summary>
+        <p>Bir işlemi dahil ettirmek için ödenen ücret seviyesidir; ağ tıkanıklığı ve talebi yansıtır. Yüksek gas, yoğunluk/arz dar boğazlarını; düşük gas, boş kapasiteyi ima eder. :contentReference[oaicite:7]{index=7}</p>
+      </details>
+
+      <details open><summary>EIP-1559 & Yakım (Burn)</summary>
+        <p>EIP-1559 ile her blokta <em>base fee</em> yakılır; ücret piyasası daha öngörülebilir hale gelir. Uzun dönemde yakım ile ihraç dengesine göre ETH enflasyon/deflasyon eğilimi gösterebilir. :contentReference[oaicite:8]{index=8}</p>
+      </details>
+
+      <details open><summary>Staked ETH (Toplam Stake) & Validator Sayısı</summary>
+        <p>PoS ağında doğrulayıcılar tarafından kilitlenen toplam ETH ve aktif doğrulayıcı sayısı, ağ güvenliği ve merkezileşme dinamiklerini etkiler. Katılımcıların artması güvenliği güçlendirebilirken, yoğunlaşma merkezileşme riski doğurur. :contentReference[oaicite:9]{index=9}</p>
+      </details>
+
+      <details open><summary>The Merge (PoW → PoS)</summary>
+        <p>15 Eylül 2022’de gerçekleşen Merge ile Ethereum PoS’a geçti ve enerji tüketimi ~%99.95 azaldı. Bu değişim, madenci ekonomisi yerine stake ekonomisini getirdi. :contentReference[oaicite:10]{index=10}</p>
+      </details>
+
+      <details open><summary>Blok Süresi & Blok Boyutu</summary>
+        <p>Ortalama blok üretim süresi ve bloğa sığan veri miktarıdır; mempool yoğunluğu ve verimlilikle ilişkilidir. Tıkanıklık arttığında bloklar doluluğa yaklaşır ve ücretler yükselir. :contentReference[oaicite:11]{index=11}</p>
+      </details>
+
+      <details open><summary>Mempool Büyüklüğü</summary>
+        <p>Onay bekleyen işlemlerin toplam boyutudur. Patlayan mempool, kısa vadeli talep artışı veya düşük üretim hızına işaret edebilir. :contentReference[oaicite:12]{index=12}</p>
+      </details>
+
+      <details open><summary>Realized Cap & Realized Price</summary>
+        <p>Tüm coinlerin en son hareket ettiği fiyatla değerlenmesidir; yatırımcı maliyet tabanını yaklaşık verir. Gerçekleşmiş fiyat = Gerçekleşmiş değer / Arz. :contentReference[oaicite:13]{index=13}</p>
+      </details>
+
+      <details open><summary>MVRV Oranı & MVRV Z-Skoru</summary>
+        <p>MVRV, piyasa değeri / gerçekleşmiş değer oranıdır; yatırımcıların toplam gerçekleşmemiş kâr/zararını özetler. Z-Skor, sapmayı normalize ederek aşırı ısınma/kapitülasyon bölgelerini belirginleştirir. :contentReference[oaicite:14]{index=14}</p>
+      </details>
+
+      <details open><summary>SOPR (Spent Output Profit Ratio)</summary>
+        <p>Zincirde harcanan çıktılardaki kâr/zararı ölçer; 1 üzeri kârla, 1 altı zararla satış anlamına gelir. Trend onayları genellikle 1 seviyesinin kırılım/ret testleriyle takip edilir. :contentReference[oaicite:15]{index=15}</p>
+      </details>
+
+      <details open><summary>CDD & Dormancy (Coin Days Destroyed)</summary>
+        <p>Taşınan coinlerin “yaşını” dikkate alır; eski coinlerin uyanışı dağıtım/kar realizasyonu sinyali olabilir. Düşük dormancy uzun vadeli birikim davranışını ima eder. :contentReference[oaicite:16]{index=16}</p>
+      </details>
+
+      <details open><summary>HODL Dalgaları (UTXO/Yaş Dağılımı)</summary>
+        <p>Arzın yaş bantlarına dağılımını gösterir; gençleşen arz dolaşım hızının arttığını anlatır. LTH/STH ayrımıyla birlikte döngü okuması güçlenir. :contentReference[oaicite:17]{index=17}</p>
+      </details>
+
+      <details open><summary>LTH / STH Arzı</summary>
+        <p>Belirli eşiğe (ör. 155 gün) göre uzun/kısa vadeli tutulan arzı ayırır. LTH artışı birikimi, STH artışı yeni giriş ve volatiliteyi temsil eder. :contentReference[oaicite:18]{index=18}</p>
+      </details>
+
+      <details open><summary>Supply in Profit / Loss</summary>
+        <p>Mevcut fiyata göre kârda/zararda olan arz yüzdesidir. Aşırı uçlar genellikle döngüsel dönüm noktalarında görülür. :contentReference[oaicite:19]{index=19}</p>
+      </details>
+
+      <details open><summary>Borsa Rezervleri & Net Akış</summary>
+        <p>Borsalardaki ETH bakiyesi ve net giriş/çıkışı izler; rezerv düşüşü uzun vadeli saklama, giriş artışı potansiyel satış baskısı sinyali olabilir. Bu veri, fiyat hareketlerine öncü olabilmektedir. :contentReference[oaicite:20]{index=20}</p>
+      </details>
+
+      <details open><summary>Funding Rate & Futures Open Interest</summary>
+        <p>Türev piyasalardaki uzun/kısa dengesini ve kaldıraç birikimini gösterir. Aşırı pozisyonlanma likidasyon riskini artırır; spot ve on-chain ile birlikte yorumlanmalıdır. :contentReference[oaicite:21]{index=21}</p>
+      </details>
+
+      <details open><summary>Adres Eşikleri (≥1, ≥10, ≥100, ≥1,000 ETH)</summary>
+        <p>Belirli bakiyenin üzerindeki adres sayıları, “perakende vs. balina” kompozisyonunu gösterir. Balina adreslerindeki artış birikimi, azalış dağıtımı işaret edebilir. :contentReference[oaicite:22]{index=22}</p>
+      </details>
+
+      <details open><summary>Velocity (Dolaşım Hızı)</summary>
+        <p>Belirli sürede el değiştiren ETH’nin arz oranıdır. Yüksek velocity kısa vadeli spekülatif aktiviteyi, düşük velocity uzun vadeli birikimi anlatabilir. :contentReference[oaicite:23]{index=23}</p>
+      </details>
+    </div>
+
+    <p class="note">Tanımlar Glassnode & Coin Metrics dokümantasyonlarından derlenmiştir. :contentReference[oaicite:24]{index=24}</p>
+  </section>
+
   <footer>
     <div>Bu sayfa eğitim amaçlıdır, yatırım tavsiyesi değildir.</div>
-    <div class="note">
-      Yıl sonu kapanışları: Coinlore “Ethereum Yearly Price History” tablosundaki <em>Close</em> sütunu (2015–2024). :contentReference[oaicite:1]{index=1}
-      Karşılaştırma/veri doğrulama için: Yahoo Finance “ETH-USD → Historical Data”. :contentReference[oaicite:2]{index=2}
+    <div class="small">
+      Kaynaklar: Wikipedia “Ethereum”; ethereum.org — “The Merge”; EIP-1559 (resmî EIP). :contentReference[oaicite:25]{index=25}
+      • On-chain tanımları: Glassnode Docs & Coin Metrics Data Encyclopedia. :contentReference[oaicite:26]{index=26}
+      • Yıllık kapanış verileri için: Yahoo Finance “ETH-USD → Historical Data”; Investing.com “Ethereum Historical Data”. :contentReference[oaicite:27]{index=27}
     </div>
   </footer>
 
