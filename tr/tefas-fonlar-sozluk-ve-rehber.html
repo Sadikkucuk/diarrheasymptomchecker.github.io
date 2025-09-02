@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TEFAS Fonlar | Terimler, Türler, Özellikler ve İşleyiş Rehberi</title>
+
+<!-- Arka planda meta zaman -->
+<meta property="article:published_time" content="2025-09-02T19:25:00+03:00" />
+<meta name="description" content="TEFAS: tüm fon terimleri ve kavramları, fon türleri ve açıklamaları, TEFAS fon özellikleri alanlarının anlamı, emir–fiyatlama–valör işleyişi, belgeler ve risk." />
+
+<style>
+  :root{
+    --bg:#ffffff; --fg:#0f172a; --muted:#64748b; --card:#f8fafc; --border:#e5e7eb; --accent:#2563eb;
+  }
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.6 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+  }
+  .page{max-width:980px; margin:40px auto 80px; padding:0 20px}
+  h1{font-size:clamp(26px,4.5vw,38px); line-height:1.15; margin:0 0 8px; text-align:center}
+  .meta-time{display:block; text-align:center; color:var(--muted); margin-bottom:22px}
+  .section{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; margin:18px 0}
+  .section h2{font-size:20px; margin:0 0 10px}
+  .sub{font-size:14px; color:var(--muted); margin:6px 0 12px}
+  .grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
+  .grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
+  @media (max-width:900px){ .grid2,.grid3{grid-template-columns:1fr} }
+  .card{background:#fff; border:1px solid var(--border); border-radius:14px; padding:14px}
+  .list dl{margin:0 0 12px}
+  dt{font-weight:700}
+  dd{margin:4px 0 0; color:#1f2937}
+  .note{font-size:12.5px; color:var(--muted)}
+  .tag{display:inline-block; border:1px solid var(--border); background:#fff; border-radius:999px; padding:2px 8px; font-size:12px; margin-left:6px}
+  table{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden}
+  thead th{background:#f3f4f6; font-weight:700}
+  th, td{border-bottom:1px solid var(--border); text-align:left; padding:10px 12px; vertical-align:top}
+  a{color:var(--accent); text-decoration:none}
+</style>
+</head>
+<body>
+  <main class="page">
+    <h1>TEFAS Fonlar — Terimler, Türler, Özellikler ve İşleyiş</h1>
+    <span class="meta-time">Güncelleme: <time datetime="2025-09-02T19:25:00+03:00">2 Eylül 2025, 19:25 (TRT)</time></span>
+
+    <!-- TEFAS NEDİR -->
+    <section class="section">
+      <h2>TEFAS Nedir?</h2>
+      <p><strong>TEFAS (Türkiye Elektronik Fon Alım Satım Platformu)</strong>; yatırım fonu katılma paylarının kurucular tarafından, platformda yer alan dağıtım kuruluşları aracılığıyla
+      alınıp satıldığı; saklama ve takas süreçlerinin <em>MKK–Takasbank</em> entegrasyonuyla yürüdüğü ulusal elektronik platformdur.
+      TEFAS ekranlarında yatırımcılar fonları <em>tür, strateji, performans, gider, risk</em> gibi ölçütlerle karşılaştırabilir.</p>
+      <p class="note">Unutma: Her fonun <strong>İzahname</strong> ve <strong>Yatırımcı Bilgi Formu (YBF)</strong> o fona özgü kuralların “asıl kaynağıdır”.</p>
+    </section>
+
+    <!-- FON TÜRLERİ (ŞEMSİYE + ALT TÜRLER) -->
+    <section class="section">
+      <h2>Fon Türleri (Şemsiye ve Alt Türler)</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Şemsiye Fonlar</h3>
+          <ul>
+            <li><strong>Borçlanma Araçları</strong> — Kamu/özel borçlanma araçları ağırlıklı (≥%80 tipik).</li>
+            <li><strong>Hisse Senedi</strong> — Pay senedi ağırlıklı (≥%80 tipik). <em>Hisse Senedi Yoğun</em> statüsü: BIST pay ve ilişkili türevlerde ≥%80.</li>
+            <li><strong>Para Piyasası</strong> — Çok kısa vade; ağırlıklı ort. vade ≲45 gün; vade sınırları mevzuata göre (örn. ≤184 gün).</li>
+            <li><strong>Kıymetli Madenler</strong> — Altın/diğer kıymetli maden ve dayalı varlıklar (≥%80 tipik).</li>
+            <li><strong>Fon Sepeti</strong> — Diğer fon/BYF payları ağırlıklı (≥%80 tipik).</li>
+            <li><strong>Katılım</strong> — Faizsiz enstrümanlar (kira sertifikası, katılma hesabı, katılım esaslı ortaklık payı vb.).</li>
+            <li><strong>Karma / Değişken</strong> — Esnek dağılım; sabit bir şemsiye kriterine bağlı değil.</li>
+            <li><strong>Serbest</strong> — <em>Sadece nitelikli yatırımcı</em>lara satılır; yatırım kısıtları esnek.</li>
+            <li><strong>Garantili / Koruma Amaçlı</strong> — Belirli strateji çerçevesinde garanti/koruma kurgusu içeren yapılar.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>İhtisaslaşmış Alt Türler (Örnek)</h3>
+          <ul>
+            <li><strong>Endeks Fon</strong> — Belirli endeksi izlemeyi hedefler (korelasyon eşiği uygulanır).</li>
+            <li><strong>Sektör / Tema Fonları</strong> — Örn. teknoloji, enerji, sağlık, sürdürülebilirlik.</li>
+            <li><strong>Yabancı Menkul Kıymet Fonları</strong> — Portföyün anlamlı kısmı yabancı varlıklarda.</li
+            ><li><strong>Altın / Kıymetli Maden Fonları</strong> — Fiziksel/katılım esaslı altın vb. varlıklar.</li>
+            <li><strong>Fon Sepeti – BYF Ağırlıklı</strong> — Pasif izleme + düşük maliyet hedefi olabilir.</li>
+            <li><strong>Katılım (Faizsiz)</strong> — Faizsiz esaslara uygun stratejiler (sukuk/kira sertifikası vb.).</li>
+          </ul>
+        </div>
+      </div>
+      <p class="note">Yukarıdaki yüzdeler ve vade sınırları mevzuatsal çerçeveyi <em>örnekle</em> ifade eder; kesin eşikler ilgili tebliğ/izahnamede yazılıdır.</p>
+    </section>
+
+    <!-- TEFAS "FON ÖZELLİKLERİ" ALANLARI -->
+    <section class="section">
+      <h2>“Fon Özellikleri” Ekranındaki Alanların Anlamı</h2>
+      <div class="grid3">
+        <div class="card">
+          <h3>Kimlik & Yapı</h3>
+          <div class="list">
+            <dl><dt>Fon Kodu / Kısa Kod</dt><dd>TEFAS’ta fonu ayırt eden kısa kod.</dd></dl>
+            <dl><dt>ISIN</dt><dd>Uluslararası menkul kıymet kimlik kodu (TR… ile başlar).</dd></dl>
+            <dl><dt>Kurucu / Yönetici</dt><dd>Fonun kurulması ve yönetiminden sorumlu kurum(lar).</dd></dl>
+            <dl><dt>Saklamacı</dt><dd>Fon varlıklarını saklayan kuruluş (genellikle Takasbank nezdinde saklama).</dd></dl>
+            <dl><dt>Şemsiye Türü</dt><dd>Fonun bağlı olduğu üst sınıf (ör. Hisse, Borçlanma, Katılım).</dd></dl>
+            <dl><dt>Strateji / Yetki</dt><dd>Portföy stratejisi, izin verilen varlıklar ve oranlar.</dd></dl>
+            <dl><dt>Risk Değeri (1–7)</dt><dd>SRRI ölçeği benzeri oynaklık temelli risk sınıfı.</dd></dl>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Fiyatlama & Emir</h3>
+          <div class="list">
+            <dl><dt>Birim Pay Değeri (NAV)</dt><dd>Gün sonu itibarıyla açıklanan birim fiyat.</dd></dl>
+            <dl><dt>Fon Toplam Değer (FTD)</dt><dd>Portföyün toplam büyüklüğü.</dd></dl>
+            <dl><dt>Yatırımcı Sayısı / Pay Adedi</dt><dd>Güncel yatırımcı ve dolaşımdaki pay bilgileri.</dd></dl>
+            <dl><dt>Emir Kesim Saati</dt><dd>Gün içi emirlerin o günkü fiyatlamaya girmesi için <em>son saat</em>.</dd></dl>
+            <dl><dt>Alış Valörü (T+N)</dt><dd>Alınan payların hesaba geçiş tarihi.</dd></dl>
+            <dl><dt>Satış Valörü (T+N)</dt><dd>Satış bedelinin hesaba geçiş tarihi.</dd></dl>
+            <dl><dt>Min/Max İşlem Tutarı</dt><dd>Günlük en düşük/en yüksek alım-satım sınırları.</dd></dl>
+            <dl><dt>Komisyonlar</dt><dd>Giriş/çıkış ücreti (varsa); yönetim ücreti günlük tahakkuk eder.</dd></dl>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Performans & Bilgi</h3>
+          <div class="list">
+            <dl><dt>Getiri Dönemleri</dt><dd>Son 1/3/6 Ay, Yılbaşından İtibaren (YİD), 1/3/5 Yıl vb.</dd></dl>
+            <dl><dt>Karşılaştırma Ölçütü (Benchmark)</dt><dd>Stratejiye uygun referans endeks/karışım.</dd></dl>
+            <dl><dt>Toplam Gider Oranı (TGO)</dt><dd>Yıllık gider tavanı ve uygulaması (YBF’de yer alır).</dd></dl>
+            <dl><dt>Performans Ücreti</dt><dd>Vakıa varsa; eşik/ölçüt ve yöntem YBF/izahnamede.</dd></dl>
+            <dl><dt>KAP Bağlantıları</dt><dd>İzahname, YBF, PSR ve duyuru linkleri.</dd></dl>
+            <dl><dt>Vergilendirme (Stopaj)</dt><dd>Fon türüne göre mevzuatla belirlenen tevkifat.</dd></dl>
+          </div>
+        </div>
+      </div>
+      <p class="note">Kesim saati, valör, komisyon ve stopaj fon bazında farklılık gösterebilir. Nihai bilgi için ilgili fonun <em>İzahname/YBF</em> belgelerine bak.</p>
+    </section>
+
+    <!-- EMİR–FİYATLAMA–VALÖR İŞLEYİŞİ -->
+    <section class="section">
+      <h2>Emir–Fiyatlama–Valör: Nasıl İşler?</h2>
+      <table aria-label="Emir–Fiyatlama–Valör İşleyişi">
+        <thead>
+          <tr><th>Kavram</th><th>Açıklama</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>İleri Fiyatlama</strong></td>
+            <td>Fonlarda gün içi limit fiyat yoktur; emirler gün sonunda açıklanacak <em>birim pay değeri</em>nden gerçekleşir.</td>
+          </tr>
+          <tr>
+            <td><strong>Emir Kesim Saati</strong></td>
+            <td>Kesim saatinden <em>önce</em> girilen emirler aynı günün fiyatlamasına; <em>sonra</em> girilenler bir sonraki fiyatlamaya dahil olur.</td>
+          </tr>
+          <tr>
+            <td><strong>Alış/Satış Valörü</strong></td>
+            <td>Alım–satım bedellerinin hesaba geçiş günü (T+0/1/2/3 olabilir). Döviz/kıymetli maden ağırlıklı fonlarda <em>satış valörü</em> daha uzun olabilir.</td>
+          </tr>
+          <tr>
+            <td><strong>Emir İptali/Değişikliği</strong></td>
+            <td>Genelde kesim saatine kadar iptal/değişiklik mümkündür (dağıtım kanalına ve fon kurallarına bağlıdır).</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">Birçok kurum pratikte iş günlerinde 09:30–13:30 arasında emir toplayabilir; yarım günlerde saatler kısalır. Ancak bağlayıcı olan fondaki tanımdır.</p>
+    </section>
+
+    <!-- RİSK, BELGELER, RAPORLAR -->
+    <section class="section">
+      <h2>Risk, Belgeler ve Raporlar</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3>Zorunlu Belgeler</h3>
+          <ul>
+            <li><strong>İzahname</strong> — Fonun kapsamlı kural ve bilgilerinin ana belgesi.</li>
+            <li><strong>Yatırımcı Bilgi Formu (YBF)</strong> — Temel bilgiler, riskler, giderler ve alım–satım esasları.</li>
+            <li><strong>Performans Sunum Raporu (PSR)</strong> — Geçmiş performans ve karşılaştırma ölçütü bilgileri.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Risk & Giderler</h3>
+          <ul>
+            <li><strong>Risk Değeri (1–7)</strong> — Geçmiş oynaklığa dayalı ölçek; 1 en düşük, 7 en yüksek.</li>
+            <li><strong>Yönetim Ücreti / TGO</strong> — Günlük tahakkuk eden yönetim ücreti; yıllık toplam gider tavanı.</li>
+            <li><strong>Performans Ücreti</strong> — Varsa, eşiği ve yöntemi belgelerde yazılıdır (ör. high-watermark).</li>
+            <li><strong>Vergi (Stopaj)</strong> — Oran ve istisnalar fon türüne/mevzuata göre değişir.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TERİMLER SÖZLÜĞÜ (A–Z) -->
+    <section class="section">
+      <h2>Terimler Sözlüğü (A–Z)</h2>
+      <div class="grid2">
+        <div class="card list">
+          <dl><dt>Aktif Dağılımı</dt><dd>Portföyün varlık sınıflarına göre yüzdesi (pay, borçlanma, kıymetli maden vb.).</dd></dl>
+          <dl><dt>Alış/Satış Valörü</dt><dd>İşlemin hesaba geçiş günü (T+N).</dd></dl>
+          <dl><dt>Benchmark (Karşılaştırma Ölçütü)</dt><dd>Fonun hedeflediği referans endeks/karışım.</dd></dl>
+          <dl><dt>Birim Pay Değeri (NAV)</dt><dd>Fon toplam değeri / dolaşımdaki pay adedi.</dd></dl>
+          <dl><dt>Brüt Getiri / Net Getiri</dt><dd>Giderler ve vergiler öncesi/sonrası getiri ölçümü.</dd></dl>
+          <dl><dt>Dağıtım Kuruluşu</dt><dd>TEFAS üzerinden fon alım-satımına aracılık eden kurum.</dd></dl>
+          <dl><dt>Değişken/Karma Fon</dt><dd>Esnek dağılımlı fon türü.</dd></dl>
+          <dl><dt>DYF (Fon Sepeti)</dt><dd>Diğer fonlara/BYF’lere yatırım yapan fonlar.</dd></dl>
+          <dl><dt>Endeks Fon</dt><dd>Belirli bir endeksi izlemeye odaklı fon.</dd></dl>
+          <dl><dt>Faizsiz (Katılım) Fon</dt><dd>Faiz içermeyen enstrümanlar; fıkhi esaslara uygunluk gözetilir.</dd></dl>
+          <dl><dt>FTD</dt><dd>Fon Toplam Değer.</dd></dl>
+          <dl><dt>Getiri Dönemleri</dt><dd>Son X ay-yıl, yılbaşından itibaren vb. dönemsel performans pencereleri.</dd></dl>
+          <dl><dt>Hisse Senedi Yoğun</dt><dd>BIST payları ve ilişkili türevlerde ≥%80 portföy.</dd></dl>
+          <dl><dt>İleri Fiyatlama</dt><dd>Gün sonunda açıklanan fiyattan işlem görme ilkesi.</dd></dl>
+          <dl><dt>İzahname</dt><dd>Fonun kapsamlı kural ve bilgilerinin resmî belgesi.</dd></dl>
+        </div>
+        <div class="card list">
+          <dl><dt>KAP</dt><dd>Kamuyu Aydınlatma Platformu; fon duyuruları ve belgeleri.</dd></dl>
+          <dl><dt>Kıymetli Maden Fonu</dt><dd>Altın/diğer kıymetli madenlere dayalı fonlar.</dd></dl>
+          <dl><dt>Kur Riski (Hedge)</dt><dd>Yabancı para varlıklardan doğan kur riskinin korunması/taşınması.</dd></dl>
+          <dl><dt>Likidite</dt><dd>Fon payının alım-satımının pratikliği ve valör süresi.</dd></dl>
+          <dl><dt>MKK</dt><dd>Merkezi Kayıt Kuruluşu.</dd></dl>
+          <dl><dt>Para Piyasası Fonu</dt><dd>Kısa vadeli para piyasası araçları; çok düşük vade.</dd></dl>
+          <dl><dt>Performans Sunum Raporu (PSR)</dt><dd>Geçmiş getiriler ve ölçüt karşılaştırması.</dd></dl>
+          <dl><dt>Risk Değeri (1–7)</dt><dd>Oynaklık temelli sınıflama.</dd></dl>
+          <dl><dt>Saklamacı</dt><dd>Fon varlıklarının güvenli saklama kuruluşu.</dd></dl>
+          <dl><dt>Serbest Fon</dt><dd>Yalnız nitelikli yatırımcılara satılabilen fonlar.</dd></dl>
+          <dl><dt>Strateji</dt><dd>Fonun yatırım yaklaşımı ve hedeflediği alanlar.</dd></dl>
+          <dl><dt>Takasbank</dt><dd>Merkezi takas ve ödeme hizmetleri.</dd></dl>
+          <dl><dt>TGO</dt><dd>Toplam Gider Oranı; yıllık gider tavanı.</dd></dl>
+          <dl><dt>Valör</dt><dd>İşlemin hesaplara yansıdığı tarih (T+N).</dd></dl>
+          <dl><dt>YBF</dt><dd>Yatırımcı Bilgi Formu (temel bilgiler, giderler, riskler).</dd></dl>
+        </div>
+      </div>
+    </section>
+
+    <p class="note" style="text-align:center">Bu sayfa bir özet rehberdir; bağlayıcı bilgiler için ilgili fonun <strong>İzahname</strong> ve <strong>YBF</strong> belgeleri ile resmî duyurular esastır.</p>
+  </main>
+</body>
+</html>
