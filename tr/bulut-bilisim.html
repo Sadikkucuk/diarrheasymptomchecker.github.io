@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bulut Bilişim Terimleri</title>
+  <style>
+    :root{
+      --bg:#ffffff; --fg:#0f172a; --muted:#475569; --card:#f8fafc; --border:#e5e7eb; --accent:#111827;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;line-height:1.6}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:saturate(1.2) blur(6px);border-bottom:1px solid var(--border);}
+    .wrap{max-width:980px;margin:0 auto;padding:clamp(16px,2vw,24px)}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:40px;height:40px;border-radius:12px;background:conic-gradient(from 140deg, #e2e8f0, #f1f5f9, #e2e8f0);border:1px solid var(--border)}
+    h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.01em;margin:.2rem 0 .5rem}
+    h2{font-size:clamp(22px,2.6vw,28px);margin:2rem 0 .75rem}
+    h3{font-size:clamp(18px,2.2vw,22px);margin:1.25rem 0 .5rem;color:var(--accent)}
+    p{margin:.6rem 0}
+    blockquote{margin:1rem 0;padding:16px 18px;border-left:4px solid #0ea5e9;background:var(--card);border-radius:8px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:1.25rem 0}
+    ul{margin:.4rem 0 1rem 1.25rem}
+    li{margin:.16rem 0}
+    code{background:#0f172a10;padding:.2em .4em;border-radius:6px}
+    .toc{border:1px dashed var(--border);padding:12px;border-radius:12px;background:#fff}
+    footer{margin:3rem 0 2rem;color:var(--muted);font-size:.95rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>Bulut Bilişim Terimleri</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Wikipedia Tanımı (Türkçe çeviri)</h2>
+      <blockquote>
+        <strong>Bulut bilişim</strong>, ISO'ya göre, <em>"paylaşılabilir fiziksel veya sanal kaynaklardan oluşan ölçeklenebilir ve esnek bir havuza ağ erişimini, talep üzerine kendi kendine hizmetle sağlama ve yönetim imkânı veren bir paradigma"</em>dir.
+      </blockquote>
+      <p style="color:var(--muted);margin-top:.5rem">Kaynak: İngilizce Wikipedia &rarr; Cloud computing (ISO tanımı).</p>
+    </section>
+
+    <section>
+      <h2>📌 Temel Tanımlar</h2>
+      <h3>Bulut Bilişim (Cloud Computing):</h3>
+      <p>BT kaynaklarının internet üzerinden, ihtiyaca göre ve kullandıkça öde modeliyle sağlanmasıdır.</p>
+      <h3>Bulut Sağlayıcısı (Cloud Provider):</h3>
+      <p>BT hizmetlerini sunan üçüncü taraf şirket (örn. AWS, Azure, Google Cloud).</p>
+      <h3>Kullandıkça Öde (Pay-as-you-go):</h3>
+      <p>Yalnızca kullanılan kaynak kadar ödeme yapılan maliyet modeli.</p>
+    </section>
+
+    <section>
+      <h2>📌 Dağıtım Modelleri (Deployment Models)</h2>
+      <h3>Genel Bulut (Public Cloud):</h3>
+      <p>Üçüncü tarafça yönetilen ve birçok kullanıcıya (tenant) sunulan internet üzerindeki bulut altyapısıdır.</p>
+      <h3>Özel Bulut (Private Cloud):</h3>
+      <p>Sadece tek bir organizasyona özel, daha fazla güvenlik ve kontrol sağlayan bulut ortamıdır.</p>
+      <h3>Hibrit Bulut (Hybrid Cloud):</h3>
+      <p>Genel ve özel bulutun karışımı; veri ve uygulamalar iki ortam arasında taşınabilir.</p>
+    </section>
+
+    <section>
+      <h2>📌 Hizmet Modelleri (Service Models)</h2>
+      <h3>Altyapı Hizmeti Olarak (Infrastructure as a Service — IaaS):</h3>
+      <p>Sanal sunucu, depolama ve ağ gibi kaynakları sağlar. Kullanıcı işletim sistemi ve uygulamaları yönetir.</p>
+      <h3>Platform Hizmeti Olarak (Platform as a Service — PaaS):</h3>
+      <p>Geliştiricilerin uygulama geliştirip çalıştırabileceği platform (araçlar, kütüphaneler, ortamlar) sunar.</p>
+      <h3>Yazılım Hizmeti Olarak (Software as a Service — SaaS):</h3>
+      <p>Web tarayıcısı üzerinden erişilen hazır yazılımları sunar. Kullanıcı yalnızca uygulamayı kullanır, bakım yapmaz.</p>
+    </section>
+
+    <section>
+      <h2>📌 Sanallaştırma (Virtualization)</h2>
+      <h3>Sanallaştırma (Virtualization):</h3>
+      <p>Fiziksel kaynakların sanal makineler (VM) olarak bölünmesi ve paylaşılmasıdır.</p>
+      <h3>Sanal Makine (Virtual Machine — VM):</h3>
+      <p>Fiziksel sunucuda çalışan, kendi işletim sistemine sahip bağımsız sanal sistem.</p>
+      <h3>Yönetici Yazılım (Hypervisor):</h3>
+      <p>Birden fazla VM’yi yöneten yazılımdır. Kaynakları adil şekilde dağıtır.</p>
+      <h3>Donanım Sanallaştırması (Hardware Virtualization):</h3>
+      <p>Fiziksel donanım bileşenlerinin sanal karşılıklarının oluşturulması.</p>
+      <h3>Yazılım Sanallaştırması (Software Virtualization):</h3>
+      <p>Yazılımın sanal bir sistem ortamında çalıştırılması. (örn. Docker konteynerleri)</p>
+      <h3>Ağ Sanallaştırması (Network Virtualization):</h3>
+      <p>Fiziksel ağların sanal olarak oluşturulması ve yönetilmesi. (örn. SDN, NFV)</p>
+      <h3>Depolama Sanallaştırması (Storage Virtualization):</h3>
+      <p>Farklı fiziksel disklerin tek sanal birim olarak görünmesini sağlar.</p>
+    </section>
+
+    <section>
+      <h2>📌 Konteynerler (Containers)</h2>
+      <h3>Konteyner (Container):</h3>
+      <p>Uygulama ve tüm bağımlılıklarının bir arada paketlenmiş, hafif ve taşınabilir çalıştırma birimi.</p>
+      <h3>Konteynerleştirme (Containerization):</h3>
+      <p>Uygulamanın bağımlılıklarıyla birlikte bir imaj olarak paketlenmesi süreci.</p>
+      <h3>Docker:</h3>
+      <p>Konteynerlerin oluşturulması, yönetimi ve dağıtımı için kullanılan platformdur.</p>
+      <h3>Kubernetes:</h3>
+      <p>Konteynerlerin otomatik olarak dağıtımını, ölçeklenmesini ve yaşam döngüsü yönetimini sağlar.</p>
+    </section>
+
+    <section>
+      <h2>📌 Mikroservisler (Microservices)</h2>
+      <h3>Mikroservis Mimarisi (Microservices Architecture):</h3>
+      <p>Uygulamanın küçük, bağımsız hizmetler olarak bölünmesi ve bu hizmetlerin kendi başlarına çalışabilmesidir.</p>
+      <h3>Monolitik Mimari (Monolithic Architecture):</h3>
+      <p>Tüm uygulamanın tek bir birim olarak geliştirilmesi.</p>
+    </section>
+
+    <section>
+      <h2>📌 Temel Özellikler</h2>
+      <h3>Ölçeklenebilirlik (Scalability):</h3>
+      <p>Sistem kaynaklarının artan yükü karşılayacak şekilde artırılabilmesi yeteneğidir.</p>
+      <h3>Dikey Ölçekleme (Vertical Scaling):</h3>
+      <p>Mevcut makinenin CPU, RAM gibi kaynaklarını artırmak.</p>
+      <h3>Yatay Ölçekleme (Horizontal Scaling):</h3>
+      <p>Yeni makineler veya konteynerler ekleyerek sistemi büyütmek.</p>
+      <h3>Güvenilirlik (Reliability):</h3>
+      <p>Uygulamanın zaman içinde tutarlı şekilde çalışması ve kesintilere dayanıklı olması.</p>
+      <h3>Yedeklilik (Redundancy):</h3>
+      <p>Bir bileşen arızalandığında devreye girecek yedek bileşenlerin bulunması.</p>
+      <h3>Yedekleme ve Kurtarma (Backup and Recovery):</h3>
+      <p>Verilerin kopyalanması ve kayıp durumunda geri yüklenmesi.</p>
+    </section>
+
+    <section>
+      <h2>📌 Güvenlik (Security)</h2>
+      <h3>Güvenlik (Security):</h3>
+      <p>Uygulamaların ve verilerin yetkisiz erişim, saldırılar ve ihlallere karşı korunması.</p>
+      <h3>Paylaşımlı Sorumluluk Modeli (Shared Responsibility Model):</h3>
+      <p>Bulut sağlayıcısı altyapıyı, müşteri ise uygulama, veri ve yapılandırmaları korur.</p>
+    </section>
+
+    <section>
+      <h2>📌 Göç (Migration)</h2>
+      <h3>Bulut Göçü (Cloud Migration):</h3>
+      <p>Dijital varlıkların ve uygulamaların kurum içinden buluta taşınması sürecidir.</p>
+      <h3>Yedi R Stratejisi (7 Rs of Migration):</h3>
+      <p>Rehosting, Replatforming, Refactoring, Repurchasing, Retiring, Retaining, Relocating.</p>
+      <h3>Rehosting (Lift and Shift):</h3>
+      <p>Uygulamanın değişiklik yapılmadan doğrudan buluta taşınması.</p>
+      <h3>Replatforming (Lift, Tinker, and Shift):</h3>
+      <p>Küçük iyileştirmelerle buluta taşınması.</p>
+      <h3>Refactoring:</h3>
+      <p>Uygulamanın mimari olarak yeniden yazılması (örneğin, mikroservislere geçiş).</p>
+    </section>
+
+    <section>
+      <h2>📌 Maliyet Optimizasyonu (Cost Optimization)</h2>
+      <h3>Maliyet Optimizasyonu (Cost Optimization):</h3>
+      <p>Performansı koruyarak bulut maliyetlerini minimize etme süreci.</p>
+      <h3>Kaynak Boyutlandırma (Rightsizing):</h3>
+      <p>Gerçek ihtiyaçlara göre kaynakların boyutlarının ayarlanması.</p>
+      <h3>Otomatik Ölçekleme (Auto Scaling):</h3>
+      <p>Yük durumuna göre kaynakların otomatik olarak artırılması veya azaltılması.</p>
+      <h3>Maliyet İzleme Araçları (Cost Monitoring Tools):</h3>
+      <p>Harcamaları izlemek ve tasarruf fırsatlarını belirlemek için kullanılan araçlar.</p>
+    </section>
+
+    <section>
+      <h2>📌 Felaket Kurtarma (Disaster Recovery)</h2>
+      <h3>Felaket Kurtarma (Disaster Recovery):</h3>
+      <p>Beklenmedik olaylar sonrası sistemlerin ve verilerin geri yüklenmesini sağlayan strateji.</p>
+    </section>
+
+    <section>
+      <h2>📌 Sunucusuz Bilişim (Serverless Computing)</h2>
+      <h3>Sunucusuz Bilişim (Serverless Computing):</h3>
+      <p>Geliştiricinin sadece kod yazdığı, altyapının bulut sağlayıcısı tarafından yönetildiği model.</p>
+      <h3>AWS Lambda / Azure Functions / Google Cloud Functions:</h3>
+      <p>Önde gelen sunucusuz işlev çalıştırma hizmetleri.</p>
+      <h3>Soğuk Başlangıç (Cold Start):</h3>
+      <p>Uzun süre çalıştırılmayan sunucusuz fonksiyonların geç yanıt vermesi durumu.</p>
+    </section>
+
+    <section>
+      <h2>📌 Uç Bilişim (Edge Computing)</h2>
+      <h3>Uç Bilişim (Edge Computing):</h3>
+      <p>Verinin oluşturulduğu yerde işlenmesini sağlayan, merkezi veri merkezlerine bağımlılığı azaltan mimaridir.</p>
+    </section>
+
+    <section>
+      <h2>📌 Çoklu Bulut (Multi-cloud)</h2>
+      <h3>Çoklu Bulut (Multi-cloud):</h3>
+      <p>Birden fazla bulut sağlayıcısının (AWS, Azure, GCP vb.) bir arada kullanılması.</p>
+      <h3>Satıcı Bağımlılığını Önleme (Avoid Vendor Lock-in):</h3>
+      <p>Tek bir bulut sağlayıcısına bağımlı kalmamak için çoklu sağlayıcı kullanımı.</p>
+    </section>
+
+    <footer>
+    </footer>
+  </main>
+</body>
+</html>
