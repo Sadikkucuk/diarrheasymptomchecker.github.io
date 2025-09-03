@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teknik Analiz — Tanım, Kavramlar, Grafikler ve Overlays</title>
+  <meta name="description" content="Teknik analiz: tanım, kavramlar, grafik türleri ve fiyat üstüne bindirilen göstergeler (overlays)." />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #0f172a;
+      --muted: #475569;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --accent: #0ea5e9;
+    }
+    html,body{background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";line-height:1.6;margin:0}
+    .container{max-width:1000px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--border);z-index:10}
+    header .container{display:flex;gap:16px;align-items:center}
+    h1{font-size:clamp(1.6rem,2.5vw,2.2rem);margin:16px 0}
+    h2{font-size:clamp(1.25rem,2vw,1.6rem);margin:32px 0 12px}
+    h3{font-size:1.05rem;margin:24px 0 8px;color:var(--muted)}
+    p{margin:12px 0}
+    .lead{font-size:1.05rem;color:var(--muted)}
+    nav a{display:inline-block;margin:8px 12px 8px 0;padding:6px 10px;border:1px solid var(--border);border-radius:10px;text-decoration:none;color:var(--fg)}
+    nav a:hover{border-color:var(--accent);color:var(--accent)}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin:18px 0}
+    ul{padding-left:1.1rem}
+    li{margin:6px 0}
+    strong.term{font-weight:700}
+    footer{margin:48px 0 16px;color:var(--muted);font-size:.95rem}
+    .tag{display:inline-block;font-size:.8rem;color:#0b6aa1;background:#e0f2fe;border:1px solid #bae6fd;padding:2px 8px;border-radius:999px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Teknik Analiz</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <p class="lead">
+      Finansta <em>teknik analiz</em>, başta fiyat ve hacim olmak üzere geçmiş piyasa verilerini inceleyerek fiyatların yönünü analiz etmek ve tahmin etmek için kullanılan bir metodolojidir. Etkin bir <em>aktif yönetim</em> yaklaşımı olduğundan, modern portföy teorisinin (MPT) büyük kısmıyla çelişir. Teknik analizin etkinliği, fiyatların esasen öngörülemez olduğunu savunan <em>etkin piyasa hipotezi</em> (EMH) tarafından tartışmalı görülür; teknik analizin fayda sağlayıp sağlamadığına ilişkin akademik bulgular da karışıktır. Teknik analiz, bir şirketin finansal tablolarını, sağlığını ve piyasa/ekonomi koşullarını esas alan <em>temel analiz</em>den ayrılır.
+    </p>
+
+    <nav aria-label="İçindekiler">
+      <a href="#kavramlar">Kavramlar</a>
+      <a href="#grafik-turleri">Grafik Türleri</a>
+      <a href="#overlays">Overlays (Fiyat Üstü Bindirmeler)</a>
+    </nav>
+
+    <section id="kavramlar" class="card">
+      <h2>Kavramlar</h2>
+      <ul>
+        <li><strong class="term">Ortalama Gerçek Aralık (Average True Range)</strong> — Fiyat boşluklarına göre ayarlanmış ortalama günlük işlem aralığı.</li>
+        <li><strong class="term">Kırılma (Breakout)</strong> — Fiyatların önceki destek veya direnç bölgesini güçlü biçimde delmesi; genellikle (ama her zaman değil) artan hacim eşlik eder.</li>
+        <li><strong class="term">Grafik formasyonu (Chart pattern)</strong> — Bir menkul kıymet ya da emtia fiyatlarının grafikte oluşturduğu ayırt edici desen.</li>
+        <li><strong class="term">Döngüler (Cycles)</strong> — Fiyat hareketinde olası değişim için zaman hedefleri (fiyat yalnızca yukarı, aşağı ya da yatay hareket eder).</li>
+        <li><strong class="term">Ölü kedi sıçraması (Dead cat bounce)</strong> — Hisse fiyatındaki dramatik düşüşü hemen izleyen, düşüş sürmeden önceki ılımlı ve geçici yükseliş olgusu.</li>
+        <li><strong class="term">Elliott Dalga &amp; Altın Oran</strong> — Ardışık fiyat hareketleri ve geri çekilmeleri hesaplamakta kullanılır.</li>
+        <li><strong class="term">Fibonacci oranları</strong> — Destek/direnç ve geri çekilme yüzdelerini belirlemede kılavuz.</li>
+        <li><strong class="term">Momentum</strong> — Fiyat değişiminin hızı.</li>
+        <li><strong class="term">Nokta ve Figür analizi (Point &amp; Figure)</strong> — Zamanı yapısında tamamen göz ardı eden, sayısal filtreler kullanan fiyat temelli yaklaşım (zaman referansları içerebilir).</li>
+        <li><strong class="term">Direnç (Resistance)</strong> — Net satış aktivitesini tetikleyebilecek fiyat seviyesi.</li>
+        <li><strong class="term">Destek (Support)</strong> — Net alım aktivitesini tetikleyebilecek fiyat seviyesi.</li>
+        <li><strong class="term">Trendleşme (Trending)</strong> — Fiyat hareketinin uzun bir süre tek yönde kalma eğilimi.</li>
+      </ul>
+    </section>
+
+    <section id="grafik-turleri" class="card">
+      <h2>Grafik Türleri</h2>
+      <ul>
+        <li><strong class="term">Mum grafiği (Candlestick)</strong> — Japon kökenlidir ve OHLC’ye benzer; mum gövdeleri açılış/kapanış aralığını genişletip doldurarak bu ilişkiyi vurgular. Batı’da genelde siyah/kırmızı gövdeler kapanışın açılıştan düşük olduğunu, beyaz/yeşil/mavi gövdeler ise kapanışın açılıştan yüksek olduğunu gösterir.</li>
+        <li><strong class="term">Çizgi grafiği (Line chart)</strong> — Kapanış fiyatlarını çizgi parçalarıyla birleştirir. İstenirse açık, en yüksek ya da en düşük fiyatlarla da çizilebilir.</li>
+        <li><strong class="term">Açık–Yüksek–Düşük–Kapanış / Bar grafiği (OHLC)</strong> — İşlem döneminin en yüksek ve en düşük fiyatları arası bir dikey çizgi çizer; açılış ve kapanış fiyatlarını aralık çizgisi üzerinde solda (açılış) ve sağda (kapanış) kısa çentiklerle gösterir.</li>
+        <li><strong class="term">Nokta ve Figür grafiği (Point &amp; Figure)</strong> — Zamanı yapısında göz ardı eden, yalnızca sayısal filtrelere dayalı bir grafik türü.</li>
+      </ul>
+    </section>
+
+    <section id="overlays" class="card">
+      <h2>Overlays (Fiyat Üstü Bindirmeler)</h2>
+      <p class="tag">Overlays genellikle ana fiyat grafiğinin üzerine bindirilir.</p>
+      <ul>
+        <li><strong class="term">Bollinger Bantları</strong> — Fiyat oynaklığı aralığı.</li>
+        <li><strong class="term">Kanal</strong> — Birbirine paralel iki trend çizgisi.</li>
+        <li><strong class="term">Ichimoku Kinko Hyo</strong> — Zaman faktörünü ve bir mumun yüksek/düşüğünün ortalamasını dikkate alan hareketli ortalama temelli sistem.</li>
+        <li><strong class="term">Hareketli Ortalama (Moving Average)</strong> — Bir zaman penceresinin (öncesi/sonrası) ortalaması, grafik boyunca her noktada yinelenir; dinamik bir trend çizgisi gibi düşünülebilir.</li>
+        <li><strong class="term">Parabolic SAR</strong> — Güçlü trendlerde fiyatın parabolik bir eğrinin içinde kalma eğilimine dayanan Wilder’ın takip eden durdur (trailing stop) göstergesi.</li>
+        <li><strong class="term">Pivot Noktası</strong> — Belirli bir döviz ya da hissenin yüksek, düşük ve kapanış fiyatlarının sayısal ortalaması alınarak türetilir.</li>
+        <li><strong class="term">Direnç</strong> — Fiyatın üstünde tavan görevi görebilecek seviye.</li>
+        <li><strong class="term">Destek</strong> — Fiyatın altında taban görevi görebilecek seviye.</li>
+        <li><strong class="term">Trend Çizgisi</strong> — En az iki tepe veya iki dipten geçen eğimli çizgi.</li>
+        <li><strong class="term">Zig Zag</strong> — Belirli bir yüzde eşiğinden daha büyük, filtrelenmiş fiyat hareketlerini gösteren bindirme.</li>
+      </ul>
+    </section>
+
+
+  </main>
+</body>
+</html>
