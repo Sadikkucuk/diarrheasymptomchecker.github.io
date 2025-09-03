@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scrum Master: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Scrum Master nedir, hangi araçları kullanır ve hangi kitapları okumalı? Beyaz temalı, sade bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#10b981;
+      --accent-ink:#065f46;
+      --ring: rgba(16,185,129,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent);background:rgba(16,185,129,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(16,185,129,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(16,185,129,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Scrum</span>
+      <h1>Scrum Master: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Kısa tanım, araçlar ve üç temel kitapla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Scrum Master nedir?</h2>
+      <p>Scrum Master, ekibin Scrum çerçevesini doğru uygulamasını kolaylaştıran, engelleri kaldıran ve sürekli iyileştirme kültürünü besleyen hizmetkâr liderdir. Seremoni (Sprint Planning, Daily, Review, Retrospective) akışlarını düzenler, ekip ile paydaşlar arasındaki iletişimi yağ gibi akıtır. Takımın odaklanmasını, akışını ve sürdürülebilir hızını (velocity) korumaya yardımcı olur; metrikleri şeffaflaştırır. Koçluk, kolaylaştırıcılık ve çatışma çözme becerileriyle ürün değerinin hızlı ve kaliteli sunulmasını destekler.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Scrum Master’ların sık kullandığı araçlar</h2>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener">Jira Software</a></h3>
+          <p>Backlog, sprint ve Kanban/Scrum tahtalarını yönetmek için endüstri standardıdır. Raporlar (burndown, velocity) ve otomasyonlarla akışı görünür kılar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira/align" target="_blank" rel="noopener">Jira Align</a></h3>
+          <p>Ölçekli çeviklik (SAFe, LeSS vb.) için strateji-portföy-program-ekip hizalaması sağlar. Yol haritaları, bağımlılıklar ve kapasite planlamasını tek çatıya toplar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener">Confluence</a></h3>
+          <p>Ekip çalışma anlaşmaları, “Definition of Done/Ready”, karar kayıtları ve süreç dokümantasyonu için idealdir. Jira ile bağlanıp gereksinim-test izlenebilirliği kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/devops" target="_blank" rel="noopener">Azure DevOps (Boards)</a></h3>
+          <p>Work item, sprint, kapalı döngü geri bildirim ve yerleşik raporlarla uçtan uca takip sunar. Pipelines ile CI/CD sonuçları ve kalite kapıları görünür olur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://trello.com" target="_blank" rel="noopener">Trello</a></h3>
+          <p>Basit kart/tahta yapısı ile küçük/orta ekiplerde görsel akış yönetimi sağlar. Otomasyon (Butler) kurallarıyla tekrar eden işleri hafifletir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://asana.com" target="_blank" rel="noopener">Asana</a></h3>
+          <p>Görev bağımlılıkları, timeline ve portföy görünümüyle planı netleştirir. Formlar ve kurallar sayesinde talep → backlog akışını standardize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://clickup.com" target="_blank" rel="noopener">ClickUp</a></h3>
+          <p>Görevler, dokümanlar, hedefler ve raporları tek yerde birleştirir. Özelleştirilebilir görünümlerle farklı paydaşlara uygun panolar üretirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://miro.com" target="_blank" rel="noopener">Miro</a></h3>
+          <p>Story mapping, etki haritaları ve retrospektifler için gerçek zamanlı beyaz tahta sunar. Zengin şablon kütüphanesi ve entegrasyonlarla çalıştayları hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.mural.co" target="_blank" rel="noopener">MURAL</a></h3>
+          <p>Kolaylaştırma odaklı şablonları ve oylama/çerçeveleme araçlarıyla ortak aklı güçlendirir. Uzaktan/hibrit ekiplerde fikirleri hızla somutlaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.lucidchart.com" target="_blank" rel="noopener">Lucidchart</a></h3>
+          <p>Süreç akışları, RACI ve sistem diyagramlarını standartlaştırır. Confluence/Jira gömüleriyle tek kaynakta güncel görseller tutmanızı sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.parabol.co" target="_blank" rel="noopener">Parabol</a></h3>
+          <p>Retrospektif, sprint planlama ve ısmarlama toplantı akışlarını kolaylaştırır. Entegre aksiyon takibi ve toplantı raporları üretir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.retrium.com" target="_blank" rel="noopener">Retrium</a></h3>
+          <p>Kanıtlanmış retro formatları (mad/sad/glad, 4Ls vb.) ve anonim geri bildirimle güvenli alan yaratır. Eylem maddelerini izleyip tekrar gündeme getirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.planningpoker.com" target="_blank" rel="noopener">PlanningPoker.com</a></h3>
+          <p>Uzak ekiplerde hikâye puanlama/çaba tahmini için hafif ve hızlıdır. Zaman kutulu oturumlar ve farklı kart desteleri desteklenir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://slack.com" target="_blank" rel="noopener">Slack</a></h3>
+          <p>Daily özetleri, olay takibi ve kararların izi için merkezî iletişim sağlar. Stand-up/retro botları ve uygulamalarla süreçleri otomatikleştirirsiniz.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Scrum Master alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.agilemastery.com/books/scrum-mastery" target="_blank" rel="noopener">Scrum Mastery: From Good to Great Servant-Leadership — Geoff Watts</a></h3>
+          <p>Hizmetkâr liderlik, koçluk ve kolaylaştırmayı pratik örneklerle derinleştirir.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/038534645X" target="_blank" rel="noopener">Scrum: The Art of Doing Twice the Work in Half the Time — Jeff Sutherland</a></h3>
+          <p>Scrum’ın kökeni, prensipleri ve gerçek dünyadan verimlilik vakalarını akıcı biçimde anlatır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0321637704" target="_blank" rel="noopener">Coaching Agile Teams — Lyssa Adkins</a></h3>
+          <p>Takım koçluğu, duruşlar (mentor/koç/eğitmen) ve zor konuşmalar için güçlü bir rehberdir.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
