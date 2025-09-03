@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kanban</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a; /* slate-900 */
+      --muted:#475569; /* slate-600 */
+      --card:#ffffff;
+      --border:#e2e8f0; /* slate-200 */
+      --accent:#1d4ed8; /* blue-700 */
+      --accent-soft:#eff6ff; /* blue-50 */
+      --code:#0b1020;
+    }
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      line-height:1.65;
+    }
+    .container{max-width:1000px; margin:0 auto; padding:48px 20px 80px}
+    header{position:sticky; top:0; backdrop-filter:saturate(180%) blur(6px); background:color-mix(in srgb, var(--bg) 92%, transparent); border-bottom:1px solid var(--border);}
+    header .wrap{max-width:1000px; margin:0 auto; display:flex; align-items:center; gap:12px; padding:14px 20px}
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--accent)}
+    h1{font-size:clamp(28px, 4vw, 40px); line-height:1.15; margin:24px 0 8px}
+    h2{font-size:clamp(22px, 3vw, 28px); margin:36px 0 12px; line-height:1.25}
+    h3{font-size:clamp(18px, 2.5vw, 22px); margin:28px 0 8px}
+    p{margin:12px 0}
+    .lead{font-size:1.15rem; color:var(--muted)}
+    .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 18px;}
+    .grid{display:grid; grid-template-columns: 1fr; gap:16px}
+    @media(min-width:900px){ .grid{grid-template-columns: 1fr 1fr}}
+    ul,ol{padding-left:1.15rem}
+    li{margin:6px 0}
+    .note{background:var(--accent-soft); border-left:4px solid var(--accent); padding:14px 16px; border-radius:10px;}
+    .formula{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background:#f8fafc; color:var(--code); border:1px dashed var(--border); border-radius:10px; padding:12px 14px; overflow:auto}
+    .toc{border:1px solid var(--border); border-radius:12px; padding:14px 16px; background:#fafafa}
+    .toc a{color:var(--muted); text-decoration:none}
+    .toc a:hover{color:var(--accent)}
+    a.anchor{color:inherit; text-decoration:none; position:relative}
+    a.anchor::after{content:"#"; opacity:0; position:absolute; left:-1.1em; color:var(--border)}
+    a.anchor:hover::after{opacity:1}
+    footer{margin-top:48px; padding-top:24px; border-top:1px solid var(--border); color:var(--muted); font-size:.95rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="dot" aria-hidden="true"></div>
+      <strong>Kanban</strong>
+      <span class="sep" style="color:var(--border);">•</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 id="kanban"><a class="anchor" href="#kanban">Kanban</a></h1>
+
+    <section>
+      <p><strong>Kanban (isim):</strong> görselleştirilmiş ve devam eden işin limitlendiği çekme sistemi kullanan bir süreç aracılığıyla değer akışını optimize etmeyi amaçlayan bir stratejidir.</p>
+      <p>Kanban tanımının merkezinde akış kavramı bulunmaktadır. Akış, ürün geliştirme süreci boyunca değerin hareketidir. Kanban, bir sürecin uçtan uca verimliliğini, etkililiğini ve öngörülebilirliğini artırarak akışı optimize eder.</p>
+    </section>
+
+    <section id="metrikler">
+      <h2><a class="anchor" href="#metrikler">Kanban kullananların izlemesi gereken 4 temel akış metriği aşağıdaki gibidir:</a></h2>
+      <ul>
+        <li><strong>Devam Eden İş (WIP ‐ Work in Progress):</strong> Başlatılan ancak bitmemiş (devam eden) iş sayısıdır. Takım, WIP’in azaltılmasına ve akışlarının iyileştirilmesine yönelik ilerlemelerinde şeffaflığı sağlamak için WIP metriğini kullanabilir.</li>
+        <li><strong>Döngü Süresi (Cycle Time):</strong> Bir iş öğesinin başlaması ile tamamlanması arasında geçen süredir.</li>
+        <li><strong>İş Öğesi Yaşı (Work Item Age):</strong> Bir iş öğesinin başlama zamanı ile şimdiki zaman arasındaki zaman miktarıdır. Bu yalnızca devam etmekte olan iş öğeleri için geçerlidir.</li>
+        <li><strong>İş Çıktısı Sayısı (Throughput):</strong> Birim zamanda tamamlanan iş öğesi sayısıdır.</li>
+      </ul>
+    </section>
+
+    <section id="little">
+      <h2><a class="anchor" href="#little">Little Yasası</a></h2>
+      <p>Akış teorisini yönetmenin kilit ilkesi olan Little Yasası, aşağıdaki ilişkiyi kuran bir rehberdir:</p>
+      <p class="formula">𝑜𝑟𝑡𝑎𝑙𝑎𝑚𝑎 𝐷ö𝑛𝑔ü 𝑆ü𝑟𝑒𝑠i = 𝑜𝑟𝑡𝑎𝑙𝑎𝑚𝑎 𝑊𝐼𝑃 / 𝑜𝑟𝑡𝑎𝑙𝑎𝑚𝑎 İş Ç𝚤𝑘𝑡𝚤𝑠𝚤 𝑆𝑎𝑦𝚤𝑠𝚤</p>
+      <p>Little Yasası, genel olarak, belirli bir iş çıktısı sayısına sahip bir süreç için, herhangi bir anda (ortalama olarak) ne kadar çok iş üzerinde çalışırsanız, bunları bitirmenin (ortalama olarak) o kadar uzun süreceğini ortaya koyar. Kanban’ın diğer unsurlarının çoğu, WIP ve Döngü Süresi arasındaki ilişki üzerine inşa edilmiştir.</p>
+    </section>
+
+    <section id="pratikler">
+      <h2><a class="anchor" href="#pratikler">Takımlar aşağıdaki, dört pratiği kullanarak akışı optimize edebilir:</a></h2>
+      <ul>
+        <li>İş Akışı’nı görselleştirme</li>
+        <li>WIP limitleme</li>
+        <li>Devam eden iş öğelerinin aktif yönetimi</li>
+        <li>Takımın İş Akışı Tanımı’nın gözlem ve adaptasyonu</li>
+      </ul>
+    </section>
+
+    <section id="gorsellestirme">
+      <h2><a class="anchor" href="#gorsellestirme">Görselleştirme ve Tahta</a></h2>
+      <p>Kanban tahtasını kullanarak görselleştirme, İş Akışı’nı şeffaf hale getirme yoludur. Tahta düzeni doğru zamanda doğru konuşmalara yönlendirmeli ve iyileşme önerilerini proaktif bir şekilde öneriyor olmalıdır. Görselleştirme aşağıdaki unsurları içermelidir:</p>
+      <ul>
+        <li>işin nerede başlayıp nerede bittiğini varsaydığını gösteren, tanımlı noktalar.</li>
+        <li>sisteminde akan iş öğelerinin (muhtemelen Product Backlog öğeleri) ‐ işin değerini oluşturan birimlerin (paydaş değeri, bilgi değeri, süreç geliştirme değeri) tanımı.</li>
+        <li>İş öğelerinin baştan sona doğru aktığı, iş akışı statülerinin bir tanımı (en az bir aktif iş statüsü olmalıdır).</li>
+        <li>Her iş statüsünde işin nasıl aktığına dair açık politikalar (Scrum Team’in Definition of Done’ından bazı kısımları ve aşamalar arasındaki çekme politikalarını içerebilir).</li>
+        <li>WIP limitleme politikaları.</li>
+      </ul>
+    </section>
+
+    <section id="wip">
+      <h2><a class="anchor" href="#wip">WIP Limitleme ve Çekme Sistemi</a></h2>
+      <p>WIP, Scrum Team’in çalışmaya başladığı ancak henüz bitirmediği iş öğelerini ifade eder. Kanban kullanan Scrum Takımları, bu devam eden iş öğelerinin sayısını açık bir şekilde limitlemelidir. Bir Scrum Team WIP’i nasıl uygun görüyorsa o şekilde limitleyebilir ancak limit koyduktan sonra buna uyması gerekir. WIP limitlemenin birincil etkisi, bir çekme sistemi oluşturmasıdır. Buna çekme sistemi denilmesinin nedeni, takımın net bir şekilde yalnızca işi yapabilecek kapasitesi olduğunda işi yapmaya başlamasıdır (yani çekmesi). WIP, tanımlanmış limitin altına düşmesi, yeni bir işe başlama işaretidir. Bu kısmın, bir işle ilgili talep ne zaman gelirse gelsin o işe başlanan itme sisteminden farklı olduğu unutulmamalıdır. WIP limitlemek; akışa yardımcı olduğu gibi, Scrum Team’in kendi kendini yönetebilmesini, odaklanmasını, taahhütte bulunmasını ve işbirliğini geliştirir.</p>
+    </section>
+
+    <section id="aktif-yonetim">
+      <h2><a class="anchor" href="#aktif-yonetim">Devam Eden İşlerin Aktif Yönetimi</a></h2>
+      <p>WIP limitlendirilmesi akışı sağlamak için gereklidir ancak tek başına yeterli değildir. Akışı sağlamak için üçüncü pratik ise devam eden işlerin aktif bir şekilde yönetilmesidir. Sprint içerisinde Scrum Team tarafından farklı şekillerde gerçekleştirilen bu yönetim, aşağıdaki maddeleri içerir ancak bunlarla kısıtlı kalmaz:</p>
+      <ul>
+        <li>İş Akışı’na çekilen iş öğelerinin İş Akışı’ndan çıkan iş öğeleri ile aynı oranda çekildiğinden emin olmak.</li>
+        <li>İş öğelerinin gereksiz bir şekilde yaşlanmaya bırakılmadığından emin olmak.</li>
+        <li>Takımın, kendisinden beklenen Döngü Süresi seviyelerini aşan iş öğelerine olduğu kadar, engellenmiş ya da sıraya girmiş iş öğelerine de hızlı bir şekilde cevap vermek (bkz. Hizmet Seviyesi Beklentisi ‐ SLE).</li>
+      </ul>
+    </section>
+
+    <section id="sle">
+      <h2><a class="anchor" href="#sle">Hizmet Seviyesi Beklentisi (SLE)</a></h2>
+      <p>Hizmet Seviyesi Beklentisi (SLE), bir Scrum Team’in bir iş öğesinin, İş Akışı’nın başlangıçtan bitişe kadar ne kadar sürebileceği konusundaki tahmindir. Scrum Team, aktif akış sorunlarını bulmak ve bu beklentilerin altına düşme durumlarını gözlemleyip adapte olabilmek için SLE’sini kullanır.</p>
+      <p>SLE’nin iki bölümü vardır: geçen gün süresi aralığı ve bu aralığa ilişkin olasılık (örneğin, iş öğelerinin %85’i sekiz gün veya daha kısa sürede tamamlanır). SLE, Scrum Team’in geçmiş Döngü Süresi’ne dayanmalıdır ve hesaplandıktan sonra şeffaf bir hale getirilmelidir. Geçmişe ait bir Döngü Süresi verisi yoksa, Scrum Team en iyi tahminini yapmalı, uygun bir SLE hesaplaması yapmak için yeterli veri oluştuğunda gözlem yapıp adapte olmalıdır.</p>
+    </section>
+
+    <footer>
+      <p>Kanban Kılavuzu</p>
+    </footer>
+  </main>
+</body>
+</html>
