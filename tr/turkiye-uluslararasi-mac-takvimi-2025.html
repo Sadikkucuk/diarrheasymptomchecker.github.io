@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2025’e Kadar Türk Takımlarının Uluslararası Maçları — Takvim (Beyaz Tema)</title>
+  <meta name="description" content="Türkiye milli takımları ve kulüplerin 2025 sonuna kadar uluslararası maçları için beyaz temalı takvim: tarih, saat (Europe/Istanbul), yayın kanalı, filtreler, CSV/ICS dışa aktarım ve veri yapıştırma alanı."/>
+  <style>
+    :root{
+      --bg:#ffffff; --ink:#0f172a; --muted:#6b7280; --bd:#e5e7eb; --brand:#2563eb; --soft:#f8fafc; --ok:#059669; --warn:#b45309;
+    }
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+    .wrap{max-width:1100px;margin:0 auto;padding:28px 16px}
+    header h1{font-size:clamp(26px,3.5vw,38px);line-height:1.2;margin:0 0 6px}
+    header p{margin:0 0 16px;color:var(--muted)}
+    .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--soft);border:1px solid var(--bd);padding:12px;border-radius:12px}
+    .bar label{font-size:13px;color:#374151}
+    .bar input,.bar select{border:1px solid var(--bd);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+    .bar .btn{border:1px solid var(--bd);border-radius:10px;padding:8px 10px;background:#fff;cursor:pointer}
+    .btn.brand{background:var(--brand);border-color:var(--brand);color:#fff}
+    .btn.ghost{background:#fff}
+    table{width:100%;border-collapse:separate;border-spacing:0;margin-top:14px}
+    thead th{position:sticky;top:0;background:#fff;border-bottom:2px solid var(--bd);text-align:left;padding:10px;font-size:13px;color:#334155}
+    tbody td{border-bottom:1px solid var(--bd);padding:12px 10px;vertical-align:top}
+    .muted{color:var(--muted)}
+    .tag{display:inline-block;border:1px solid var(--bd);background:#fff;border-radius:999px;padding:2px 8px;font-size:12px;margin:1px 4px 0 0}
+    .pill{display:inline-block;background:#eef2ff;color:#1e40af;border-radius:999px;padding:2px 8px;font-size:12px;margin:1px 6px 0 0}
+    .status{font-weight:600}
+    .status.upcoming{color:var(--ok)}
+    .status.live{color:#b91c1c}
+    .status.done{color:#64748b}
+    .note{border-left:4px solid var(--brand);background:#f1f5f9;padding:10px 12px;border-radius:10px;margin:12px 0}
+    details.editor{margin-top:16px;border:1px solid var(--bd);border-radius:12px}
+    details.editor summary{padding:10px 12px;font-weight:600;cursor:pointer}
+    .editor-wrap{padding:12px;border-top:1px solid var(--bd);display:grid;gap:10px}
+    textarea{width:100%;min-height:200px;border:1px solid var(--bd);border-radius:10px;padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace}
+    .help{font-size:13px;color:#374151}
+    .flex{display:flex;gap:8px;flex-wrap:wrap}
+    .right{margin-left:auto}
+    .empty{padding:14px;border:1px dashed var(--bd);border-radius:12px;text-align:center;color:#475569;background:#fafafa}
+    .foot{margin:22px 0;color:var(--muted);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>2025’e Kadar Türk Takımlarının Uluslararası Maçları</h1>
+      <p>Milli takımlar ve kulüpler • tüm sporlar • <strong>tarih</strong> • <strong>saat (Europe/Istanbul)</strong> • <strong>yayın kanalı</strong> • filtre + CSV/ICS dışa aktarım</p>
+      <div class="note">Bu sayfa <strong>beyaz temalı</strong> ve veri odaklıdır. Aşağıdaki <em>Veri Editörü</em> bölümüne maç listesini <strong>JSON veya CSV</strong> olarak yapıştırın; tablo otomatik güncellenir. Zaman bilgisi değişebileceğinden resmi kaynakları düzenli kontrol edin.</div>
+    </header>
+
+    <section class="bar" aria-label="Filtreler ve araçlar">
+      <label>Arama <input id="q" placeholder="Takım, organizasyon, kanal..."/></label>
+      <label>Spor <select id="sport"></select></label>
+      <label>Seviye <select id="level"></select></label>
+      <label>Tarih <input type="date" id="from"/> – <input type="date" id="to"/></label>
+      <button class="btn brand" id="export-ics">ICS İndir</button>
+      <button class="btn ghost" id="export-csv">CSV İndir</button>
+      <button class="btn ghost" id="print">Yazdır</button>
+      <span class="right muted" id="count"></span>
+    </section>
+
+    <div id="table-wrap"></div>
+
+    <details class="editor" open>
+      <summary>Veri Editörü (JSON veya CSV yapıştır → “Veriyi Uygula”)</summary>
+      <div class="editor-wrap">
+        <div class="help"><strong>Alanlar (JSON satırları):</strong> <code>start</code> (ISO, ör. 2025-11-23T20:00:00+03:00), <code>sport</code>, <code>level</code> (Milli/Kulüp), <code>competition</code>, <code>stage</code>, <code>home</code>, <code>away</code>, <code>venue</code>, <code>tv</code> (virgülle çoklu), <code>source</code>. Yalnız Türk takımların/NT’lerin <em>uluslararası</em> maçlarını ekleyin. <em>Son tarih filtrelemesi</em> 31 Aralık 2025’e kadar otomatik uygulanır.</div>
+        <textarea id="data-input" spellcheck="false"></textarea>
+        <div class="flex">
+          <button class="btn brand" id="apply">Veriyi Uygula</button>
+          <button class="btn ghost" id="load-demo">Örnek Veriyi Yükle</button>
+          <span class="muted" id="status"></span>
+        </div>
+        <div class="help">CSV başlık örneği: <code>start,sport,level,competition,stage,home,away,venue,tv,source</code></div>
+      </div>
+    </details>
+
+    <p class="foot">Zaman dilimi: Europe/Istanbul • Canlı/veri değişiklikleri için ilgili federasyon/organizasyon ve yayıncıların resmî duyurularını takip edin.</p>
+  </div>
+
+  <script>
+  // ============================
+  // Helpers
+  // ============================
+  const tz = 'Europe/Istanbul';
+  const trDT = (d)=> new Intl.DateTimeFormat('tr-TR', {timeZone: tz, weekday:'short', day:'2-digit', month:'short', year:'numeric'}).format(d);
+  const trTM = (d)=> new Intl.DateTimeFormat('tr-TR', {timeZone: tz, hour:'2-digit', minute:'2-digit'}).format(d);
+
+  const by = (sel)=> document.querySelector(sel);
+  const el = (tag, attrs={})=> { const n=document.createElement(tag); for(const k in attrs){ if(k==='text') n.textContent=attrs[k]; else n.setAttribute(k, attrs[k]); } return n; };
+
+  // ============================
+  // State
+  // ============================
+  let MATCHES = [];
+
+  // Demo seed (örnek; silinebilir)
+  const DEMO = [
+    {start:'2025-03-24T21:45:00+03:00', sport:'Futbol', level:'Milli', competition:'EURO Hazırlık', stage:'Hazırlık Maçı', home:'Türkiye', away:'TBA', venue:'TBA', tv:'TBA', source:'TFF/UEFA (örnek)'},
+    {start:'2025-09-17T22:00:00+03:00', sport:'Futbol', level:'Kulüp', competition:'UEFA Şampiyonlar Ligi', stage:'Grup A', home:'Galatasaray', away:'TBA', venue:'İstanbul', tv:'Exxen (TBA)', source:'UEFA (örnek)'},
+    {start:'2025-10-03T20:00:00+03:00', sport:'Basketbol', level:'Kulüp', competition:'EuroLeague', stage:'RS', home:'Fenerbahçe Beko', away:'TBA', venue:'İstanbul', tv:'S Sport (TBA)', source:'EuroLeague (örnek)'},
+    {start:'2025-05-12T19:30:00+03:00', sport:'Voleybol', level:'Kulüp', competition:'CEV Champions League', stage:'Play-off', home:'VakıfBank', away:'TBA', venue:'İstanbul', tv:'TRT Spor Yıldız (TBA)', source:'CEV (örnek)'},
+    {start:'2025-06-15T18:00:00+03:00', sport:'Basketbol', level:'Milli', competition:'FIBA Hazırlık', stage:'Friendly', home:'Türkiye', away:'TBA', venue:'Ankara', tv:'TBA', source:'TBF/FIBA (örnek)'}
+  ];
+
+  // ============================
+  // Parsing
+  // ============================
+  function parseInput(raw){
+    raw = raw.trim();
+    if(!raw) return [];
+    // Try JSON first
+    try{
+      const j = JSON.parse(raw);
+      if(Array.isArray(j)) return j.map(normalizeRow);
+    }catch(e){/* fallthrough to CSV */}
+
+    // CSV parsing (simple)
+    const lines = raw.split(/\r?\n/).filter(Boolean);
+    if(!lines.length) return [];
+    const head = lines[0].split(',').map(s=>s.trim());
+    const rows = lines.slice(1).map(line=>{
+      const parts = splitCSV(line);
+      const obj = {};
+      head.forEach((h,i)=> obj[h] = (parts[i]||'').trim());
+      return obj;
+    });
+    return rows.map(normalizeRow);
+  }
+
+  function splitCSV(line){
+    // basic CSV splitter supporting quoted commas
+    const out=[]; let cur=''; let q=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"') { q=!q; continue; }
+      if(c===',' && !q){ out.push(cur); cur=''; }
+      else cur+=c;
+    }
+    out.push(cur);
+    return out;
+  }
+
+  function normalizeRow(r){
+    const start = r.start || r.date || '';
+    const tv = Array.isArray(r.tv) ? r.tv.join(', ') : (r.tv||'').toString();
+    return {
+      start,
+      sport: r.sport||'',
+      level: r.level||'',
+      competition: r.competition||'',
+      stage: r.stage||'',
+      home: r.home||'',
+      away: r.away||'',
+      venue: r.venue||'',
+      tv: tv,
+      source: r.source||''
+    };
+  }
+
+  // ============================
+  // Rendering
+  // ============================
+  function render(){
+    const wrap = by('#table-wrap');
+    const q = by('#q').value.toLowerCase();
+    const sport = by('#sport').value;
+    const level = by('#level').value;
+    const from = by('#from').value ? new Date(by('#from').value+ 'T00:00:00') : null;
+    const to = by('#to').value ? new Date(by('#to').value+ 'T23:59:59') : new Date('2025-12-31T23:59:59');
+
+    const now = new Date();
+
+    const rows = MATCHES
+      .filter(m=> m.start && new Date(m.start) <= new Date('2025-12-31T23:59:59'))
+      .filter(m=> !q || [m.sport,m.level,m.competition,m.stage,m.home,m.away,m.venue,m.tv].join(' ').toLowerCase().includes(q))
+      .filter(m=> !sport || sport==='*' || m.sport===sport)
+      .filter(m=> !level || level==='*' || m.level===level)
+      .filter(m=> !from || new Date(m.start) >= from)
+      .filter(m=> !to || new Date(m.start) <= to)
+      .sort((a,b)=> new Date(a.start)-new Date(b.start));
+
+    by('#count').textContent = rows.length ? rows.length+ ' maç' : '';
+
+    if(!rows.length){ wrap.innerHTML = '<div class="empty">Listelenecek maç bulunamadı. Veri yapıştırın veya filtreleri temizleyin.</div>'; return; }
+
+    const table = ['<table aria-label="Maç Takvimi">',
+      '<thead><tr>',
+      '<th>Tarih</th>',
+      '<th>Saat</th>',
+      '<th>Spor</th>',
+      '<th>Seviye</th>',
+      '<th>Organizasyon</th>',
+      '<th>Maç</th>',
+      '<th>Şehir/Saha</th>',
+      '<th>Yayın</th>',
+      '</tr></thead><tbody>'
+    ];
+
+    for(const m of rows){
+      const d = new Date(m.start);
+      const status = statusOf(d, now);
+      const dateStr = trDT(d);
+      const timeStr = trTM(d);
+      const matchLabel = `${m.home || 'TBA'} vs ${m.away || 'TBA'}`;
+      const org = [m.competition, m.stage].filter(Boolean).join(' • ');
+      const tv = m.tv || 'TBA';
+      table.push('<tr>');
+      table.push(`<td>${dateStr} <div class="status ${status.cls}">${status.txt}</div></td>`);
+      table.push(`<td>${timeStr}</td>`);
+      table.push(`<td>${esc(m.sport)}</td>`);
+      table.push(`<td>${esc(m.level)}</td>`);
+      table.push(`<td>${esc(org)}</td>`);
+      table.push(`<td><strong>${esc(matchLabel)}</strong></td>`);
+      table.push(`<td>${esc(m.venue||'')}</td>`);
+      table.push(`<td>${esc(tv)}${m.source? `<div class="muted">Kaynak: ${esc(m.source)}</div>`:''}</td>`);
+      table.push('</tr>');
+    }
+
+    table.push('</tbody></table>');
+    wrap.innerHTML = table.join('');
+
+    // Populate filters from data
+    fillFilters(MATCHES);
+  }
+
+  function statusOf(d, now){
+    const diff = d - now;
+    if(Math.abs(diff) < 2*60*60*1000) return {txt:'CANLI / Yakında', cls:'live'}; // ±2 saat
+    if(diff > 0) return {txt:'Yaklaşan', cls:'upcoming'};
+    return {txt:'Tamamlandı', cls:'done'};
+  }
+
+  function esc(s){ return (s||'').toString().replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+  function fillFilters(data){
+    const sports = ['*', ...Array.from(new Set(data.map(x=>x.sport).filter(Boolean))).sort()];
+    const levels = ['*', ...Array.from(new Set(data.map(x=>x.level).filter(Boolean))).sort()];
+    const sSel = by('#sport');
+    const lSel = by('#level');
+    if(!sSel.dataset.filled){ sSel.innerHTML = sports.map(x=>`<option value="${x}">${x==='*'?'Tümü':x}</option>`).join(''); sSel.dataset.filled=1; }
+    if(!lSel.dataset.filled){ lSel.innerHTML = levels.map(x=>`<option value="${x}">${x==='*'?'Tümü':x}</option>`).join(''); lSel.dataset.filled=1; }
+  }
+
+  // ============================
+  // Exporters
+  // ============================
+  function toCSV(rows){
+    const head = ['start','sport','level','competition','stage','home','away','venue','tv','source'];
+    const escv = v=> '"'+ String(v??'').replace(/"/g,'""') +'"';
+    const lines = [head.join(',')];
+    for(const r of rows){
+      lines.push(head.map(h=> escv(r[h])).join(','));
+    }
+    return lines.join('\n');
+  }
+
+  function download(name, mime, text){
+    const blob = new Blob([text], {type: mime});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  }
+
+  function exportCSV(){
+    const rows = currentRows();
+    download('turk-maclar-2025.csv', 'text/csv;charset=utf-8', toCSV(rows));
+  }
+
+  function exportICS(){
+    const rows = currentRows();
+    const lines = [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TR Intl Matches//EN','CALSCALE:GREGORIAN'
+    ];
+    const pad = (n)=> String(n).padStart(2,'0');
+    for(const r of rows){
+      const d = new Date(r.start);
+      const dt = new Date(d.getTime() - d.getTimezoneOffset()*60000); // to UTC
+      const stamp = dt.getUTCFullYear()+pad(dt.getUTCMonth()+1)+pad(dt.getUTCDate())+'T'+pad(dt.getUTCHours())+pad(dt.getUTCMinutes())+'00Z';
+      const uid = 'm'+Math.random().toString(36).slice(2)+'@tr-intl';
+      const sum = `${r.home||'TBA'} vs ${r.away||'TBA'} — ${r.competition||''}`.trim();
+      const loc = r.venue||'';
+      const desc = `Spor: ${r.sport}\nSeviye: ${r.level}\nYayın: ${r.tv||'TBA'}\nKaynak: ${r.source||''}`;
+      lines.push('BEGIN:VEVENT');
+      lines.push('UID:'+uid);
+      lines.push('DTSTAMP:'+stamp);
+      lines.push('DTSTART:'+stamp);
+      lines.push('SUMMARY:'+escapeICS(sum));
+      if(loc) lines.push('LOCATION:'+escapeICS(loc));
+      lines.push('DESCRIPTION:'+escapeICS(desc));
+      lines.push('END:VEVENT');
+    }
+    lines.push('END:VCALENDAR');
+    download('turk-maclar-2025.ics', 'text/calendar;charset=utf-8', lines.join('\r\n'));
+  }
+
+  function escapeICS(s){
+    return String(s||'').replace(/[\\,;\n]/g, ch=>({"\\":"\\\\", ",":"\\,",";":"\\;","\n":"\\n"}[ch]));
+  }
+
+  function currentRows(){
+    // apply same filters as render()
+    const q = by('#q').value.toLowerCase();
+    const sport = by('#sport').value;
+    const level = by('#level').value;
+    const from = by('#from').value ? new Date(by('#from').value+ 'T00:00:00') : null;
+    const to = by('#to').value ? new Date(by('#to').value+ 'T23:59:59') : new Date('2025-12-31T23:59:59');
+    return MATCHES
+      .filter(m=> m.start && new Date(m.start) <= new Date('2025-12-31T23:59:59'))
+      .filter(m=> !q || [m.sport,m.level,m.competition,m.stage,m.home,m.away,m.venue,m.tv].join(' ').toLowerCase().includes(q))
+      .filter(m=> !sport || sport==='*' || m.sport===sport)
+      .filter(m=> !level || level==='*' || m.level===level)
+      .filter(m=> !from || new Date(m.start) >= from)
+      .filter(m=> !to || new Date(m.start) <= to)
+      .sort((a,b)=> new Date(a.start)-new Date(b.start));
+  }
+
+  // ============================
+  // Events
+  // ============================
+  by('#apply').addEventListener('click', ()=>{
+    const raw = by('#data-input').value;
+    try{
+      const arr = parseInput(raw);
+      if(!Array.isArray(arr)) throw new Error('Geçersiz veri');
+      MATCHES = arr;
+      by('#status').textContent = 'Veri yüklendi ('+MATCHES.length+' maç)';
+      // default dates: today .. 2025-12-31
+      const today = new Date();
+      by('#from').value = today.toISOString().slice(0,10);
+      by('#to').value = '2025-12-31';
+      // reset filter fill flags so new options appear
+      by('#sport').dataset.filled = '';
+      by('#level').dataset.filled = '';
+      render();
+    }catch(e){ by('#status').textContent = 'Hata: '+ e.message; }
+  });
+
+  by('#load-demo').addEventListener('click', ()=>{
+    by('#data-input').value = JSON.stringify(DEMO, null, 2);
+  });
+
+  ['#q','#sport','#level','#from','#to'].forEach(sel=>{
+    by(sel).addEventListener('input', render);
+    by(sel).addEventListener('change', render);
+  });
+
+  by('#export-csv').addEventListener('click', exportCSV);
+  by('#export-ics').addEventListener('click', exportICS);
+  by('#print').addEventListener('click', ()=> window.print());
+
+  // Initialize with demo (can be cleared)
+  by('#data-input').value = JSON.stringify(DEMO, null, 2);
+  by('#apply').click();
+  </script>
+</body>
+</html>
