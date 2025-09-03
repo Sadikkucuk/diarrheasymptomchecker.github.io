@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agile Manifesto — Beyaz Tema</title>
+  <meta name="description" content="Agile’ın 4 temel değeri ve 12 prensibi." />
+  <style>
+    :root{
+      --bg:#ffffff; --ink:#0f172a; --muted:#475569; --bd:#e5e7eb; --soft:#f8fafc; --brand:#2563eb; --brand-ink:#1e40af;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Sticky TOC */
+    nav.toc{position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid var(--bd);z-index:10}
+    nav.toc .inner{max-width:980px;margin:0 auto;display:flex;gap:10px;align-items:center;overflow:auto;padding:8px 16px}
+    nav.toc a{white-space:nowrap;border:1px solid var(--bd);border-radius:999px;padding:6px 10px;color:#1f2937;background:#fff}
+    nav.toc a.active{background:#eef2ff;border-color:#c7d2fe;color:var(--brand-ink)}
+
+    .wrap{max-width:980px;margin:0 auto;padding:28px 16px}
+    header.hero{padding:8px 0 8px}
+    .kicker{letter-spacing:.08em;text-transform:uppercase;color:var(--brand-ink);font-weight:700;font-size:12px}
+    h1{font-size:clamp(28px,4.2vw,44px);line-height:1.15;margin:.25rem 0 .5rem}
+    .lead{color:#334155;font-size:clamp(16px,2.2vw,20px)}
+    .note{border-left:4px solid var(--brand);background:var(--soft);padding:10px 12px;border-radius:10px;margin:14px 0}
+
+    section{padding:18px 0;border-bottom:1px solid var(--bd)}
+    section:last-of-type{border-bottom:none}
+    h2{font-size:clamp(22px,3.2vw,30px);line-height:1.25;margin:0 0 10px}
+
+    .values{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .v{border:1px solid var(--bd);border-radius:14px;padding:14px;background:#fff}
+    .v p{margin:.25rem 0}
+
+    ol.principles{counter-reset: pc;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    ol.principles li{border:1px solid var(--bd);border-radius:14px;padding:14px;background:#fff;position:relative}
+    ol.principles li::before{counter-increment: pc;content: counter(pc);position:absolute;top:10px;right:12px;color:#94a3b8;font-weight:700}
+
+    .foot{margin:22px 0 40px;color:var(--muted);font-size:13px}
+    .backtop{position:fixed;right:16px;bottom:16px;border-radius:999px;background:var(--brand);color:#fff;padding:10px 12px;border:none;box-shadow:0 6px 20px rgba(2,6,23,.15);cursor:pointer}
+  </style>
+</head>
+<body>
+  <nav class="toc" aria-label="İçindekiler">
+    <div class="inner" id="toc">
+      <a href="#degerler">Agile’ın 4 Temel Değeri</a>
+      <a href="#prensipler">Agile’ın 12 prensibi</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <div class="kicker">Beyaz Temalı Tek Sayfa</div>
+      <h1>Agile Manifesto</h1>
+      <p class="lead">Bu sayfa, <em>metne sadık kalarak</em> Agile’ın 4 temel değeri ve 12 prensibini yalın bir tasarımla sunar.</p>
+      <div class="note">Not: Aşağıdaki ifadeler, verilen metindeki biçim ve kelimeler korunarak yerleştirilmiştir.</div>
+    </header>
+
+    <section id="degerler">
+      <h2>Agile’ın 4 Temel Değeri:</h2>
+      <div class="values">
+        <div class="v"><p>Bireyler ve etkileşimler,<br/>süreçler ve araçlardan daha değerlidir.</p></div>
+        <div class="v"><p>Çalışan yazılım,<br/>kapsamlı dokümantasyondan daha değerlidir.</p></div>
+        <div class="v"><p>Müşteri ile işbirliği,<br/>sözleşme pazarlıklarından daha değerlidir.</p></div>
+        <div class="v"><p>Değişime karşılık vermek,<br/>bir plana bağlı kalmaktan daha değerlidir.</p></div>
+      </div>
+    </section>
+
+    <section id="prensipler">
+      <h2>Agile’ın 12 prensibi:</h2>
+      <ol class="principles">
+        <li><p>Müşteri memnuniyeti,<br/>değerli yazılımın erken ve sürekli teslimatıyla sağlanmalıdır.</p></li>
+        <li><p>Değişen gereksinimler,<br/>yazılım sürecinin son aşamalarında bile kabul edilmelidir.</p></li>
+        <li><p>Çalışan yazılım,<br/>birkaç hafta ya da ay içinde düzenli olarak sunulmalıdır.</p></li>
+        <li><p>İş süreçlerinin sahipleri ve yazılımcılar,<br/>proje boyunca her gün birlikte çalışmalıdır.</p></li>
+        <li><p>Motivasyonu yüksek bireyler,<br/>başarılı projelerin temelidir. Desteklenmeli ve güvenilmelidir.</p></li>
+        <li><p>Yüz yüze iletişim,<br/>bir takım içindeki en verimli bilgi alışverişi yöntemidir.</p></li>
+        <li><p>Çalışan yazılım,<br/>ilerlemenin en önemli ölçütüdür.</p></li>
+        <li><p>Sürdürülebilir geliştirme,<br/>sabit tempoyla uzun süre devam ettirilebilmelidir.</p></li>
+        <li><p>Teknik mükemmellik ve iyi tasarım,<br/>çevikliği artırır.</p></li>
+        <li><p>Sadelik,<br/>yapılmaması gereken işleri elimine etme sanatı önemlidir.</p></li>
+        <li><p>Kendi kendini örgütleyen takımlar,<br/>en iyi mimarileri ve tasarımları üretir.</p></li>
+        <li><p>Takım düzenli olarak,<br/>nasıl daha verimli olacağını düşünmeli ve kendini buna göre ayarlamalıdır.</p></li>
+      </ol>
+    </section>
+
+    <p class="foot">© 2025 — Agile Manifesto (beyaz tema).</p>
+  </div>
+
+  <button class="backtop" title="Başa dön" aria-label="Başa dön" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <script>
+    // Scroll sırasında TOC aktiflik durumu
+    const links=[...document.querySelectorAll('#toc a')];
+    const sections=links.map(a=>document.querySelector(a.getAttribute('href')));
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        const i=sections.indexOf(e.target);
+        if(i>=0){
+          if(e.isIntersecting){ links[i].classList.add('active'); }
+          else{ links[i].classList.remove('active'); }
+        }
+      });
+    },{rootMargin:'-45% 0px -50% 0px',threshold:[0,1]});
+    sections.forEach(s=> s && io.observe(s));
+  </script>
+</body>
+</html>
