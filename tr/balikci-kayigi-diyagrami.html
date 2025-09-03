@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ishikawa (Balık Kılçığı) Diyagramı — Kök Neden Analizi</title>
+  <style>
+    :root{
+      --bg:#ffffff; --fg:#0f172a; --muted:#475569; --border:#e2e8f0; --accent:#0ea5e9;
+    }
+    html,body{background:var(--bg); color:var(--fg); margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";}
+    .container{max-width:860px; margin:0 auto; padding:48px 20px 96px;}
+    header h1{font-size:2.2rem; line-height:1.2; margin:0 0 8px;}
+    header p.kicker{color:var(--muted); margin:0 0 24px; font-size:1rem;}
+    h2{font-size:1.5rem; margin:40px 0 12px}
+    h3{font-size:1.15rem; margin:28px 0 8px}
+    p{font-size:1.05rem; line-height:1.75; margin:12px 0}
+    ul,ol{padding-left:1.25rem}
+    li{margin:6px 0; line-height:1.7}
+    .callout{border-left:4px solid var(--accent); background:#f8fafc; padding:14px 14px 14px 16px; border-radius:8px;}
+    blockquote{margin:16px 0; padding:10px 16px; border-left:4px solid var(--border); color:var(--muted); background:#fbfdff; border-radius:6px}
+    .hr{height:1px; background:var(--border); margin:28px 0}
+    code.inline{background:#f1f5f9; padding:.1rem .35rem; border-radius:6px; font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.95em}
+    footer{margin-top:48px; color:var(--muted); font-size:.95rem}
+    .toc{border:1px solid var(--border); border-radius:10px; padding:12px 14px; background:#fff}
+    .toc a{color:var(--accent); text-decoration:none}
+    a.anchor{color:inherit; text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>Ishikawa (Balık Kılçığı / Neden–Sonuç) Diyagramı</h1>
+      <p class="kicker">Yazılım projelerinde kök neden analizi için görsel, sistematik bir yaklaşım</p>
+    </header>
+
+    <section class="callout">
+      <p><strong>Ishikawa diyagramı</strong> (balık kılçığı ya da <em>neden–sonuç diyagramı</em> olarak da bilinir), sorunların kök nedenlerini sistematik biçimde ortaya çıkarmak için tasarlanmış görsel bir haritalama aracıdır. 1960’larda <strong>Kaoru Ishikawa</strong> tarafından geliştirilmiş olup, özellikle <strong>Yalın</strong> ve <strong>Altı Sigma</strong> metodolojilerinde değer verilen, <strong>kalite yönetiminin</strong> temel yapıtaşlarından biridir.</p>
+      <p>Özünde diyagram bir balık iskeletine benzer: <em>sorun ifadesi</em> “baş”ı oluşturur; yanlara doğru uzanan ana “kılçıklar” ise olası nedenlerin başlıca <em>kategorilerini</em> temsil eder.</p>
+    </section>
+
+    <p>Yazılım geliştirmede, karmaşık sistemler ve izini sürmesi zor hataların günlük zorluk olduğu ortamlarda, Ishikawa (veya Balık Kılçığı) Diyagramı kök neden analizi için güçlü bir araç olarak öne çıkar.</p>
+
+    <h2 id="olusturma"><a class="anchor" href="#olusturma">Yazılıma Özgü Bir Balık Kılçığı Nasıl Oluşturulur?</a></h2>
+    <ol>
+      <li><strong>Etkiyi net tanımlayın.</strong> (Örn. sistem yavaşlamaları, sık çökme)</li>
+      <li><strong>Yazılım odaklı neden kategorilerini seçin.</strong> <em>İnsanlar, Süreç, Araçlar, Ortam, Yöntemler, Gereksinimler</em></li>
+      <li><strong>Alt nedenleri doldurun.</strong> Ekipçe yapılacak beyin fırtınasıyla; gerekirse <em>5 Neden</em> gibi tekniklerle derinleştirin.</li>
+      <li><strong>Analiz ve önceliklendirme yapın.</strong> En olası ve eyleme geçirilebilir nedenlere odaklanın.</li>
+    </ol>
+
+    <p>Daha geniş <strong>Agile</strong> ve kök neden analizi bağlamında, Ishikawa Diyagramı; <em>yakınsak gruplama (affinity diagram)</em> ya da <em>5 Neden</em> gibi teknikleri <strong>tamamlar</strong> ve özellikle <strong>retrospektif</strong> veya <strong>post‑mortem</strong> oturumlarında etkisini gösterir.</p>
+
+    <p>Sadece sorun çözmenin ötesinde, yazılımda balık kılçığı diyagramları <strong>kolektif düşünmeyi</strong> teşvik eder, <strong>fonksiyonlar arası</strong> bakışları hizalar ve ekibin yalnızca görünen belirtileri değil, <strong>doğru sorunları</strong> çözmesine odaklanmasını sağlar.</p>
+
+    <div class="hr"></div>
+
+    <h2 id="bes-neden"><a class="anchor" href="#bes-neden">5 Neden (Five Whys) Tekniği</a></h2>
+    <p>Olası nedenler haritalandıktan sonra, daha derine inmek için çoğu zaman <strong>5 Neden</strong> tekniği uygulanır. Bu yöntem, kök nedene ulaşana kadar “<em>Neden?</em>” sorusunu tekrar tekrar sormayı içerir — mutlaka beş kez olmak zorunda değildir. Amaç, belirtilerin ötesine geçip sorunun <strong>asıl kaynağını</strong> açığa çıkarmaktır.</p>
+
+    <h3>Örnek</h3>
+    <blockquote>
+      <p><strong>Sorun:</strong> Araç çalışmıyor.</p>
+      <p><strong>Neden?</strong> Akü bitmiş.</p>
+      <p><strong>Neden?</strong> Alternatör çalışmıyor.</p>
+      <p><strong>Neden?</strong> Alternatör kayışı kopmuş.</p>
+      <p><strong>Neden?</strong> Kayış kullanım ömrünü fazlasıyla aşmış ve değiştirilmemiş.</p>
+      <p><strong>Neden?</strong> Araç önerilen bakım takvimine göre bakıma sokulmamış.</p>
+    </blockquote>
+    <p>Burada beşinci “Neden”, bizi kök nedene götürür: <strong>zayıf bakım uygulamaları</strong>.</p>
+
+    <div class="hr"></div>
+
+    <h2 id="birlikte-guc"><a class="anchor" href="#birlikte-guc">Balık Kılçığı + 5 Neden: Birlikte Daha Güçlü</a></h2>
+    <p>Birlikte ele alındığında, <strong>Balık Kılçığı Diyagramı</strong> ve <strong>5 Neden</strong> etkili bir kök neden analizi için <em>basit ama yapılandırılmış</em> bir çerçeve sunar. Diyagram, olası nedenlere dair bakış açısını <strong>genişletir</strong>; yinelemeli sorgulama ise odağı <strong>temel meseleye</strong> indirger. Bu kombinasyon, ekiplerin yalnızca yüzeydeki belirtileri onarmasını değil, <strong>tekrarını azaltacak</strong> şekilde derindeki problemi ele almasını sağlar.</p>
+
+    <footer>
+      <p>2025 • Ishikawa Diyagramı (Balık Kılçığı)</p>
+    </footer>
+  </main>
+</body>
+</html>
