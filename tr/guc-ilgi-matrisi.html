@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Power/Interest Grid (Güç/İlgi Matrisi)</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #0f172a; /* slate-900 */
+      --muted: #475569; /* slate-600 */
+      --border: #e2e8f0; /* slate-200 */
+      --card: #ffffff;
+      --accent: #2563eb; /* blue-600 */
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; line-height: 1.6; }
+    .container { max-width: 980px; margin: 0 auto; padding: 32px 20px 80px; }
+    header.hero { padding: 24px 0 12px; }
+    h1 { font-size: clamp(28px, 3.5vw, 40px); margin: 0 0 8px; letter-spacing: -0.02em; }
+    p.lead { font-size: clamp(16px, 2vw, 18px); color: var(--muted); margin: 0 0 24px; }
+    section { margin: 36px 0; }
+    h2 { font-size: clamp(22px, 2.6vw, 28px); margin: 4px 0 12px; letter-spacing: -0.01em; }
+    h3 { font-size: 18px; margin: 18px 0 8px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 1px 0 rgba(15,23,42,.03); }
+    ul { padding-left: 20px; }
+    .grid { display: grid; gap: 16px; }
+    .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 720px){ .cols-2 { grid-template-columns: 1fr; } }
+
+    /* 2x2 matris görseli */
+    .matrix { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 12px; margin-top: 16px; }
+    .quad { border: 1px solid var(--border); border-radius: 14px; padding: 16px; background: #fff; }
+    .quad h4 { margin: 0 0 8px; font-size: 16px; color: var(--accent); }
+    .axis { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); margin-top: 8px; }
+    .axis .tag { border: 1px solid var(--border); padding: 4px 8px; border-radius: 999px; background: #fff; }
+    .legend { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .badge { font-size: 12px; background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; padding: 4px 8px; border-radius: 999px; }
+    .muted { color: var(--muted); }
+    footer { margin-top: 40px; font-size: 13px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <h1>Power/Interest Grid (Güç/İlgi Matrisi)</h1>
+      <p class="lead">Güç/İlgi Matrisi, paydaşları haritalamak ve anlamak için iki temel boyutu dikkate alan pratik bir araçtır: yetki veya etki düzeyleri (<strong>güç</strong>) ve proje ya da ürüne yönelik ilgi veya katılım dereceleri (<strong>ilgi</strong>).</p>
+    </header>
+
+    <section class="card">
+      <h2>Dört Çeyrek ve Yaklaşımlar</h2>
+      <div class="matrix">
+        <div class="quad">
+          <h4>Yüksek Güç & Yüksek İlgi — <em>Yakından Yönetin</em></h4>
+          <p>Bu paydaşlar en kritik gruptur. Sonuçları şekillendirme yetenekleri vardır ve sonuca derinden önem verirler; bu nedenle yakın ve proaktif yönetim gerektirirler.</p>
+        </div>
+        <div class="quad">
+          <h4>Yüksek Güç & Düşük İlgi — <em>Memnun Tutun</em></h4>
+          <p>Etkiye sahiptirler ancak ayrıntılara güçlü bir yatırım göstermeyebilirler. Amaç, onları aşırı yüklemeden memnun tutmaktır.</p>
+        </div>
+        <div class="quad">
+          <h4>Düşük Güç & Yüksek İlgi — <em>Bilgilendirin</em></h4>
+          <p>Karar verme gücü sınırlıdır ancak projenin başarısına güçlü biçimde yatırım yapmışlardır. Bilgilendirilmeli ve angaje tutulmalıdırlar; destekleri benimsemeyi ve motivasyonu artırır.</p>
+        </div>
+        <div class="quad">
+          <h4>Düşük Güç & Düşük İlgi — <em>İzleyin</em></h4>
+          <p>Etkileri ve sonuçlara yönelik ilgileri düşüktür. Beklenmedik sorunlar doğmaması için temel düzeyde izleme yeterlidir.</p>
+        </div>
+      </div>
+      <div class="axis">
+        <span class="tag">Düşük Güç</span>
+        <span class="tag">Yüksek Güç</span>
+      </div>
+      <div class="axis" style="justify-content:center; gap:16px;">
+        <span class="muted">← Düşük İlgi</span>
+        <span class="muted">Yüksek İlgi →</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Proje Yaklaşımlarında Kullanım</h2>
+      <p>Geleneksel proje yönetiminde (<strong>PMBOK</strong> ve <strong>BABOK</strong>), matris; iletişimi ve paydaş katılımını önceliklendirmek için yapılandırılmış bir yöntem sunar. <em>Çevik</em> bir ortamda ise paydaş haritaları ve <em>persona</em> gibi araçlarla birlikte kullanılarak, ekiplerin paydaşların hem etkisine hem de ilgisine uyumlu iş birliği ve iletişim stratejileri tasarlamasına yardımcı olur.</p>
+      <p>Güç/İlgi Matrisini uygulayarak proje ekipleri, enerjiyi yanlış paydaşlara harcamaktan kaçınır ve en etkili ile en ilgili tarafların girişim boyunca etkin biçimde angaje edilmesini sağlar.</p>
+      <p>Paydaşların matriste nereye düştüğünü anlayarak, zamanınızı ve katılım stratejilerinizi daha etkili biçimde tahsis edebilirsiniz. Bu erken adım, proje başarısına zemin hazırlayan iş analizi faaliyetlerini şekillendirmek için esastır.</p>
+    </section>
+
+    <section class="card">
+      <h2>Matristen Paydaş Kaydına</h2>
+      <p>Paydaşlar matrise yerleştirildikten sonra bir sonraki adım, bir <strong>paydaş kaydı</strong> oluşturmaktır — bir öncelik sütunu içeren sıralı liste. Her çeyreğin iletişim stratejisi, kayıttaki ilgili paydaş için etiket haline gelir:</p>
+      <div class="legend">
+        <span class="badge">Memnun Tutun</span>
+        <span class="badge">Yakından Yönetin</span>
+        <span class="badge">Bilgilendirin</span>
+        <span class="badge">İzleyin</span>
+      </div>
+      <p>Bu etiketler, <strong>iletişim yönetim planınızın</strong> temelini oluşturur ve ardından daha geniş <strong>proje yönetim planınıza</strong> entegre edilir.</p>
+    </section>
+
+    <footer>
+      <p>Power/Interest Grid</p>
+    </footer>
+  </main>
+</body>
+</html>
