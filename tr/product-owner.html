@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Owner: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Product Owner (PO) nedir, hangi araçları kullanır ve hangi kaynaklardan beslenir? Kısa tanım, araçlar ve kitap önerileriyle beyaz temalı rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#0ea5e9;
+      --accent-ink:#075985;
+      --ring: rgba(14,165,233,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .subtle{color:var(--muted)}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.2);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .note{
+      padding:12px 14px;border:1px dashed var(--line);border-radius:12px;background:#fafafa;color:var(--muted);
+    }
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+    .pill{display:inline-block;font-size:.78rem;color:#065f46;background:#ecfdf5;border:1px solid #d1fae5;border-radius:999px;padding:.2rem .5rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Ürün Yönetimi</span>
+      <h1>Product Owner: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">PO rolünün öz tanımı, günlük hayatta kullanılan araçlar ve mutlaka okunması gereken kitaplar — hepsi tek bir beyaz temalı sayfada.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Product Owner (PO) nedir? (3–5 cümle)</h2>
+      <p>Product Owner, ürünün iş değerini maksimize etmekten sorumlu kişidir; müşteri ihtiyaçlarını, iş hedeflerini ve teknik kısıtları dengeleyerek net bir ürün yönü belirler. Backlog’u tanımlar, önceliklendirir ve her bir öğenin kabul kriterlerini netleştirir. Paydaşlarla (müşteri, iş birimleri, tasarım, mühendislik) sürekli iletişim kurar; keşif (discovery) ile teslimatı (delivery) birbirine bağlar. Başarıyı iş hedefleri/OKR’ler ve kullanıcı etkisi gibi ölçütlerle izler, gerektiğinde yol haritasını günceller.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Product Owner’ların sık kullandığı araçlar</h2>
+
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener">Jira Software</a></h3>
+          <p>Scrum/Kanban tahtaları, backlog yönetimi ve sprint planlama için endüstri standardıdır. Geliştirme araçlarıyla (Git, CI/CD) güçlü entegrasyon sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira/product-discovery" target="_blank" rel="noopener">Jira Product Discovery</a></h3>
+          <p>Fikir toplama, etki/efor puanlama ve hipotez bazlı önceliklendirme yapmanızı sağlar. Keşiften teslimata Jira Software ile uçtan uca bağ kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener">Confluence</a></h3>
+          <p>PRD, keşif notları, karar kayıtları ve kabul kriterleri gibi belgeleri tek yerde tutar. Sayfa şablonları ve yorumlama akışlarıyla ekip içi hizalanmayı artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/devops" target="_blank" rel="noopener">Azure DevOps (Boards)</a></h3>
+          <p>Work item, sprint ve roadmap görünüşleriyle kurumsal ölçekli planlama yapar. Azure Repos/Pipelines ile tam ALM zinciri oluşturur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://trello.com" target="_blank" rel="noopener">Trello</a></h3>
+          <p>Basit kart/tahta yapısıyla hızlı planlama ve durum takibi için idealdir. Butler otomasyonlarıyla tekrarlı işleri azaltır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://asana.com" target="_blank" rel="noopener">Asana</a></h3>
+          <p>Yol haritaları, görev bağımlılıkları ve portföy görünümüyle iş akışını görünür kılar. Formlar ve kurallar ile iş taleplerini standardize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://clickup.com" target="_blank" rel="noopener">ClickUp</a></h3>
+          <p>Görevler, dokümanlar, hedefler (Goals) ve zaman takibini tek platformda birleştirir. Özelleştirilebilir görünümlerle PO’ların farklı paydaşlara uygun rapor üretmesini sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.notion.so" target="_blank" rel="noopener">Notion</a></h3>
+          <p>PRD, karar kayıtları, gereksinim tabloları ve bilgi tabanı için esnek bir alan sunar. Veritabanı görünümleri ve ilişkilendirmelerle hafif bir ürün portalı kurulur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://miro.com" target="_blank" rel="noopener">Miro</a></h3>
+          <p>Kullanıcı yolculukları, etki haritaları ve story-mapping gibi görsel çalıştaylar için mükemmeldir. Eşzamanlı ortak çalışma ve çok sayıda şablon sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.figma.com/figjam/" target="_blank" rel="noopener">FigJam</a></h3>
+          <p>Hafif beyaz tahta deneyimiyle akış diyagramları ve beyin fırtınasını hızlandırır. Figma ile tasarım çıktılarıyla yakın çalışmayı kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.productboard.com" target="_blank" rel="noopener">Productboard</a></h3>
+          <p>Geri bildirim konsolidasyonu, skorlamalı önceliklendirme ve net bir ürün yol haritası sunar. Segment/Intercom gibi araçlarla müşteri sesi entegrasyonuna odaklanır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.aha.io/roadmaps" target="_blank" rel="noopener">Aha! Roadmaps</a></h3>
+          <p>Strateji, hedef, girişim ve özellik hiyerarşisiyle üst seviye ürün planlamasını yönetir. Zaman çizelgesi, kapasite ve bağımlılık görünümleriyle karar şeffaflığı sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://airfocus.com" target="_blank" rel="noopener">airfocus</a></h3>
+          <p>Puanlama matrisleri ve özelleştirilebilir roadmap’lerle önceliklendirme disiplinini güçlendirir. Geri bildirim modülüyle “müşteri sesi → backlog” akışını kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://roadmunk.com" target="_blank" rel="noopener">Roadmunk</a></h3>
+          <p>Paydaşlara özel görünümler (timeline, swimlane) ile anlatımı sadeleştirir. Farklı girişim/tema düzeylerinde hiyerarşik roadmap’ler oluşturur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://slack.com" target="_blank" rel="noopener">Slack</a></h3>
+          <p>Ekip iletişimi, kararların kaydı ve olay takibi için merkezî kanallar sağlar. Bot/uygulamalar ile çalışma akışlarını olay bazlı tetikleyebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.microsoft.com/microsoft-teams/" target="_blank" rel="noopener">Microsoft Teams</a></h3>
+          <p>Kurumsal iletişim, toplantı ve belge paylaşımını tek yerde toplar. Planner/Lists ile hafif görev ve istek takibi yapılabilir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.loom.com" target="_blank" rel="noopener">Loom</a></h3>
+          <p>Asenkron ürün güncellemeleri ve demo/geri bildirim döngüleri için hızlı ekran kaydı sunar. Paydaşlarla zaman kaybetmeden bağlam aktarımı sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.typeform.com" target="_blank" rel="noopener">Typeform</a></h3>
+          <p>Kullanıcı araştırmaları ve talep toplama formları için yüksek yanıt oranı odaklıdır. Webhook/entegrasyonlarla geri bildirimleri backlog’a bağlayabilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.hotjar.com" target="_blank" rel="noopener">Hotjar</a></h3>
+          <p>Isı haritaları, oturum kayıtları ve anketler ile kullanım problemlerini görünür kılar. Kalitatif içgörüleri hipotez ve deneylere dönüştürmeyi hızlandırır.</p>
+        </article>
+      </div>
+
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: PO alanında en iyi 3 İngilizce kitap</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.informit.com/store/professional-product-owner-leveraging-scrum-as-a-competitive-9780134686471" target="_blank" rel="noopener">The Professional Product Owner: Leveraging Scrum as a Competitive Advantage — Don McGreal &amp; Ralph Jocham</a></h3>
+          <p>Scrum’daki PO rolünü stratejiden backlog icrasına dek sistematik ve pratik bir dille anlatır.</p>
+          <span class="pill">PO · Scrum</span>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/1491904909" target="_blank" rel="noopener">User Story Mapping: Discover the Whole Story, Build the Right Product — Jeff Patton</a></h3>
+          <p>Story mapping yaklaşımıyla kullanıcı değerine odaklı kapsam yönetimi ve keşif sürecini derinlemesine işler.</p>
+          <span class="pill">Discovery · Story Mapping</span>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.romanpichler.com/books/agile-product-management-with-scrum/" target="_blank" rel="noopener">Agile Product Management with Scrum: Creating Products that Customers Love — Roman Pichler</a></h3>
+          <p>Ürün vizyonu, roadmap, önceliklendirme ve serbest bırakım planlarını PO perspektifinden adım adım ele alır.</p>
+          <span class="pill">Roadmap · Önceliklendirme</span>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
