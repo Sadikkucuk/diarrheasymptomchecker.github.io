@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Scrum Guide</title>
+  <meta name="description" content="Scrum’ın Tanımı, Teori, Değerler, Scrum Team, Etkinlikler ve Eserler" />
+  <style>
+    :root{--bg:#ffffff;--ink:#0f172a;--muted:#475569;--bd:#e5e7eb;--soft:#f8fafc;--brand:#2563eb;--brand-ink:#1e40af}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Inter,Helvetica,Arial}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    /* Sticky TOC */
+    nav.toc{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid var(--bd);z-index:10}
+    nav.toc .inner{max-width:1000px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow:auto;padding:8px 16px}
+    nav.toc a{white-space:nowrap;border:1px solid var(--bd);border-radius:999px;padding:6px 10px;color:#1f2937;background:#fff}
+    nav.toc a.active{background:#eef2ff;border-color:#c7d2fe;color:var(--brand-ink)}
+
+    .wrap{max-width:1000px;margin:0 auto;padding:28px 16px}
+    header.hero{padding:10px 0}
+    .kicker{letter-spacing:.08em;text-transform:uppercase;color:var(--brand-ink);font-weight:700;font-size:12px}
+    h1{font-size:clamp(28px,4.2vw,44px);line-height:1.15;margin:.25rem 0 .5rem}
+    .lead{color:#334155;font-size:clamp(16px,2.2vw,20px)}
+    .note{border-left:4px solid var(--brand);background:var(--soft);padding:10px 12px;border-radius:10px;margin:14px 0}
+
+    section{padding:18px 0;border-bottom:1px solid var(--bd)}
+    section:last-of-type{border-bottom:none}
+    h2{font-size:clamp(22px,3.2vw,30px);line-height:1.25;margin:0 0 10px}
+    h3{font-size:clamp(18px,2.6vw,22px);margin:6px 0}
+
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .card{border:1px solid var(--bd);border-radius:14px;padding:14px;background:#fff}
+
+    ol.num, ul.bul{margin:.25rem 0 .5rem 1.25rem}
+    li{margin:.25rem 0}
+
+    .foot{margin:22px 0 40px;color:var(--muted);font-size:13px}
+    .backtop{position:fixed;right:16px;bottom:16px;border-radius:999px;background:var(--brand);color:#fff;padding:10px 12px;border:none;box-shadow:0 6px 20px rgba(2,6,23,.15);cursor:pointer}
+  </style>
+</head>
+<body>
+  <nav class="toc" aria-label="İçindekiler">
+    <div class="inner" id="toc">
+      <a href="#scrum-tanimi">Scrum’ın Tanımı</a>
+      <a href="#scrum-teorisi">Scrum Teorisi</a>
+      <a href="#scrum-degerleri">Scrum Değerleri</a>
+      <a href="#scrum-team">Scrum Team</a>
+      <a href="#developers">Developers</a>
+      <a href="#product-owner">Product Owner</a>
+      <a href="#scrum-master">Scrum Master</a>
+      <a href="#scrum-etkinlikleri">Scrum Etkinlikleri</a>
+      <a href="#sprint">Sprint</a>
+      <a href="#sprint-planning">Sprint Planning</a>
+      <a href="#daily-scrum">Daily Scrum</a>
+      <a href="#sprint-review">Sprint Review</a>
+      <a href="#sprint-retrospective">Sprint Retrospective</a>
+      <a href="#scrum-eserleri">Scrum Eserleri</a>
+      <a href="#product-backlog">Product Backlog</a>
+      <a href="#sprint-backlog">Sprint Backlog</a>
+      <a href="#increment">Increment</a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <h1>Scrum Guide</h1>
+      <p class="lead">Aşağıda Scrum’ın tanımı, teorisi, değerleri, roller, etkinlikler ve eserler sunulmuştur.</p>
+    </header>
+
+    <section id="scrum-tanimi">
+      <h2>Scrum’ın Tanımı</h2>
+      <p>Scrum, insanların, takımların ve organizasyonların karmaşık problemler için adapte edilebilir çözümler aracılığıyla değer üretmesine yardımcı olan basit bir çerçevedir.</p>
+      <p>Kısaca,</p>
+      <ol class="num">
+        <li>Bir Product Owner’ın karmaşık bir sorun için Product Backlog’daki işleri sıraladığı,</li>
+        <li>Scrum Team’in, seçilen işleri Sprint boyunca bir değer Increment’ine çevirdiği,</li>
+        <li>Scrum Team ve paydaşların sonuçları inceleyip ve bir sonraki Sprint için düzeltme yaptığı,</li>
+        <li>Ve bunları tekrarladığı</li>
+      </ol>
+      <p>bir ortamı yaşatmak için bir Scrum Master gereklidir.</p>
+    </section>
+
+    <section id="scrum-teorisi">
+      <h2>Scrum Teorisi</h2>
+      <p>Scrum, deneysellik ve yalın düşünce üzerine kurulmuştur. Deneysellik, bilginin deneyimden ve gözleme dayalı karar vermekten geldiğini ileri sürer. Yalın düşünce israfı azaltır ve temel unsurlara odaklanır.</p>
+      <p>Scrum, öngörülebilirliği en iyi seviyeye çıkarmak ve riski kontrol etmek için yinelemeli (iterative) ve artımlı (incremental) bir yaklaşım kullanır.</p>
+      <p>Scrum’ın 5 etkinliği ve 3 eseri vardır.</p>
+      <p>Bu etkinlikler, Scrum’ın deneyselliğinin taşıyıcı kolonları olan şeffaflık, gözlem ve adaptasyonu uyguladığı için işe yarar.</p>
+      <h3>Şeffaflık</h3>
+      <p>Ortaya çıkan süreç ve iş, işi yapanların yanısıra işten yararlananlara da görünür olmalıdır. Şeffaflık gözlemi mümkün kılar.</p>
+      <h3>Gözlem</h3>
+      <p>Scrum eserleri ve üzerinde anlaşılan hedeflere yönelik ilerleme, potansiyel olarak istenmeyen sapmalar veya sorunları tespit etmek için sık sık ve özenle incelenmelidir.</p>
+      <p>Gözlem adaptasyonu mümkün kılar.</p>
+      <h3>Adaptasyon</h3>
+      <p>Bir sürecin herhangi bir yönü, kabul edilebilir sınırların dışına çıkarsa veya sürecin sonunda çıkan ürün kabul edilemez ise, uygulanan süreç veya üretilmekte olan şeyler düzeltilmelidir.</p>
+    </section>
+
+    <section id="scrum-degerleri">
+      <h2>Scrum Değerleri</h2>
+      <p>Scrum’ın başarıyla uygulanması insanların aşağıdaki beş değeri ustalıkla yaşatma becerisine bağlıdır:</p>
+      <p><strong>Taahhüt, Odak, Açıklık, Saygı ve Cesaret</strong></p>
+      <p>Scrum Team, hedeflerine ulaşmayı ve birbirini desteklemeyi taahhüt eder. Scrum Team’in birincil odak noktası, hedeflerine doğru mümkün olan en iyi ilerlemeyi sağlamak için o Sprint’te aldıkları işlerdir. Scrum Team ve paydaşları yapılacak işler ve bu işleri yaparken karşılaşılan zorluklar hakkında açıktır. Scrum Team’in her bir üyesi diğer üyelere yetkin ve bağımsız insanlar olarak saygı duyar ve çalıştıkları insanlar tarafından da bu şekilde saygı görür. Scrum Team’in üyeleri, doğru olanı yapma, zor problemler üzerinde çalışma cesaretine sahiptir.</p>
+      <p>Bu değerler Scrum Takımı ve birlikte çalıştıkları kişiler tarafından içselleştirildiğinde, Scrum’ın deneyselliğinin taşıyıcı kolonları olan şeffaflık, gözlem ve adaptasyon canlanarak herkes için güven oluşturur.</p>
+    </section>
+
+    <section id="scrum-team">
+      <h2>Scrum Team</h2>
+      <p>Scrum Team, Scrum’ın küçük bir gruptan oluşan en temel birimidir. Scrum Team, bir Scrum Master, bir Product Owner ve Developers’dan oluşur. Scrum Team’de alt takımlar veya hiyerarşiler yoktur. Her seferinde tek bir hedefe, Ürün Hedefi’ne (Product Goal) odaklanan kaynaşmış profesyonellerden oluşan bir birimdir.</p>
+      <p>Scrum Teamler çapraz fonksiyoneldir, yani üyeler her Sprint’te değer yaratmak için gerekli tüm becerilere sahiptir. Aynı zamanda kendi kendilerini yönetirler, yani kimin neyi, ne zaman ve nasıl yapacağına kendileri karar verirler. Scrum Team, hızlı davranabilecek kadar küçük ve bir Sprint içinde anlamlı bir işi tamamlayacak kadar büyüktür, tipik olarak 10 veya daha az kişidir. Scrum Teamler çok büyürse, her biri aynı ürüne odaklanan birden fazla kaynaşmış Scrum Team olarak yeniden düzenlenmeyi düşünmelidirler. Bu nedenle, aynı Ürün Hedefi’ni, Product Backlog’u ve Product Owner’ı paylaşmaları gerekir. Scrum Team, paydaşlarla iş birliği, doğrulama, bakım, çalıştırma, deney, araştırma ve geliştirme ve gerekli olabilecek diğer şeyler gibi ürünle ilgili tüm faaliyetlerden sorumludur.</p>
+    </section>
+
+    <section id="developers">
+      <h2>Developers</h2>
+      <p>Developers, Scrum Team’de her Sprint’te kullanılabilir bir Increment’in herhangi bir kısmını oluşturmayı taahhüt etmiş kişilerdir.</p>
+      <p>Bununla birlikte aşağıdaki sorumluluklar her zaman Developers’tadır:</p>
+      <ul class="bul">
+        <li>● Sprint Backlog, yani Sprint için bir plan oluşturmak;</li>
+        <li>● Bir Bitti Tanımı’na bağlı kalarak kaliteyi aşılamak;</li>
+        <li>● Planlarını her gün Sprint Hedefi’ne göre adapte etmek;</li>
+        <li>● Birbirlerini profesyoneller olarak sorumlu tutmak.</li>
+      </ul>
+    </section>
+
+    <section id="product-owner">
+      <h2>Product Owner</h2>
+      <p>Product Owner, Scrum Team’in çalışması sonucu oluşan ürünün değerini en üst seviyeye çıkarmaktan sorumludur.</p>
+      <p>Product Owner, aynı zamanda Product Backlog’u etkili bir şekilde yönetmekle sorumludur, şunları içerir:</p>
+      <ul class="bul">
+        <li>● Ürün Hedefi’ni oluşturmak ve açıkça iletişimini yapmak;</li>
+        <li>● Product Backlog maddelerini oluşturmak ve açıkça iletişimini yapmak;</li>
+        <li>● Product Backlog maddelerini sıralamak;</li>
+        <li>● Product Backlog’un görünür, şeffaf ve anlaşılır olmasını sağlamak</li>
+      </ul>
+    </section>
+
+    <section id="scrum-master">
+      <h2>Scrum Master</h2>
+      <p>Scrum Master, Scrum Kılavuzu’nda tanımlandığı gibi Scrum’ın benimsenmesinden sorumludur. Scrum Master, Scrum Team’e aşağıdaki hususları içerecek şekilde farklı yollarla hizmet eder:</p>
+      <ul class="bul">
+        <li>● Takım üyelerine kendini yönetme ve çapraz fonksiyonluluk konularında koçluk yapmak;</li>
+        <li>● Scrum Team’in Bitti Tanımı’na uyan yüksek değerli Incrementler oluşturmaya odaklanmasına yardımcı olmak;</li>
+        <li>● Scrum Team’in ilerlemesinin önündeki engellerin kaldırılmasını sağlamak ve,</li>
+        <li>● Tüm Scrum etkinliklerinin gerçekleşmesini ve bunların pozitif, üretken olmasını ve zaman sınırları içinde tutulmasını sağlamak.</li>
+      </ul>
+      <p>Scrum Master, Product Owner’a aşağıdaki hususları içerecek şekilde farklı yollarla hizmet eder: ● Etkili Ürün Hedefi tanımı ve Product Backlog yönetimi için teknikler bulmaya yardımcı olmak; ● Scrum Team’in anlaşılır ve kısa Product Backlog maddelerine olan ihtiyacı anlamasına yardımcı olmak;</p>
+      <p>● Karmaşık bir ortamda deneysel ürün planlaması yapmaya yardımcı olmak ve,</p>
+      <p>● İstenildiğinde veya gerektiğinde paydaş iş birliğini kolaylaştırmak.</p>
+      <p>Scrum Master, organizasyona aşağıdaki hususları içerecek şekilde farklı yollarla hizmet eder:</p>
+      <ul class="bul">
+        <li>● Organizasyona Scrum’ın benimsenmesinde liderlik etmek, koçluk yapmak ve organizasyonu eğitmek;</li>
+        <li>● Organizasyon içinde Scrum uygulamalarını tavsiye etmek ve planlamak;</li>
+        <li>● Çalışanların ve paydaşların karmaşık işler için deneysel bir yaklaşımı anlamasına ve uygulamaya koymasına yardımcı olmak ve,</li>
+        <li>● Paydaşlar ve Scrum Teamler arasındaki bariyerleri kaldırmak.</li>
+      </ul>
+    </section>
+
+    <section id="scrum-etkinlikleri">
+      <h2>Scrum Etkinlikleri</h2>
+    </section>
+
+    <section id="sprint">
+      <h3>Sprint</h3>
+      <p>Sprintler, fikirlerin değere dönüştürüldüğü Scrum’ın kalp atışı olan etkinliklerdir.</p>
+      <p>Tutarlılık yaratmak üzere Sprintler sabit sürelidir, bu süre bir ay ya da daha az olabilir. Önceki Sprint biter bitmez yeni Sprint başlar. Sprint Planning, Daily Scrumlar, Sprint Review ve Sprint Retrospective de dahil olmak üzere Ürün Hedefi’ni yakalamak için gerekli olan tüm işler, Sprintler içinde gerçekleşir.</p>
+      <p>Sprint boyunca:</p>
+      <ul class="bul">
+        <li>• Sprint Hedefi’ni tehlikeye sokacak hiçbir değişiklik yapılmaz;</li>
+        <li>• Kalite hedefleri düşmez;</li>
+        <li>• Product Backlog gerektikçe iyileştirilir (refinement); ve</li>
+        <li>• Daha fazla bilgi edindikçe Product Owner ile kapsam netleştirilebilir ve yeniden müzakere edilebilir.</li>
+      </ul>
+      <p>İlerleyişi öngörmek için aşağı‐tüketim (burn‐down), yukarı‐tüketim (burn‐up) veya kümülatif akış (cumulative flow) gibi çeşitli pratikler bulunmaktadır. Bir Sprint, Sprint Hedefi anlamını kaybettiğinde iptal edilebilir. Sadece Product Owner Sprint’i iptal etme yetkisine sahiptir.</p>
+    </section>
+
+    <section id="sprint-planning">
+      <h3>Sprint Planning</h3>
+      <p>Sprint Planning, o Sprint içinde yapılacak işin planlandığı, Sprint’i başlatan aktivitedir. Bu plan, tüm Scrum Team’in iş birliği ile hazırlanır.</p>
+      <p>Product Owner, katılımcıların en önemli Product Backlog maddelerini ve onların Ürün Hedefi ile ilişkisini tartışmaya hazırlanmış olarak geldiğinden emin olur. Scrum Team, tavsiye alabilmek amacıyla Sprint Planning’e başka kişileri de davet edebilir.</p>
+      <p>Sprint Planning şu konuları adresler:</p>
+      <p>Birinci Konu: Bu Sprint Neden Değerlidir? Sprint Hedefi, Sprint Planlama bitmeden önce kesinleşmelidir.</p>
+      <p>İkinci Konu: Bu Sprint’te ne tamamlanabilir? Developers, Product Owner ile görüşerek Product Backlog’dan bu Sprint’e dahil edebilecekleri maddeleri seçer.</p>
+      <p>Üçüncü Konu: Seçilen iş nasıl yapılacak? Bitti Tanımı’na uygun bir Increment yaratabilmek için, Developers seçilen her bir Product Backlog maddesi için yapılması gereken işi planlar. Sprint Hedefi, Sprint’e seçilen Product Backlog maddeleri ve bu maddeleri teslim etme planı hep birlikte Sprint Backlog olarak anılır.</p>
+      <p>Sprint Planning, bir aylık Sprint için maksimum 8 saatle sınırlıdır.</p>
+    </section>
+
+    <section id="daily-scrum">
+      <h3>Daily Scrum</h3>
+      <p>Daily Scrum’ın amacı Sprint Hedefi’ne doğru ilerlemeyi gözden geçirmek ve planlanmış işleri gereken şekilde düzenleyerek Sprint Backlog’da adaptasyon yapmaktır.</p>
+      <p>Daily Scrum, Scrum Team’deki Developers için olan 15 dakikalık bir etkinliktir. Karmaşıklığı azaltmak için Sprint boyunca her çalışma gününde aynı yer ve zamanda düzenlenir.</p>
+    </section>
+
+    <section id="sprint-review">
+      <h3>Sprint Review</h3>
+      <p>Sprint Review’ın amacı Sprint’in çıktısını gözden geçirmek ve gelecek adaptasyonları belirlemektir. Scrum Team yaptıkları işin sonuçlarını tüm paydaşlara sunar ve Ürün Hedefi’ne doğru ilerleme durumu görüşülür.</p>
+      <p>Sprint Review, Sprint’teki sondan ikinci etkinliktir ve bir aylık Sprint için maksimum 4 saat ile sınırlıdır.</p>
+    </section>
+
+    <section id="sprint-retrospective">
+      <h3>Sprint Retrospective</h3>
+      <p>Sprint Retrospective’in amacı kaliteyi ve etkililiği artırmanın yollarını planlamaktır.</p>
+      <p>Scrum Team geçen Sprint’i, bireyler, etkileşimler, süreçler, araçlar ve Bitti Tanımı açısından gözden geçirir. Sprint, Sprint Retrospective ile birlikte sona erer. Bir aylık Sprint için maksimum 3 saat ile sınırlıdır.</p>
+    </section>
+
+    <section id="scrum-eserleri">
+      <h2>Scrum Eserleri</h2>
+      <p>Scrum’ın eserleri yapılan işi ya da üretilen değeri temsil eder. Kilit bilgilerin şeffaflığını en üst seviyeye yükseltecek şekilde tasarlanmıştır. Bu sayede onları gözden geçiren herkes, adaptasyon yapabilmek için aynı temele sahip olacaktır.</p>
+      <p>Her bir eser, ilerlemeyi ölçmek, şeffaflığı ve odaklanmayı artırdığından emin olmak için birer taahhüt içerir:</p>
+      <ul class="bul">
+        <li>● Product Backlog için bu, Ürün Hedefi’dir.</li>
+        <li>● Sprint Backlog için bu, Sprint Hedefi’dir.</li>
+        <li>● Increment için bu, Bitti Tanımı’dır.</li>
+      </ul>
+      <p>Bu taahhütler, Scrum Team ve paydaşlar için deneyselliği ve Scrum değerlerini güçlendirmek için mevcuttur.</p>
+    </section>
+
+    <section id="product-backlog">
+      <h3>Product Backlog</h3>
+      <p>Product Backlog, ürünü geliştirmek için nelere ihtiyaç duyulduğunun sıralı ve yaşayan bir listesidir. Scrum takımı tarafından üstlenilen işlerin tek kaynağıdır.</p>
+      <h3>Taahhüt: Ürün Hedefi</h3>
+      <p>Ürün Hedefi, Scrum Team’in ulaşmayı planladığı, ürünün gelecekteki bir durumunu tanımlayan hedef olarak Scrum Team’e hizmet eder. Ürün Hedefi, Product Backlog içerisinde yer alır. Product Backlog’un geri kalanı, Ürün Hedefi’ni yerine getirmek için gerekli “ne” yapılacağını tanımlamak için ihtiyaç oldukça şekillenir.</p>
+    </section>
+
+    <section id="sprint-backlog">
+      <h3>Sprint Backlog</h3>
+      <p>Sprint Backlog, Sprint Hedefi (neden), Sprint için seçilen Product Backlog maddeleri (ne) ve Increment’i ortaya çıkarabilmek için eyleme geçirilebilir bir plandan (nasıl) oluşur. Sprint Backlog, Developers tarafından, Developers için hazırlanan bir plandır.</p>
+      <h3>Taahhüt: Sprint Hedefi</h3>
+      <p>Sprint Hedefi, Sprint için tek hedeftir. Sprint Goal, Developers’ın bir taahhüdü olmasına rağmen, bunu başarmak için gereken iş açısından esneklik sağlar.</p>
+    </section>
+
+    <section id="increment">
+      <h3>Increment</h3>
+      <p>Increment, Product Hedefi’ne doğru atılan somut bir adımdır. Her Increment, önceki Incrementlerin üzerine eklenir ve tüm Incrementlerin birlikte çalışmalarını temin edecek şekilde tamamen doğrulanır. Değer sağlamak için Increment kullanılabilir olmalıdır. Bir Sprint içinde birden fazla Increment oluşturulabilir.</p>
+      <h3>Taahhüt: Bitti Tanımı</h3>
+      <p>Bitti Tanımı, Increment’in ürün için gerekli kalite gereksinimlerini sağladığı halinin resmi bir tanımıdır. Bir Product Backlog maddesi Bitti Tanımı’nı karşıladığı anda Increment doğar. Bitti Tanımı, Increment’in parçası olarak hangi işlerin tamamlandığına dair herkes için ortak bir anlayış sağlayarak şeffaflık yaratır. Bir Product Backlog maddesi Bitti Tanımı’nı karşılamıyorsa, kullanıma alınamaz ve hatta Sprint Review’da sunulamaz. Bunun yerine, ileride değerlendirilmek üzere Product Backlog’a geri döner.</p>
+    </section>
+
+    <section id="scrum-son">
+      <p>Scrum</p>
+      <p>İş Analizi</p>
+    </section>
+
+    <p class="foot">2025 — Scrum Guide</p>
+  </div>
+
+  <button class="backtop" title="Başa dön" aria-label="Başa dön" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <script>
+    // Scroll sırasında TOC aktiflik durumu
+    const links=[...document.querySelectorAll('#toc a')];
+    const sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        const i=sections.indexOf(e.target);
+        if(i>=0){
+          if(e.isIntersecting){ links[i].classList.add('active'); }
+          else{ links[i].classList.remove('active'); }
+        }
+      });
+    },{rootMargin:'-45% 0px -50% 0px',threshold:[0,1]});
+    sections.forEach(s=> io.observe(s));
+  </script>
+</body>
+</html>
