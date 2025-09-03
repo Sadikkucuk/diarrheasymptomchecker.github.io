@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yapay Zekâ Terimleri Sözlüğü (AI Glossary)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a; /* slate-900 */
+      --muted:#475569; /* slate-600 */
+      --card:#f8fafc; /* slate-50 */
+      --line:#e2e8f0; /* slate-200 */
+      --accent:#0ea5e9; /* sky-500 */
+    }
+    html,body{background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,Apple Color Emoji,Segoe UI Emoji;line-height:1.65}
+    .wrap{max-width:1000px;margin:0 auto;padding:32px 20px}
+    header{margin-bottom:24px}
+    h1{font-size:clamp(1.8rem,3.6vw,2.6rem);line-height:1.2;margin:0 0 6px}
+    .lead{color:var(--muted);font-size:clamp(1rem,2.2vw,1.1rem);margin:0 0 18px}
+    .toc{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px 16px;margin:14px 0 24px}
+    .toc strong{display:block;margin-bottom:6px}
+    .toc a{display:inline-block;margin:4px 10px 4px 0;color:var(--accent);text-decoration:none}
+    .toc a:hover{text-decoration:underline}
+    section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
+    h2{font-size:1.3rem;margin:0 0 10px}
+    .term{padding:14px 14px;border:1px solid var(--line);background:var(--card);border-radius:12px;margin:12px 0}
+    .term h3{margin:0 0 6px;font-size:1.05rem}
+    .note{font-size:.95rem;color:var(--muted)}
+    code{background:#f1f5f9;padding:1px 6px;border-radius:6px}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(1,minmax(0,1fr))}
+    @media (min-width:800px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    footer{border-top:1px solid var(--line);margin-top:28px;padding-top:18px;color:var(--muted);font-size:.95rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Yapay Zekâ Terimleri Sözlüğü</h1>
+      <p class="lead">Önümüzdeki birkaç yıl içinde bir yapay zekâ (AI) projesinde çalışıyor olma ihtimaliniz epey yüksek. Bu yüzden bazı temel kavramları bilmek iyi olur. Aşağıda, Türkçe açıklamalarla birlikte terimlerin İngilizce adlarını parantez içinde bulacaksınız.</p>
+      <div class="toc" aria-label="İçindekiler">
+        <strong>İçindekiler</strong>
+        <a href="#ai">Yapay Zekâ (AI)</a>
+        <a href="#human-intel">İnsan Zekâsı</a>
+        <a href="#computer-intel">Bilgisayar Zekâsı</a>
+        <a href="#strong-ai">Güçlü AI</a>
+        <a href="#weak-ai">Zayıf AI</a>
+        <a href="#gps">Genel Problem Çözücü</a>
+        <a href="#pssh">Fiziksel Sembol Sistemi</a>
+        <a href="#chinese-room">Çin Odası</a>
+        <a href="#gofai">GOFAI</a>
+        <a href="#expert-systems">Uzman Sistemler</a>
+        <a href="#predictive-ai">Öngörücü AI</a>
+        <a href="#generative-ai">Üretken AI</a>
+        <a href="#ml">Makine Öğrenmesi</a>
+        <a href="#anns">Yapay Sinir Ağları</a>
+        <a href="#supervised">Denetimli</a>
+        <a href="#unsupervised">Denetimsiz</a>
+        <a href="#rl">Pekiştirmeli</a>
+        <a href="#clustering">Kümeleme</a>
+        <a href="#classification">Sınıflandırma</a>
+        <a href="#knn">KNN</a>
+        <a href="#kmeans">K‑Means</a>
+        <a href="#regression">Regresyon</a>
+        <a href="#naive-bayes">Naive Bayes</a>
+        <a href="#ensemble">Topluluk Modellemesi</a>
+        <a href="#q-learning">Q‑Learning</a>
+        <a href="#bias-variance">Sapma‑Varyans Dengesi</a>
+        <a href="#underfit">Eksik Öğrenme</a>
+        <a href="#overfit">Aşırı Öğrenme</a>
+        <a href="#robotics">Robotik</a>
+        <a href="#nlp">Doğal Dil İşleme</a>
+        <a href="#iot">Nesnelerin İnterneti</a>
+        <a href="#labeled">Etiketli Veri</a>
+        <a href="#unlabeled">Etiketsiz Veri</a>
+        <a href="#ssl">Özdenetimli Öğrenme</a>
+        <a href="#foundation">Temel Modeller</a>
+        <a href="#llm">Büyük Dil Modelleri</a>
+        <a href="#diffusion">Difüzyon Modelleri</a>
+        <a href="#gan">GAN</a>
+        <a href="#vae">VAE</a>
+        <a href="#transformers">Transformerlar</a>
+      </div>
+    </header>
+
+    <main>
+      <section id="ai" class="term">
+        <h3>Yapay Zekâ (Artificial Intelligence, <abbr title="Artificial Intelligence">AI</abbr>)</h3>
+        <p>Makineler tarafından insan zekâsının simülasyonu; insan benzeri davranış olarak yorumlanabilecek performans sergileyen sistemler.</p>
+      </section>
+
+      <section id="human-intel" class="term">
+        <h3>İnsan Zekâsı (Human Intelligence)</h3>
+        <p>Sanatsal, matematiksel, dilsel gibi çeşitli zekâ biçimleri; bilgisayarların birebir kopyalayamadığı yetenekler bütünü.</p>
+      </section>
+
+      <section id="computer-intel" class="term">
+        <h3>Bilgisayar Zekâsı (Computer Intelligence)</h3>
+        <p>Bilgisayarların desen tanıma, kural tabanlı akıl yürütme ve iyi tanımlı yapıları olan görevlerde gösterdiği üstün performans.</p>
+      </section>
+
+      <section id="strong-ai" class="term">
+        <h3>Güçlü Yapay Zekâ (Strong AI)</h3>
+        <p>Bir kişinin duygularını, yaratıcılığını, mizahını ve amaçlarını barındıran tam teşekküllü zihin gibi davranan AI; günümüzde <em>bilim kurgu</em> düzeyinde varsayım.</p>
+      </section>
+
+      <section id="weak-ai" class="term">
+        <h3>Zayıf Yapay Zekâ (Weak AI)</h3>
+        <p>Dar görev odaklı AI; örneğin Siri gibi sanal asistanlar veya tek amaca yönelik sistemler.</p>
+      </section>
+
+      <section id="gps" class="term">
+        <h3>Genel Problem Çözücü (General Problem Solver)</h3>
+        <p>Alan Newell ve Herbert Simon tarafından 1956’da geliştirilen, sembol manipülasyonu ile problem çözmeyi simüle eden program.</p>
+      </section>
+
+      <section id="pssh" class="term">
+        <h3>Fiziksel Sembol Sistemi Hipotezi (Physical Symbol System Hypothesis)</h3>
+        <p>Zekânın, sembolleri ve aralarındaki ilişkileri manipüle etme yeteneğinden doğduğunu ileri süren görüş.</p>
+      </section>
+
+      <section id="chinese-room" class="term">
+        <h3>Çin Odası Argümanı (Chinese Room Argument)</h3>
+        <p>Filozof John Searle’ın, salt sembol manipülasyonunun gerçek anlama karşılık gelmediğini savunan eleştirisi.</p>
+      </section>
+
+      <section id="gofai" class="term">
+        <h3>Eski Usul Yapay Zekâ (GOFAI — Good Old‑Fashioned AI)</h3>
+        <p>Açıkça yazılmış kurallara dayanan sembolik, kural tabanlı AI sistemleri.</p>
+      </section>
+
+      <section id="expert-systems" class="term">
+        <h3>Uzman Sistemler (Expert Systems)</h3>
+        <p>İnsan uzmanların bilgisini <code>if/then</code> kurallarıyla kodlayarak belirli bir alandaki problemleri çözen AI sistemleri.</p>
+      </section>
+
+      <section id="predictive-ai" class="term">
+        <h3>Öngörücü Yapay Zekâ (Predictive AI)</h3>
+        <p>Verileri analiz ederek sonuçları tahmin eden sistemler; arama sonuçları, öneriler ve reklam hedefleme gibi.</p>
+      </section>
+
+      <section id="generative-ai" class="term">
+        <h3>Üretken Yapay Zekâ (Generative AI)</h3>
+        <p>Geniş veri kümelerinden öğrenerek yeni veri/içerik üreten AI; örn. ChatGPT, DALL·E.</p>
+      </section>
+
+      <section id="ml" class="term">
+        <h3>Makine Öğrenmesi (Machine Learning, ML)</h3>
+        <p>Makinelere, açıkça programlamadan ziyade, veriden desen öğrenmeyi öğretme yöntemi.</p>
+      </section>
+
+      <section id="anns" class="term">
+        <h3>Yapay Sinir Ağları (Artificial Neural Networks, ANNs)</h3>
+        <p>Girdi–gizli–çıktı katmanlarından oluşan, beyinden esinlenen öğrenme yapıları.</p>
+      </section>
+
+      <section id="supervised" class="term">
+        <h3>Denetimli Öğrenme (Supervised Learning)</h3>
+        <p>Etiketli veriyle eğitim; bir öğretmenin doğru yanıtları vermesine benzer şekilde yönlendirilir.</p>
+      </section>
+
+      <section id="unsupervised" class="term">
+        <h3>Denetimsiz Öğrenme (Unsupervised Learning)</h3>
+        <p>Etiketsiz veriden gizli kümeleri/desenleri keşfetmeye odaklanan öğrenme.</p>
+      </section>
+
+      <section id="rl" class="term">
+        <h3>Pekiştirmeli Öğrenme (Reinforcement Learning)</h3>
+        <p>Ödül ve cezalara dayalı deneme–yanılma ile en iyi davranışları öğrenme yaklaşımı.</p>
+      </section>
+
+      <section id="clustering" class="term">
+        <h3>Kümeleme (Clustering)</h3>
+        <p>Önceden etiketlenmemiş veriyi benzerliklerine göre gruplama; müşteri segmentasyonu gibi alanlarda kullanılır.</p>
+      </section>
+
+      <section id="classification" class="term">
+        <h3>Sınıflandırma (Classification)</h3>
+        <p>Etiketli veriyi kullanarak örnekleri önceden tanımlı kategorilere atama.</p>
+      </section>
+
+      <section id="knn" class="term">
+        <h3>K‑En Yakın Komşu (K‑Nearest Neighbor, KNN)</h3>
+        <p>Bir örneği, en yakın komşularının çoğunluk sınıfına göre etiketleyen denetimli algoritma.</p>
+      </section>
+
+      <section id="kmeans" class="term">
+        <h3>K‑Ortalama Kümeleme (K‑Means Clustering)</h3>
+        <p>Veriyi, merkezlere (centroid) olan uzaklıkları minimize edecek şekilde K kümeye ayıran denetimsiz algoritma.</p>
+      </section>
+
+      <section id="regression" class="term">
+        <h3>Regresyon Analizi (Regression Analysis)</h3>
+        <p>Değişkenler arası ilişkileri modelleyen ve eğilim/tahmin üreten denetimli öğrenme yaklaşımı.</p>
+      </section>
+
+      <section id="naive-bayes" class="term">
+        <h3>Naif Bayes (Naive Bayes)</h3>
+        <p>Özelliklerin birbirinden bağımsız olduğu varsayımıyla Bayes teoremini kullanan sınıflandırma algoritmaları ailesi.</p>
+      </section>
+
+      <section id="ensemble" class="term">
+        <h3>Topluluk Modellemesi (Ensemble Modeling)</h3>
+        <p>Birden çok modeli (bagging, stacking, boosting) birleştirerek tahmin doğruluğunu artırma yöntemi.</p>
+      </section>
+
+      <section id="q-learning" class="term">
+        <h3>Q‑Öğrenme (Q‑Learning)</h3>
+        <p>Ajanın, biriktirilen ödülü (Q değerleri) maksimize edecek eylem–durum stratejisini öğrenmesi.</p>
+      </section>
+
+      <section id="bias-variance" class="term">
+        <h3>Sapma‑Varyans Dengesi (Bias‑Variance Tradeoff)</h3>
+        <p>Sistematik hata (sapma) ile tahminlerin saçılması (varyans) arasındaki denge.</p>
+      </section>
+
+      <section id="underfit" class="term">
+        <h3>Eksik Öğrenme (Underfitting)</h3>
+        <p>Modelin çok basit kalıp verinin karmaşıklığını yakalayamaması.</p>
+      </section>
+
+      <section id="overfit" class="term">
+        <h3>Aşırı Öğrenme (Overfitting)</h3>
+        <p>Modelin eğitimi ezberleyip genelleme yapamaması; eğitimde iyi, gerçek dünyada zayıf performans.</p>
+      </section>
+
+      <section id="robotics" class="term">
+        <h3>Robotik (Robotics)</h3>
+        <p>AI’nin fiziksel görevlerde robotlar aracılığıyla uygulanması; endüstriyel otomasyondan otonom araçlara.</p>
+      </section>
+
+      <section id="nlp" class="term">
+        <h3>Doğal Dil İşleme (Natural Language Processing, NLP)</h3>
+        <p>Makinelerin insan dilini anlamasını ve işlemesini sağlayan AI dalı.</p>
+      </section>
+
+      <section id="iot" class="term">
+        <h3>Nesnelerin İnterneti (Internet of Things, IoT)</h3>
+        <p>Veri toplayan ve paylaşan bağlı cihazlar ağı; sıklıkla AI ile birlikte çalışır.</p>
+      </section>
+
+      <section id="labeled" class="term">
+        <h3>Etiketli Veri (Labeled Data)</h3>
+        <p>Doğru yanıt/etiket eklenmiş veri (örn. “kedi”/“köpek” etiketli görseller); denetimli modellerin eğitiminde kullanılır.</p>
+      </section>
+
+      <section id="unlabeled" class="term">
+        <h3>Etiketsiz Veri (Unlabeled Data)</h3>
+        <p>Etiketlenmemiş ham veri; desen çıkarımı için denetimsiz ya da özdenetimli yöntemler gerektirir.</p>
+      </section>
+
+      <section id="ssl" class="term">
+        <h3>Özdenetimli Öğrenme (Self‑Supervised Learning)</h3>
+        <p>Modelin, etiketsiz veriden kendi etiketini üretmesi; örn. cümledeki eksik kelimeyi tahmin ederek öğrenme.</p>
+      </section>
+
+      <section id="foundation" class="term">
+        <h3>Temel Modeller (Foundation Models)</h3>
+        <p>Çok büyük ve çeşitli veri kümeleriyle eğitilmiş, birçok farklı göreve uyarlanabilen (fine‑tune) devasa AI modelleri. Örnekler: GPT, BERT, CLIP.</p>
+      </section>
+
+      <section id="llm" class="term">
+        <h3>Büyük Dil Modeli (LLM — Large Language Model)</h3>
+        <p>Metin üzerinde uzmanlaşmış bir temel model türü; geniş metin derlemeleriyle eğitilip insan benzeri dil anlama/üretme kapasitesi kazanır (ör. GPT‑4, Claude, LLaMA).</p>
+      </section>
+
+      <section id="diffusion" class="term">
+        <h3>Görsel Difüzyon Modelleri (Image Diffusion Models)</h3>
+        <p>Rastgele gürültüyü kademeli olarak giderip tutarlı görüntüler üreterek öğrenen üretken modeller (örn. Stable Diffusion, DALL·E 2).</p>
+      </section>
+
+      <section id="gan" class="term">
+        <h3>Üretici Çekişmeli Ağ (GAN — Generative Adversarial Network)</h3>
+        <p>Üretici ve ayrıştırıcı iki ağın rekabetiyle gerçekçiliği artan üretken model ailesi.</p>
+      </section>
+
+      <section id="vae" class="term">
+        <h3>Değişken Otomatik Kodlayıcı (VAE — Variational Autoencoder)</h3>
+        <p>Veriyi gizil (latent) uzaya sıkıştırıp yeniden oluşturarak girişe benzer yeni örnekler üretebilen üretken model.</p>
+      </section>
+
+      <section id="transformers" class="term">
+        <h3>Transformer Mimarisi (Transformers)</h3>
+        <p>Öz‑dikkat (self‑attention) mekanizmasına dayalı sinir ağı mimarisi; dizilerde uzun menzilli bağımlılıkları yakalar ve modern LLM’lerin temelini oluşturur.</p>
+      </section>
+    </main>
+
+    <footer>
+    </footer>
+  </div>
+</body>
+</html>
