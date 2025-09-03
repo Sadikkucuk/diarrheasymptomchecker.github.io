@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Agile Coach: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Agile Coach nedir, hangi araçları kullanır ve hangi kitapları okumalı? Beyaz temalı, sade bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#0ea5e9;
+      --accent-ink:#075985;
+      --ring: rgba(14,165,233,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Agile</span>
+      <h1>Agile Coach: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Kısa tanım, araçlar ve üç temel kitapla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Agile Coach nedir?</h2>
+      <p>Agile Coach, ekipleri ve liderleri çevik ilkelerle uyumlandırıp iş değeri akışını hızlandıran değişim kolaylaştırıcısıdır. Takım ve organizasyon seviyesinde süreç tasarımı, metrikler, koçluk ve eğitimle sürekli iyileştirme kültürünü besler. Çatışma çözme, kolaylaştırıcılık ve deney tasarımı (experimentation) becerileriyle ürün keşfini ve teslimatını birbirine bağlar. Ölçekli çerçevelerde (SAFe, LeSS, Scrum@Scale) hizalanma ve bağımlılık yönetimini görünür kılar.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Agile Coach’ların sık kullandığı araçlar</h2>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener">Jira Software</a></h3>
+          <p>Scrum/Kanban tahtaları, burndown/velocity gibi raporlarla akışı ve darboğazları görünür kılar. Otomasyonlar ve entegrasyonlarla ekip çalışma disiplinini standardize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira/align" target="_blank" rel="noopener">Jira Align</a></h3>
+          <p>Strateji→portföy→program→ekip hizalanmasını tek çatı altında toplar. OKR, bağımlılık ve kapasite görünürlükleriyle ölçekli çeviklikte karar almayı hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/devops" target="_blank" rel="noopener">Azure DevOps (Boards)</a></h3>
+          <p>Work item, sprint ve delivery pipeline sonuçlarını tek akışta birleştirir. Akış metrikleri ve geriye dönük raporlar koçluk görüşmelerine veri sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://miro.com" target="_blank" rel="noopener">Miro</a></h3>
+          <p>Story mapping, impact mapping, retro ve discovery workshop’ları için gerçek zamanlı beyaz tahta sunar. Zengin şablon kütüphanesi ve oylama/çerçeveleme araçlarıyla kolaylaştırmayı güçlendirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.mural.co" target="_blank" rel="noopener">MURAL</a></h3>
+          <p>Uzaktan/hibrit ekiplerde fikir üretimi ve hizalanmayı yapılandırır. Zaman kutulu etkinlikler ve anonim geri bildirimle psikolojik güveni destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.lucidchart.com" target="_blank" rel="noopener">Lucidchart</a></h3>
+          <p>Süreç akışları, değer akışı (VSM) ve organizasyon diyagramlarını standartlaştırır. Confluence/Jira gömüleriyle tek kaynakta güncel görseller tutmayı kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.parabol.co" target="_blank" rel="noopener">Parabol</a></h3>
+          <p>Retrospektif, planlama ve aksiyon takibini aynı oturumdan çıkarır. Otomatik özetler ve tekrarlayan aksiyon izleme ile sürdürülebilir iyileştirme sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.teamretro.com" target="_blank" rel="noopener">TeamRetro</a></h3>
+          <p>Hazır retro formatları, sağlık kontrolleri (health checks) ve anonim oylama sunar. Aksiyon maddelerini Jira/Azure DevOps’a senkron ederek takibi kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://slack.com" target="_blank" rel="noopener">Slack</a></h3>
+          <p>Daily özetleri, karar kayıtları ve olay akışını kanal bazında şeffaflaştırır. Uygulamalar/bot’larla stand-up, retro ve anket ritimlerini otomatikleştirebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.microsoft.com/microsoft-teams/" target="_blank" rel="noopener">Microsoft Teams</a></h3>
+          <p>Toplantılar, kanal bazlı iletişim ve dosya paylaşımını tek yerde toplar. Planner/Lists ile hafif görev ve ritim yönetimi yapılabilir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.notion.so" target="_blank" rel="noopener">Notion</a></h3>
+          <p>Koçluk kılavuzları, çalışma anlaşmaları ve “ways of working” dokümantasyonu için esnek bir bilgi tabanı sağlar. Veritabanı görünümleriyle OKR/deney portföyünü izleyebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener">Confluence</a></h3>
+          <p>Karar kayıtları (ADR), DoR/DoD ve süreç dokümantasyonunu kurumsal ölçekte yönetir. Sayfa şablonları ve yorum akışlarıyla hizalanmayı hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.microsoft.com/viva/goals" target="_blank" rel="noopener">Microsoft Viva Goals (Ally.io)</a></h3>
+          <p>OKR’ları ekipten üst yönetime kadar zincirleyerek iş hedeflerini görünür kılar. Azure DevOps/Jira ve dashboard entegrasyonlarıyla sonuçları otomatik günceller.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.workboard.com" target="_blank" rel="noopener">WorkBoard</a></h3>
+          <p>Hedefler, sonuç metrikleri ve inisiyatifleri tek portföyde birleştirir. Heatmap ve bağımlılık görünümleriyle yönetişimi kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.planview.com/products-solutions/products/flow/" target="_blank" rel="noopener">Planview Flow (eski Tasktop Viz)</a></h3>
+          <p>Flow Time, Flow Efficiency gibi değer akışı metrikleriyle darboğazları somutlaştırır. Çoklu ALM araçlarından veriyi çekip tek pano üzerinde birleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.sonarsource.com/products/sonarqube/" target="_blank" rel="noopener">SonarQube</a></h3>
+          <p>Kod kalitesi ve güvenlik kokularını sürekli izleyerek teknik borcu görünür kılar. Kalite kapıları (quality gates) ile CI/CD’de minimum standartları uygulatır.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Agile Coach alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0321637704" target="_blank" rel="noopener">Coaching Agile Teams — Lyssa Adkins</a></h3>
+          <p>Çevik koçluk duruşları, kolaylaştırma ve ekip dinamiklerini gerçek örneklerle derinlemesine ele alır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/1934356433" target="_blank" rel="noopener">Agile Coaching — Rachel Davies &amp; Liz Sedley</a></h3>
+          <p>Günlük koçluk pratikleri, anti-pattern’ler ve zorlu durumlar için uygulanabilir tavsiyeler sunar.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/agile-leadership-toolkit/9781492045694/" target="_blank" rel="noopener">Agile Leadership Toolkit — Peter Koning</a></h3>
+          <p>Liderlik davranışlarını, ölçümleri ve geri bildirim döngülerini araç seti yaklaşımıyla sistematikleştirir.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
