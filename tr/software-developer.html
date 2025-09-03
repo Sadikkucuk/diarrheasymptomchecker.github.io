@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Software Developer: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Software Developer kimdir, hangi araçları kullanır ve hangi kitapları okumalı? Beyaz temalı, sade bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#10b981;
+      --accent-ink:#065f46;
+      --ring: rgba(16,185,129,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent);background:rgba(16,185,129,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(16,185,129,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(16,185,129,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .subtle{color:var(--muted)}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.2);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .note{
+      padding:12px 14px;border:1px dashed var(--line);border-radius:12px;background:#fafafa;color:var(--muted);
+    }
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+    .pill{display:inline-block;font-size:.78rem;color:#1d4ed8;background:#eff6ff;border:1px solid #dbeafe;border-radius:999px;padding:.2rem .5rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Yazılım Geliştirme</span>
+      <h1>Software Developer: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Tanım, sık kullanılan araçlar ve üç temel kitapla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Software Developer nedir?</h2>
+      <p>Software Developer; iş gereksinimlerini analiz edip tasarım, kodlama, test ve devreye alma adımlarını uçtan uca yöneten kişidir. Temiz kod, modüler mimari ve otomatik test gibi mühendislik pratikleriyle sürdürülebilir yazılım üretir. Versiyon kontrolü ve CI/CD süreçleriyle ekiple senkron çalışır; performans, güvenlik ve ölçeklenebilirliği sürekli izler. Kullanıcı geri bildirimlerini toplayıp yinelemeli geliştirme döngülerine dönüştürür.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Sık kullanılan web/masaüstü araçlar</h2>
+
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://visualstudio.microsoft.com" target="_blank" rel="noopener">Visual Studio</a></h3>
+          <p>.NET ve C++ için güçlü bir IDE; gelişmiş debugger, profiler ve GUI tasarımcıları sunar. Kurumsal ölçekte test ve refactoring araçlarıyla üretkenliği artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://code.visualstudio.com" target="_blank" rel="noopener">Visual Studio Code</a></h3>
+          <p>Hafif ama eklenti ekosistemi çok zengin editör; hemen her dili ve framework’ü destekler. Git entegrasyonu, uzaktan geliştirme ve konteyner içi çalışma özellikleriyle esnektir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jetbrains.com/idea/" target="_blank" rel="noopener">IntelliJ IDEA</a></h3>
+          <p>Java/Kotlin geliştirme için akıllı kod tamamlama, refactoring ve derin statik analiz sağlar. Maven/Gradle, Spring ve veritabanı araçları yerleşiktir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jetbrains.com/clion/" target="_blank" rel="noopener">CLion</a></h3>
+          <p>C/C++ için CMake tabanlı modern IDE; kod analizi, debugger ve test entegrasyonları sunar. Çapraz platform derleme ve uzaktan toolchain desteği güçlüdür.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jetbrains.com/rider/" target="_blank" rel="noopener">Rider</a></h3>
+          <p>.NET/C# geliştirme için hızlı ve JetBrains ekosistemiyle uyumlu IDE’dir. ReSharper özelliklerini gömülü getirir, çoklu hedefleme ve Unity desteği sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.eclipse.org/ide/" target="_blank" rel="noopener">Eclipse IDE</a></h3>
+          <p>Java başta olmak üzere çok dil destekli, eklentilerle genişleyebilen bir IDE’dir. Büyük kurumsal projelerde yaygın, ücretsiz ve açık kaynak ekosisteme sahiptir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://git-scm.com" target="_blank" rel="noopener">Git</a></h3>
+          <p>Dağıtık versiyon kontrol sistemi; branching/merging ile güvenli denemeler yapmanızı sağlar. Kod inceleme ve CI/CD’yle birleşerek ekip akışının temelini oluşturur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.gitkraken.com" target="_blank" rel="noopener">GitKraken</a></h3>
+          <p>Git süreçlerini görselleştiren masaüstü istemci; branch ve commit geçmişini net gösterir. Çakışma çözümü ve PR yönetimi için pratik arayüz sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">Docker Desktop</a></h3>
+          <p>Uygulamaları izole konteynerlerde çalıştırıp aynı ortamı tüm ekipte çoğaltmanızı sağlar. Docker Compose ve kayıt defterleriyle yerel→prod tutarlılığı artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.postman.com" target="_blank" rel="noopener">Postman</a></h3>
+          <p>API tasarımı, testi ve koleksiyonlar ile otomasyon için standart araçtır. Ortam değişkenleri, mock server ve monitörlerle uçtan uca API yaşam döngüsünü yönetir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://dbeaver.io" target="_blank" rel="noopener">DBeaver</a></h3>
+          <p>Çoklu veritabanı (PostgreSQL, MySQL, SQL Server vb.) için evrensel istemci. ER diyagramlar, sorgu geçmişi ve veri düzenleme işleri için pratiktir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.wireshark.org" target="_blank" rel="noopener">Wireshark</a></h3>
+          <p>Ağ paket analizörü; performans ve hata ayıklama için düşük seviyeyi görünür kılar. Protokol ayrıştırıcıları sayesinde karmaşık sorunları teşhis etmeyi kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://k6.io" target="_blank" rel="noopener">k6 (Grafana)</a></h3>
+          <p>Kodla tanımlanan yük/performans testleri oluşturmanızı sağlar. CI/CD’ye entegre edilip regresyonlarda performans gerilemesini yakalar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jenkins.io" target="_blank" rel="noopener">Jenkins</a></h3>
+          <p>Açık kaynak CI/CD sunucusu; yüzlerce eklentiyle derleme, test ve dağıtımı otomatikleştirir. Pipeline-as-code yaklaşımıyla süreçleri versiyonlayabilirsiniz.</p>
+        </article>
+      </div>
+
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: En iyi 3 İngilizce kitap (C++, Java, .NET)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/effective-modern-c/9781491908419/" target="_blank" rel="noopener">C++ — Effective Modern C++ (Scott Meyers)</a></h3>
+          <p>C++11/14’ün dil özelliklerini (auto, move semantics, smart pointer’lar vb.) doğru ve güvenli kullanım kalıplarıyla öğretir.</p>
+          <span class="pill">C++ · Modern Pratikler</span>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0134685997" target="_blank" rel="noopener">Java — Effective Java, 3rd Edition (Joshua Bloch)</a></h3>
+          <p>“Item” formatında Java’da en iyi pratikleri; nesne oluşturma, eşzamanlılık, koleksiyonlar ve API tasarımını derinlikli anlatır.</p>
+          <span class="pill">Java · Best Practices</span>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0735667454" target="_blank" rel="noopener">.NET — CLR via C#, 4th Edition (Jeffrey Richter)</a></h3>
+          <p>.NET CLR’ın iç çalışma prensiplerini (GC, JIT, threading, exceptions) C# perspektifiyle sistematik şekilde açıklar.</p>
+          <span class="pill">.NET · CLR İç Yapı</span>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
