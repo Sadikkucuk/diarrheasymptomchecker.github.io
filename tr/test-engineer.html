@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Software Test Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Software Test Engineer kimdir, hangi araçları kullanır ve hangi kitapları okumalı? Beyaz temalı, sade bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#0ea5e9;
+      --accent-ink:#075985;
+      --ring: rgba(14,165,233,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.2);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Yazılım Testi</span>
+      <h1>Software Test Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Tanım, sık kullanılan araçlar ve üç temel kitapla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Software Test Engineer nedir? </h2>
+      <p>Software Test Engineer, yazılımın doğru, güvenli ve kullanıcı beklentilerine uygun çalıştığını doğrulamak için test stratejisi, tasarım ve yürütmeden sorumlu uzmandır. Manuel ve otomasyon yaklaşımlarını dengeler; fonksiyonel, regresyon, performans, güvenlik ve kullanılabilirlik gibi farklı test türlerini planlar. Hata yaşam döngüsünü uçtan uca takip eder, metriklerle kaliteyi görünür kılar ve CI/CD içinde sürekli test kültürünü güçlendirir. Risk-temelli önceliklendirme ile iş değerine en çok etki eden senaryolara odaklanır.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Sık kullanılan web/masaüstü araçlar</h2>
+
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.gurock.com/testrail" target="_blank" rel="noopener">TestRail</a></h3>
+          <p>Test vaka yönetimi, koşum ve ileri raporlama için kurumsal standartlardan biridir. Jira/Azure DevOps gibi araçlarla çift yönlü entegrasyon sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.getxray.app" target="_blank" rel="noopener">Xray (for Jira)</a></h3>
+          <p>Jira içinde manuel/otomasyon testlerini, gereksinim izlenebilirliğini ve raporlamayı tekleştirir. BDD (Cucumber) ve REST API entegrasyonları güçlüdür.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.smartbear.com/product/zephyr/" target="_blank" rel="noopener">Zephyr (Jira eklentisi)</a></h3>
+          <p>Sprint tabanlı test planlama, yürütme ve kusur bağlamasını Jira akışına gömer. Ekip ölçümleri ve panolarla görünürlüğü artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/devops" target="_blank" rel="noopener">Azure DevOps Test Plans</a></h3>
+          <p>Manuel test oturumları, keşif testleri ve hata yakalama eklentileri sunar. Pipeline’larla otomasyon sonuçlarını birleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.practitest.com" target="_blank" rel="noopener">PractiTest</a></h3>
+          <p>Uçtan uca test yaşam döngüsünü (ALM) tek platformda yönetir. Esnek panolar ve yerleşik veri görselleştirmeyle karar almayı hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://testlink.org" target="_blank" rel="noopener">TestLink (OSS)</a></h3>
+          <p>Açık kaynak test vaka/değerleme ve gereksinim eşleme aracı. Küçük/orta ölçekli takımlar için hafif ve özelleştirilebilirdir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.selenium.dev" target="_blank" rel="noopener">Selenium WebDriver</a></h3>
+          <p>Tarayıcı otomasyonu için dil/çatı bağımsız endüstri standardıdır. Grid ile paralel ve çoklu tarayıcı testleri yapılır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://playwright.dev" target="_blank" rel="noopener">Playwright</a></h3>
+          <p>Chromium/Firefox/WebKit için güvenilir, hızlı ve izole tarayıcı otomasyonu sağlar. Yerleşik beklemeler ve test runner ile flaky testleri azaltır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.cypress.io" target="_blank" rel="noopener">Cypress</a></h3>
+          <p>Tarayıcı içinde çalışan modern E2E/komponent test aracıdır. Zengin zaman tüneli, otomatik bekleme ve ağ stub’ları ile hata ayıklamayı kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.postman.com" target="_blank" rel="noopener">Postman</a></h3>
+          <p>API tasarım/test, ortam değişkenleri ve koleksiyon çalıştırıcı ile otomasyonu destekler. Monitörler ve mock server’larla servis sözleşmelerini korur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.smartbear.com/product/ready-api/overview/" target="_blank" rel="noopener">SoapUI / ReadyAPI</a></h3>
+          <p>SOAP/REST servisleri için fonksiyonel, güvenlik ve yük testlerini tek yerde toplar. Veri odaklı test ve assertion zenginliği sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://jmeter.apache.org" target="_blank" rel="noopener">Apache JMeter</a></h3>
+          <p>Web, API ve mesajlaşma sistemleri için yük/performans testi yapar. Dağıtık çalıştırma ve kapsamlı dinleyicilerle metrik üretir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://k6.io" target="_blank" rel="noopener">k6 (Grafana)</a></h3>
+          <p>Kodla tanımlanan performans testleri (as code) ve CI entegrasyonu sağlar. Grafana Cloud ile trend ve regresyonları izlemek kolaydır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://appium.io" target="_blank" rel="noopener">Appium</a></h3>
+          <p>Yerel, hibrit ve mobil web uygulamalarını tek API ile otomatikleştirir. iOS/Android’de gerçek cihaz ve emülatör/simülatör desteği sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.browserstack.com" target="_blank" rel="noopener">BrowserStack</a></h3>
+          <p>Gerçek cihazlar ve çoklu tarayıcılarda bulut üzerinden manuel/otomasyon test olanağı verir. Network, konum, ekran boyutu gibi koşulları taklit edebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.zaproxy.org" target="_blank" rel="noopener">OWASP ZAP</a></h3>
+          <p>Açık kaynak DAST aracıyla temel güvenlik açıklarını (SQLi, XSS vb.) tarar. CI/CD entegrasyonu ve otomasyon için API sunar.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: En iyi 3 İngilizce kitap </h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0471081124" target="_blank" rel="noopener">Lessons Learned in Software Testing — Cem Kaner, James Bach, Bret Pettichord</a></h3>
+          <p>Usta tester’ların yüzlerce pratik dersi; strateji, tasarım, iletişim ve kariyer ipuçlarıyla dolu.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/0321534468" target="_blank" rel="noopener">Agile Testing: A Practical Guide for Testers and Agile Teams — Lisa Crispin, Janet Gregory</a></h3>
+          <p>Çevik süreçlerde testin rolünü, iş birliği modellerini ve otomasyon piramidini sistematik şekilde açıklar.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.amazon.com/dp/1937785025" target="_blank" rel="noopener">Explore It!: Reduce Risk and Increase Confidence with Exploratory Testing — Elisabeth Hendrickson</a></h3>
+          <p>Keşif testini yapılandırılmış bir teknik hâline getirerek riskleri hızlıca görünür kılmayı öğretir.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
