@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solution Architect: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Solution Architect rolü için kısa tanım, araç listesi ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#3b82f6;        /* mavi ton */
+      --accent-ink:#1e40af;
+      --ring: rgba(59,130,246,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(59,130,246,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(59,130,246,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(59,130,246,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(59,130,246,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(59,130,246,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Solution Architecture</span>
+      <h1>Solution Architect: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Rolün özeti, kapsamlı araç listesi ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Solution Architect nedir?</h2>
+      <p>Solution Architect, iş hedeflerini teknik mimariye çevirip doğru teknoloji yığınını, entegrasyonları ve kalite niteliklerini (ölçeklenebilirlik, güvenlik, dayanıklılık, maliyet) dengeler. İş ve teknik paydaşlar arasında köprü kurar; C4/BPMN/ArchiMate gibi modellerle “as-is → to-be” mimariyi görünür kılar. Karar kayıtları (ADR), non-functional requirement’lar ve yol haritasıyla teslimata rehberlik eder. Bulut yerel (cloud-native), veri ve API mimarilerini yönetişim ve gözlemlenebilirlikle bütünleştirir.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Sık kullanılan web/masaüstü araçlar</h2>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/well-architected-tool/" target="_blank" rel="noopener">AWS Well-Architected Tool</a></h3>
+          <p>AWS iş yüklerini 6 sütuna göre (operasyonel mükemmellik, güvenlik, güvenilirlik, performans, maliyet, sürdürülebilirlik) değerlendirir. Riskleri ve iyileştirme tavsiyelerini çalışma kitabı (workload review) halinde sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/azure/advisor/" target="_blank" rel="noopener">Azure Advisor</a></h3>
+          <p>Azure kaynaklarınız için maliyet, performans, güvenlik ve kullanılabilirlik önerileri üretir. Tek tıkla uygulanabilir tavsiyeler ve etki tahminleri verir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.cloudcraft.co" target="_blank" rel="noopener">Cloudcraft (AWS Diyagramları)</a></h3>
+          <p>AWS mimarilerini canlı bileşenlerle 2D/3D çizer; hesap ayrıntılarınızdan otomatik içe aktarma yapar. Tahmini maliyetleri katman bazında görselleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.lucidchart.com" target="_blank" rel="noopener">Lucidchart</a></h3>
+          <p>Sistem akışları, entegrasyon, ağ ve veri mimarisi diyagramlarını ortak çalışmayla üretirsiniz. Confluence/Jira gömüleri ve sürüm geçmişiyle tek kaynak yaratır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.diagrams.net" target="_blank" rel="noopener">draw.io (diagrams.net)</a></h3>
+          <p>Tarayıcı tabanlı, ücretsiz ve zengin şablonlu diyagram aracı. PNG/SVG/PDF/XML dışa aktarma ve Drive/OneDrive/GitHub entegrasyonları sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://mermaid.js.org" target="_blank" rel="noopener">Mermaid (diagrams-as-code)</a></h3>
+          <p>Flowchart, sequence, class, ER, Gantt gibi diyagramları metinden üretir. Docs-as-code (Markdown, GitHub/GitLab, Docusaurus) akışlarına doğal uyar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://structurizr.com" target="_blank" rel="noopener">Structurizr (C4 Model + DSL)</a></h3>
+          <p>Bağlam/Container/Bileşen seviyelerinde C4 diyagramlarını kodla yönetmenizi sağlar. Modeli tek kaynakta tutup birden fazla görünüme yayınlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.archimatetool.com" target="_blank" rel="noopener">Archi (ArchiMate)</a></h3>
+          <p>Kurumsal mimariyi ArchiMate diliyle modelleyip katmanlar arası bağımlılıkları analiz eder. Görünüm/rapor üretimi ve değişiklik etkisi (impact) incelemeleri yapar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://sparxsystems.com" target="_blank" rel="noopener">Sparx Enterprise Architect</a></h3>
+          <p>UML/BPMN/ArchiMate, RTM ve etki analizi için kurumsal ölçekte güçlü bir modelleme platformu. Büyük programlarda versiyonlama ve model depolarını destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.terraform.io" target="_blank" rel="noopener">Terraform (IaC)</a></h3>
+          <p>Çok bulutlu altyapıyı kodla tanımlayarak tekrar üretilebilir ve gözlemlenebilir kılar. Modüller, durum (state) yönetimi ve politika-as-code entegrasyonları sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.pulumi.com" target="_blank" rel="noopener">Pulumi (IaC)</a></h3>
+          <p>TypeScript/Python/C#/Go gibi dillerle altyapı tanımlamayı mümkün kılar. Mevcut yazılım ekosistemi ve test araçlarıyla kolay bütünleşir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/azure/azure-resource-manager/bicep/" target="_blank" rel="noopener">Azure Bicep (IaC for Azure)</a></h3>
+          <p>ARM’ın sade üst diliyle Azure kaynaklarını deklaratif kurarsınız. “what-if” ve şablon doğrulama özellikleriyle güvenli dağıtım yapar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3>Kubernetes + Helm — <a href="https://kubernetes.io" target="_blank" rel="noopener">kubernetes.io</a> &nbsp;•&nbsp; <a href="https://helm.sh" target="_blank" rel="noopener">helm.sh</a></h3>
+          <p>Konteyner orkestrasyonu ve servis mimarisi için standart altyapı katmanıdır. Helm chart’larıyla çok ortamlı (dev/stage/prod) yapılandırmaları versiyonlarsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.postman.com" target="_blank" rel="noopener">Postman (API Yaşam Döngüsü)</a></h3>
+          <p>API tasarımı, test, mocking ve sözleşme doğrulamayı tek yerde toplar. Monitörler ve CI/CD entegrasyonlarıyla gerilemeleri yakalar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://editor.swagger.io" target="_blank" rel="noopener">OpenAPI/Swagger Editor</a></h3>
+          <p>Sözleşme-önce (contract-first) API tasarımını destekler; sunucu/istemci kodu üretebilir. API yönetişimi ve keşfi için tek kaynak tanım sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://cloud.google.com/apigee" target="_blank" rel="noopener">Apigee (API Management)</a></h3>
+          <p>API ağ geçidi, güvenlik (OAuth, mTLS), kota ve analitik sağlar. Ürünleştirme, versiyonlama ve geliştirici portalı ile kurumsal API yönetimini olgunlaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.datadoghq.com" target="_blank" rel="noopener">Datadog (Observability)</a></h3>
+          <p>Metrik, log ve iz (trace) ile servis haritalarını ve bağımlılıkları görünür kılar. SLO/SLI takibi ve uyarılarla üretimde mimari riskleri kontrol edersiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3>Prometheus + Grafana — <a href="https://prometheus.io" target="_blank" rel="noopener">prometheus.io</a> &nbsp;•&nbsp; <a href="https://grafana.com" target="_blank" rel="noopener">grafana.com</a></h3>
+          <p>Kod/altyapı metriklerini toplayıp sorgular, panolarda görselleştirir. Uyarılar ve keşif (service discovery) ile bulut-yerel izleme kurarsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://owasp.org/www-project-threat-dragon/" target="_blank" rel="noopener">OWASP Threat Dragon (Tehdit Modellemesi)</a></h3>
+          <p>STRIDE tabanlı tehdit diyagramları oluşturur; zayıflıkları ve karşı önlemleri belgelersiniz. Repozitorda sürümleyip inceleme akışına sokabilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/aws-cost-management/aws-cost-explorer/" target="_blank" rel="noopener">AWS Cost Explorer (Maliyet Yönetimi)</a></h3>
+          <p>Servis/etiket/hesap kırılımında maliyet ve kullanım eğilimlerini gösterir. Hak boyutlandırma (rightsizing) ve bütçe alarmı senaryolarını destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.gremlin.com" target="_blank" rel="noopener">Gremlin (Chaos Engineering)</a></h3>
+          <p>Hata ekleme deneyleriyle dayanıklılığı (resilience) doğrular; mimari varsayımları kanıtlar. Önceden tanımlı saldırılar (CPU, ağ, disk) ve güvenli “blast radius” kontrolleri sunar.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Solution Architecture alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/fundamentals-of-software/9781492043454/" target="_blank" rel="noopener">Fundamentals of Software Architecture — Mark Richards &amp; Neal Ford</a></h3>
+          <p>Mimari stiller, kalite nitelikleri ve karar mekaniklerini örneklerle sistematik anlatır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/software-architecture-the/9781492086888/" target="_blank" rel="noopener">Software Architecture: The Hard Parts — Neal Ford, Mark Richards, Pramod J. Sadalage, Zhamak Dehghani</a></h3>
+          <p>Bağımlılıklar, dağıtık kararlar ve evrimsel mimari gibi “zor” konulara pratik yön bulma rehberi.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://dataintensive.net/" target="_blank" rel="noopener">Designing Data-Intensive Applications — Martin Kleppmann</a></h3>
+          <p>Modern veri sistemleri (saklama, akış, tutarlılık, ölçek) için temel tasarım ilkelerini derinlemesine işler; entegrasyon ve dayanıklılık kararlarına ışık tutar.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
