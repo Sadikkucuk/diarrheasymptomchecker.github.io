@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Manager: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Product Manager (PM) için kısa tanım, iyi seçilmiş araç listesi ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#0ea5e9;        /* mavi ton */
+      --accent-ink:#075985;
+      --ring: rgba(14,165,233,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Product Management</span>
+      <h1>Product Manager: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">PM rolünün özeti, iyi seçilmiş araç seti ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Product Manager nedir?</h2>
+      <p>Product Manager (PM), kullanıcı ihtiyaçlarını ve iş hedeflerini ürün stratejisine çevirip keşif (discovery) ile teslimatı (delivery) bağlayan kişidir. Ürün vizyonu, hedefler (OKR), başarı metrikleri ve yol haritasını tanımlar; hipotezleri deneylerle doğrular. Tasarım ve mühendislikle birlikte değer/uygulanabilirlik/yaşanabilirlik dengesini kurar, geri bildirim döngülerini yönetir. Stratejik önceliklendirme ile kısıtlar altında etkisi en yüksek işlere odaklanır.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) PM’lerin sık kullandığı araçlar</h2>
+      <div class="card-grid" role="list">
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira/product-discovery" target="_blank" rel="noopener">Jira Product Discovery</a></h3>
+          <p>Fikir toplama, etki/efor puanlama ve önceliklendirme için keşif odaklı bir alan sunar. Jira Software’a akışkan bağlantıyla keşiften geliştirmeye geçişi kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener">Jira Software</a></h3>
+          <p>Epik/hikâye/iş kırılımı, sprint/kanban ve otomasyonlarla teslimatı görünür kılar. Raporlar (burndown, CFD) ve entegrasyonlar PM’in ilerlemeyi izlemesini sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.aha.io/roadmaps" target="_blank" rel="noopener">Aha! Roadmaps</a></h3>
+          <p>Strateji→hedef→inisiyatif→özellik hiyerarşisini tek yerde yönetir. Zaman çizelgesi ve kapasite görünümleriyle paydaşlara farklı anlatımlar sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.productboard.com" target="_blank" rel="noopener">Productboard</a></h3>
+          <p>Müşteri geri bildirimlerini konsolide eder, skorlamayla önceliklendirir ve net bir roadmap üretir. Segment/Intercom gibi kaynaklardan “müşteri sesi” akışı kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://airfocus.com" target="_blank" rel="noopener">airfocus</a></h3>
+          <p>Puanlama matrisleri ve özelleştirilebilir roadmap’lerle stratejik önceliklendirme sağlar. Geri bildirim modülüyle fikir→backlog akışını sistematize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.notion.so" target="_blank" rel="noopener">Notion</a></h3>
+          <p>PRD, karar kayıtları ve ürün portalını (faq, release notes) tek yerde toplar. Veritabanı görünümleri ve ilişkilerle izlenebilirliği güçlendirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener">Confluence</a></h3>
+          <p>Kararların, gereksinimlerin ve ritim notlarının kurumsal hafızasıdır. Onay akışları ve şablonlarla standartları korur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.figma.com" target="_blank" rel="noopener">Figma</a></h3>
+          <p>Orta/yüksek sadakat prototipler ve akışlar ile kullanıcı doğrulamasını hızlandırır. Inspect/Dev Mode ile geliştirmeye el sıkışmayı kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://miro.com" target="_blank" rel="noopener">Miro</a></h3>
+          <p>Story mapping, impact mapping ve roadmap atölyeleri için gerçek zamanlı beyaz tahta. Oylama/çerçeveleme ve şablonlarla karar almayı hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://mixpanel.com" target="_blank" rel="noopener">Mixpanel</a></h3>
+          <p>Olay (event) tabanlı ürün analitiği; funnel, cohort ve retention analizleriyle kullanım davranışını ortaya koyar. A/B sonuç takibi ve kullanıcı segmentleriyle deney öğrenmesini besler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://amplitude.com" target="_blank" rel="noopener">Amplitude</a></h3>
+          <p>Davranış analitiği ve kullanıcı yolculuklarını görselleştirme için güçlüdür. Kohort hedefleme ve “growth loop” metrikleriyle ürün büyümesini optimize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://marketingplatform.google.com/about/analytics/" target="_blank" rel="noopener">Google Analytics 4</a></h3>
+          <p>Web/mobil için ücretsiz ölçüm; etkinlik modeli ve keşif raporlarıyla temel atfı (attribution) sağlar. BigQuery çıkışıyla derinlemesine analiz yapılabilir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.optimizely.com" target="_blank" rel="noopener">Optimizely (Experimentation)</a></h3>
+          <p>A/B ve çok değişkenli deneylerle hipotezleri istatistiksel olarak doğrular. Hedefleme ve feature flag entegrasyonlarıyla kademeli sunum destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://launchdarkly.com" target="_blank" rel="noopener">LaunchDarkly</a></h3>
+          <p>Feature flag, kademeli yayılım (progressive delivery) ve “kill switch” ile riskleri azaltır. Segment/analytics entegrasyonlarıyla deney sonuçlarını bağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://segment.com" target="_blank" rel="noopener">Segment (Twilio)</a></h3>
+          <p>Müşteri verisini tekleştirip analitik/CRM/ürün içi araçlara güvenilir şekilde taşır. Kaynak→hedef akışlarını yönetişimle kontrol altına alırsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.pendo.io" target="_blank" rel="noopener">Pendo</a></h3>
+          <p>Ürün içi rehberler, anketler ve ürün analitiğiyle yönlendirme ve geri bildirim toplar. Yol haritasını gerçek kullanım verisiyle hizalamanıza yardım eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.fullstory.com" target="_blank" rel="noopener">FullStory</a></h3>
+          <p>Oturum kayıtları ve ısı haritalarıyla kullanım problemlerini ayrıntılı görmenizi sağlar. Arama/segment yetenekleriyle kritik akışlardaki hataları hızla yakalarsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.intercom.com" target="_blank" rel="noopener">Intercom</a></h3>
+          <p>Müşteri mesajlaşması, ürün içi bildirimler ve anketlerle geri bildirim döngüsünü kurar. Destek ve ürün ekipleri arasında bağlayıcı rol oynar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://lookerstudio.google.com" target="_blank" rel="noopener">Looker Studio (Data Studio)</a></h3>
+          <p>KPI panolarını hızlıca oluşturur ve paylaşır. Çeşitli veri kaynaklarına bağlanarak yönetim görünürlüğünü artırır.</p>
+        </article>
+
+      </div>
+      <p class="prose" style="margin-top:12px;color:var(--muted)">Not: Üstteki set, keşif–ölçüm–deney–teslimat zincirini uçtan uca kapsayacak şekilde dengelenmiştir. İstersen sektörüne ve ekip olgunluğuna göre “çekirdek 8–10 araçlık” minimal bir yığın da çıkarabilirim.</p>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Product Management alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.svpg.com/books/inspired/" target="_blank" rel="noopener">INSPIRED: How to Create Tech Products Customers Love — Marty Cagan</a></h3>
+          <p>Ürün keşfi, ekip yapısı ve doğru ürün inşa etme prensiplerini gerçek örneklerle anlatır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.svpg.com/books/empowered/" target="_blank" rel="noopener">EMPOWERED: Ordinary People, Extraordinary Products — Marty Cagan & Chris Jones</a></h3>
+          <p>Ürün organizasyonlarını nasıl yapılandıracağınızı, yetkiyi ve sorumluluğu nasıl dağıtacağınızı pratik biçimde ele alır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.melissaperri.com/book" target="_blank" rel="noopener">Escaping the Build Trap — Melissa Perri</a></h3>
+          <p>Çıktı (output) yerine değer/sonuç (outcome) odaklı ürün kültürünü nasıl kuracağınızı sistematik bir çerçeveyle açıklar.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
