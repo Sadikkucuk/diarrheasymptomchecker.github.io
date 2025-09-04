@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Yapay Zeka Nedir? — ChatGPT nasıl çalışır, nasıl eğitilir, kaynaklar ve iyi prompt yazımı</title>
+<meta name="description" content="Yapay zeka nedir? ChatGPT nedir, nasıl eğitilir, eğitimde ve sonrasında hangi bilgi kaynakları kullanılır, kararları nasıl alır, olasılıkları nasıl hesaplar, mantıksal operatörleri nasıl yorumlar, iyi bir promptun unsurları ve çalışma mekanizması.">
+<meta property="article:published_time" content="2025-09-04T16:43:55+03:00">
+
+<style>
+  :root{
+    --bg:#fff; --fg:#0b1220; --muted:#6b7280; --line:#e5e7eb; --chip:#f3f4f6; --link:#0a58ca; --kbd:#111;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Ubuntu,"Noto Sans",Arial;
+  }
+  .wrap{max-width: 980px; margin: 40px auto 80px; padding: 0 20px}
+  header{text-align:center; margin-bottom: 10px}
+  h1{margin:.1rem 0 .4rem; font-size: clamp(26px,3.2vw,38px)}
+  p.lead{color:var(--muted); margin:0 auto 14px; max-width: 75ch}
+  nav.toc{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 12px 0 8px}
+  nav.toc a{padding:8px 12px; border:1px solid var(--line); border-radius:999px; text-decoration:none; color:var(--fg); background:var(--chip); font-size:14px; white-space:nowrap}
+  section{margin: 34px 0}
+  h2{font-size: clamp(20px,2.4vw,26px); border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:12px}
+  h3{font-size: 18px; margin:18px 0 6px}
+  p,li{max-width: 85ch}
+  a{color:var(--link)}
+  code,kbd{font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size: 0.95em}
+  kbd{background:#f4f4f5; border:1px solid #d4d4d8; padding:.15rem .35rem; border-radius:6px}
+  pre{background:#fafafa; border:1px solid var(--line); border-radius:10px; padding:14px; overflow:auto}
+  .note{border-left:4px solid #16a34a; background:#f0fdf4; padding:10px 12px; border-radius:8px; color:#064e3b}
+  .warn{border-left:4px solid #ea580c; background:#fff7ed; padding:10px 12px; border-radius:8px; color:#7c2d12}
+  ul{padding-left: 18px}
+  footer{margin-top: 40px; padding-top: 16px; border-top:1px solid var(--line); color:var(--muted); font-size:14px; text-align:center}
+  .grid{display:grid; gap:10px}
+  .g2{grid-template-columns: repeat(2, minmax(0,1fr))}
+  @media (max-width:720px){.g2{grid-template-columns: 1fr}}
+</style>
+</head>
+<body>
+  <time datetime="2025-09-04T16:43:55+03:00" hidden>2025-09-04 16:43 (TRT)</time>
+
+  <div class="wrap">
+    <header>
+      <h1>Yapay Zeka Nedir?</h1>
+      <p class="lead">Bu sayfa; <strong>ChatGPT nedir</strong>, <strong>nasıl eğitilir</strong>, <strong>hangi bilgi kaynaklarından yararlanır</strong>, <strong>kararları ve olasılıkları nasıl üretir</strong>, <strong>mantıksal operatörleri nasıl takip eder</strong>, <strong>iyi bir prompt nasıl yazılır</strong> ve <strong>çalışma mekanizması</strong> gibi temel noktaları kısa ve net biçimde açıklar.</p>
+
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#ai">Yapay Zeka — Kısa Tanım</a>
+        <a href="#chatgpt">ChatGPT Nedir?</a>
+        <a href="#training">Nasıl Eğitilir?</a>
+        <a href="#sources-train">Eğitimde Bilgi Kaynakları</a>
+        <a href="#sources-post">Eğitim Sonrasında Kaynaklar</a>
+        <a href="#top5">Tarama Yaparken En Çok Yararlanılan 5 Site (örnek)</a>
+        <a href="#decisions">Kararları Nasıl Alır?</a>
+        <a href="#probs">Olasılıkları Nasıl Hesaplar?</a>
+        <a href="#logic">Mantıksal Operatörler</a>
+        <a href="#prompt">İyi Prompt’un Unsurları</a>
+        <a href="#mechanism">Çalışma Mekanizması</a>
+        <a href="#notes">Diğer Bilgiler</a>
+        <a href="#refs">Kaynaklar</a>
+      </nav>
+    </header>
+
+    <section id="ai">
+      <h2>Yapay Zeka — Kısa Tanım</h2>
+      <p><strong>Yapay zeka (YZ)</strong>, normalde insan zekâsı gerektiren görevleri (dil işleme, akıl yürütme, örüntü tanıma, planlama vb.) yazılım ve donanım kombinasyonlarıyla gerçekleştiren yöntemler bütünüdür. <em>Büyük dil modelleri (LLM)</em> bu alanın bir alt kümesidir ve metin üzerinde olasılık temelli tahminler yapar.</p>
+    </section>
+
+    <section id="chatgpt">
+      <h2>ChatGPT Nedir?</h2>
+      <p><strong>ChatGPT</strong>, OpenAI tarafından eğitilmiş büyük dil modellerine (ör. GPT-4 sınıfı) dayanan, konuşma arayüzlü bir yapay zekâ yardımcısıdır; yönerge izlemeyi ve çok adımlı yanıt üretimini kolaylaştırır. Resmî açıklama: <a href="https://openai.com/index/chatgpt/" target="_blank" rel="noopener">openai.com/index/chatgpt/</a></p>
+    </section>
+
+    <section id="training">
+      <h2>Nasıl Eğitilir?</h2>
+      <ol>
+        <li><strong>Ön-eğitim (pretraining):</strong> Model, büyük metin yığınları üzerinde “sonraki tokeni tahmin et” hedefiyle öğrenir (genel dil bilgisi, dünya olguları, biçem).</li>
+        <li><strong>Denetimli ince ayar (SFT):</strong> İnsan eğitmenlerin yazdığı örnek diyalog ve çözümlerle “talimat izleme” becerisi geliştirilir.</li>
+        <li><strong>İnsan geribildirimiyle pekiştirmeli öğrenme (RLHF):</strong> İnsanların tercih ettiği çıktılar ödül modeliyle puanlanır; model bu ödüle göre iyileştirilir. (Bkz. <a href="https://openai.com/index/instruction-following/" target="_blank" rel="noopener">instruction-following</a>, <a href="https://cdn.openai.com/papers/Training_language_models_to_follow_instructions_with_human_feedback.pdf" target="_blank" rel="noopener">InstructGPT makalesi (PDF)</a>)</li>
+      </ol>
+      <p class="note">OpenAI, eğitim verilerinin <em>kamuya açık</em>, <em>lisanslı</em> ve <em>insan eğitmenlerince üretilmiş</em> içeriklerin bir karışımı olduğunu belirtir.</p>
+    </section>
+
+    <section id="sources-train">
+      <h2>Eğitimde Bilgi Kaynakları Nelerdir?</h2>
+      <p>Resmî beyanlara göre eğitim verisi üç ana kaynaktan gelir: <strong>kamuya açık içerikler</strong>, <strong>lisanslı içerikler</strong> ve <strong>insan eğitmenlerce oluşturulan örnekler</strong>. OpenAI, kamuya açık içeriğin önemli kısmının <em>Common Crawl</em> ve <em>Wikipedia</em> gibi kaynaklardan geldiğini kamu belgelerinde ifade etmiştir. Ayrıntılar için: <a href="https://openai.com/index/our-approach-to-ai-safety/" target="_blank" rel="noopener">Our approach to AI safety</a>, <a href="https://openai.com/global-affairs/sam-altman-senate-questions-for-the-record/" target="_blank" rel="noopener">Senato “Questions for the Record”</a>, <a href="https://openai.com/index/approach-to-data-and-ai/" target="_blank" rel="noopener">Approach to data & AI</a>.</p>
+      <p class="warn"><strong>Önemli:</strong> OpenAI birebir <em>hangi sitelerin</em> kullanıldığını kamuya açıklamaz; kişisel verilerin ayıklanması ve güvenlik politikaları uygulanır.</p>
+    </section>
+
+    <section id="sources-post">
+      <h2>Eğitim Sonrasında Bilgi Kaynakları Nelerdir?</h2>
+      <p>Model, kutudan çıktığı hâliyle bir <strong>bilgi tabanı</strong> taşımaz; eğitildiği dağılımı kullanarak yanıt üretir. Ancak ürün düzeyinde <em>tarayıcı/arama</em>, <em>resmî doküman okuyucu</em>, <em>veri analiz</em> gibi <strong>araçlar</strong> bağlanabilir; böylece güncel web sayfaları, API’ler ve kurumsal belgelerden alıntı yapılabilir. (Bkz. <a href="https://help.openai.com/en/articles/7039943-data-usage-for-consumer-services-faq" target="_blank" rel="noopener">Data Usage FAQ</a>, <a href="https://openai.com/enterprise-privacy/" target="_blank" rel="noopener">Enterprise Privacy</a>.)</p>
+    </section>
+
+    <section id="top5">
+      <h2>Tarama Yaparken En Çok Yararlanılan 5 Site (örnek)</h2>
+      <p class="muted">Not: Bunlar eğitim verisi değil, <em>tarama/araştırma</em> modundayken sık başvurulan <strong>örnek</strong> alanlardır; görevine göre değişir.</p>
+      <ul>
+        <li><strong>Wikipedia</strong> — genel ansiklopedi ve atıf izleri: <a href="https://www.wikipedia.org" target="_blank" rel="noopener">wikipedia.org</a></li>
+        <li><strong>arXiv</strong> — bilimsel ön baskılar (özellikle CS/ML): <a href="https://arxiv.org" target="_blank" rel="noopener">arxiv.org</a></li>
+        <li><strong>MDN Web Docs</strong> — web standartları ve JS/CSS/HTML referansı: <a href="https://developer.mozilla.org" target="_blank" rel="noopener">developer.mozilla.org</a></li>
+        <li><strong>Python Docs</strong> — resmi dil/kitaplık belgeleri: <a href="https://docs.python.org" target="_blank" rel="noopener">docs.python.org</a></li>
+        <li><strong>Dünya Bankası Veri</strong> — ülke/ekonomik göstergeler: <a href="https://data.worldbank.org" target="_blank" rel="noopener">data.worldbank.org</a></li>
+      </ul>
+    </section>
+
+    <section id="decisions">
+      <h2>Kararları Nasıl Alır?</h2>
+      <p>Bir LLM “karar” dediğimiz çıktıyı, verilen bağlamda <em>bir sonraki token</em> için <strong>olasılık dağılımı</strong> üreterek alır. Uygulama katmanında <em>güvenlik politikaları</em>, <em>talimat izleme</em> ve <em>araç kullanımı</em> (arama/hesaplama) bu süreci yönlendirir. RLHF ve ilgili hizalama çalışmaları “hangi tarz yanıtların tercih edildiğini” modele öğretir.</p>
+    </section>
+
+    <section id="probs">
+      <h2>Olasılıkları Nasıl Hesaplar?</h2>
+      <p>Model, her aday token için bir <em>logit</em> üretir; bunlar <strong>softmax</strong> ile olasılığa dönüştürülür. Çıktı seçimi için örnekleme stratejileri kullanılır:</p>
+      <ul>
+        <li><strong>Sıcaklık (temperature):</strong> 0.0’a yaklaştıkça daha deterministik; yükseldikçe daha yaratıcı.</li>
+        <li><strong>Top-p (nucleus) örnekleme:</strong> olasılık kütlesinin ilk <em>p</em>’lik bölümünden seçim (bkz. OpenAI dokümantasyonu: <a href="https://platform.openai.com/docs/api-reference" target="_blank" rel="noopener">platform.openai.com/docs</a>).</li>
+      </ul>
+      <p>Uygulamada “top-k”, “frekans/presence penalty” gibi ayarlar da kullanılabilir.</p>
+    </section>
+
+    <section id="logic">
+      <h2>Mantıksal Operatörler (if / and / or) Nasıl Kullanılır?</h2>
+      <p>Model kod çalıştırmaz; fakat metinsel yönergeleri takip eder. Bu yüzden mantığı <em>prompt içinde</em> <strong>açık kurallar</strong> ve <strong>örneklerle</strong> belirtmek en güvenlisidir.</p>
+      <div class="grid g2">
+        <div>
+          <h3>Kurallı yönerge örneği</h3>
+<pre><code>Görev: Öğrenci notunu harfe çevir.
+Kurallar:
+- if notu ≥ 90 then "AA"
+- else if 80–89 then "BA"
+- else if 70–79 then "BB"
+- else "FF"
+Yalnızca harf ver, başka metin yazma.</code></pre>
+        </div>
+        <div>
+          <h3>Doğrulama isteği</h3>
+<pre><code>AND: Her adım için kısa gerekçe yaz.
+OR: İki çözüm yolu ver (formül OR tablo).
+IF: Bir varsayım eksikse, soru sor VE bekle.</code></pre>
+        </div>
+      </div>
+      <p class="note">Hataları azaltmak için: <em>giriş/çıkış formatını</em> (ör. JSON şeması), <em>kısıtları</em> ve <em>kabul/ret kriterlerini</em> açıkça yazın.</p>
+    </section>
+
+    <section id="prompt">
+      <h2>Tipik Bir Prompt’ta Hangi Unsurlar Olmalı?</h2>
+      <ul>
+        <li><strong>Rol & kitle:</strong> “Lise fizik öğretmeni gibi açıkla.”</li>
+        <li><strong>Amaç & çıktı biçimi:</strong> “3 maddelik özet, Markdown tabloyla.”</li>
+        <li><strong>Kısıtlar:</strong> “Teknik terimleri italik yaz; 150–200 kelime.”</li>
+        <li><strong>Bağlam/veri:</strong> “Aşağıdaki paragraf…”.</li>
+        <li><strong>Örnek(ler):</strong> 1 iyi / 1 kötü örnek.</li>
+        <li><strong>Kontrol listesi:</strong> “Yanıtın sonunda 3 öneri ver.”</li>
+        <li><strong>Hata payı yönetimi:</strong> “Emin değilsen kaynak iste.”</li>
+      </ul>
+      <h3>Tek seferlik şablon</h3>
+<pre><code>ROL: [uzmanlık/kitle]
+AMAÇ: [hedef]
+ÇIKTI: [biçim ve alanlar]
+KISIT: [uzunluk, ton, dil, yasa/sunum]
+BAĞLAM: [metin/veri]
+ÖRNEK: [iyi/kötü]
+DENETİM: [kontrol listesi, kaynak isteği]</code></pre>
+    </section>
+
+    <section id="mechanism">
+      <h2>Çalışma Mekanizması (Yüksek Seviye)</h2>
+      <ol>
+        <li><strong>Girdi hazırlanır:</strong> Sistem yönergeleri + kullanıcı mesajı bir bağlam penceresine token’lanır.</li>
+        <li><strong>Çıktı örneklenir:</strong> Model, token olasılıklarını üretir; sampling ayarları uygulanır.</li>
+        <li><strong>Politika & güvenlik:</strong> Güvenlik/uygunluk denetimleri devrededir (ret, yumuşatma, güvenli tamamlama).</li>
+        <li><strong>Araçlar (varsa):</strong> Arama/hesap/ek dosyalar gibi araç çağrıları yapılır ve sonuçlar bağlama eklenir.</li>
+        <li><strong>Yanıt oluşturulur:</strong> İstenen biçime (metin, tablo, JSON vb.) getirilir.</li>
+      </ol>
+      <p>Daha teknik arka plan: <a href="https://openai.com/index/learning-to-reason-with-llms/" target="_blank" rel="noopener">learning-to-reason-with-LLMs</a>, <a href="https://cdn.openai.com/papers/gpt-4-system-card.pdf" target="_blank" rel="noopener">GPT-4 System Card (PDF)</a>, <a href="https://openai.com/index/deliberative-alignment/" target="_blank" rel="noopener">deliberative alignment</a>.</p>
+    </section>
+
+    <section id="notes">
+      <h2>Diğer Bilgiler</h2>
+      <ul>
+        <li><strong>Güncellik:</strong> Modellerin bir <em>bilgi kesim tarihi</em> vardır; güncel veri için araç/kaynak kullanmak gerekir.</li>
+        <li><strong>Belirsizlik:</strong> Çıktılar olasısaldır; aynı prompt küçük farklarla farklı sonuçlar verebilir.</li>
+        <li><strong>Gizlilik:</strong> Kurumsal sürümlerde (API/Enterprise) varsayılan olarak müşteri verileri eğitim için kullanılmaz. Bkz. <a href="https://openai.com/enterprise-privacy/" target="_blank" rel="noopener">Enterprise Privacy</a>.</li>
+      </ul>
+    </section>
+
+    <section id="refs">
+      <h2>Kaynaklar (resmî)</h2>
+      <ul>
+        <li>ChatGPT tanıtımı — <a href="https://openai.com/index/chatgpt/" target="_blank" rel="noopener">openai.com/index/chatgpt/</a></li>
+        <li>Talimat izleme & RLHF — <a href="https://openai.com/index/instruction-following/" target="_blank" rel="noopener">openai.com/index/instruction-following/</a>, <a href="https://cdn.openai.com/papers/Training_language_models_to_follow_instructions_with_human_feedback.pdf" target="_blank" rel="noopener">PDF</a></li>
+        <li>Veri & eğitim yaklaşımı — <a href="https://openai.com/index/our-approach-to-ai-safety/" target="_blank" rel="noopener">Our approach to AI safety</a>, <a href="https://openai.com/index/approach-to-data-and-ai/" target="_blank" rel="noopener">Approach to data & AI</a></li>
+        <li>Senato Kayıtları (eğitim verisi karışımı) — <a href="https://openai.com/global-affairs/sam-altman-senate-questions-for-the-record/" target="_blank" rel="noopener">Questions for the Record</a></li>
+        <li>Sampling (temperature/top-p) — <a href="https://platform.openai.com/docs/api-reference" target="_blank" rel="noopener">platform.openai.com/docs/api-reference</a></li>
+        <li>Gizlilik (Kurumsal) — <a href="https://openai.com/enterprise-privacy/" target="_blank" rel="noopener">openai.com/enterprise-privacy/</a></li>
+      </ul>
+    </section>
+
+    <footer>
+      © 2025 — Bilgilendirme sayfası. Bu sayfa hukuki/teknik tavsiye yerine geçmez.
+    </footer>
+  </div>
+</body>
+</html>
