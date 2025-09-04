@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI/ML Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="AI/ML Engineer rolü için kısa tanım, dengeli araç seti ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir sayfa." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;   /* slate-900 */
+      --muted:#475569;  /* slate-600 */
+      --line:#e2e8f0;   /* slate-200 */
+      --card:#ffffff;
+      --accent:#0ea5e9;     /* mavi vurgusu */
+      --accent-ink:#075985; /* daha koyu mavi */
+      --ring: rgba(14,165,233,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:72ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 12px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.02rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .note{border-left:4px solid var(--accent);background:rgba(14,165,233,.06);padding:10px 12px;border-radius:8px;margin-top:14px}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:#64748b;font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:.1rem .3rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">AI / ML</span>
+      <h1>AI/ML Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Rol özeti, güçlü bir araç yığını ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) AI/ML Engineer nedir? (3–5 cümle)</h2>
+      <p>AI/ML Engineer; veri hazırlama, model geliştirme, değerlendirme, servisleştirme ve üretim izleme adımlarını uçtan uca otomasyonla yöneten kişidir. Algoritma/çerçeve seçimini iş hedefleri ve kalite nitelikleri (gecikme, throughput, maliyet, güvenilirlik) ile dengeler. MLOps uygulamalarıyla deney izleme, model/özellik sürümleme, CI/CD ve gözlemlenebilirliği süreçlere gömer. Üretimde “model &amp; data drift, güvenlik ve etik” gibi riskleri yönetişimle ele alır.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) AI/ML Engineer’ların sık kullandığı araçlar (iyi seçilmiş, en az 10)</h2>
+
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://pytorch.org" target="_blank" rel="noopener">PyTorch</a></h3>
+          <p>Dinamik hesap grafiği ve geniş ekosistemiyle araştırmadan üretime hızlı geçiş sağlar. TorchScript/ONNX ile optimizasyon ve dağıtım seçenekleri sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.tensorflow.org" target="_blank" rel="noopener">TensorFlow / Keras</a></h3>
+          <p>Eğitimden dağıtıma (TFX, TF Serving) uzanan olgun bir uçtan uca ekosistem sağlar. Keras ile hızlı prototipleme ve üretime hazır modeller geliştirilir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://jax.readthedocs.io" target="_blank" rel="noopener">JAX</a></h3>
+          <p>Otomatik türev ve XLA derleyicisiyle yüksek performanslı sayısal hesap yapar. Vmap/pmap ile çoklu cihaz ve paralel eğitim kolaylaşır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://huggingface.co/transformers" target="_blank" rel="noopener">Hugging Face Transformers</a></h3>
+          <p>SOTA ön-eğitimli modelleri (BERT, T5, Llama vb.) tek API ile kullanıma sunar. Trainer, PEFT/LoRA ve Hub entegrasyonlarıyla deney→servis akışını hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://onnxruntime.ai" target="_blank" rel="noopener">ONNX Runtime</a></h3>
+          <p>Modelleri tek bir evrensel biçime dönüştürüp CPU/GPU/NN çiplerinde hızlandırılmış çalıştırır. Graf optimizasyonları ve quantization desteğiyle gecikmeyi düşürür.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://developer.nvidia.com/tensorrt" target="_blank" rel="noopener">NVIDIA TensorRT</a></h3>
+          <p>FP16/INT8 optimizasyon ve kernel füzyonlarıyla GPU üzerinde çıkarım performansını maksimize eder. ONNX ve PyTorch/TensorFlow modelleri için üretim optimizasyon boru hattı sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://docs.openvino.ai" target="_blank" rel="noopener">OpenVINO</a></h3>
+          <p>Intel CPU/iGPU/VPU’larda model optimizasyonu ve hızlandırılmış çıkarım sağlar. Post-training quantization ve device-agnostic dağıtımla edge senaryolarını güçlendirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://developer.nvidia.com/nvidia-triton-inference-server" target="_blank" rel="noopener">NVIDIA Triton Inference Server</a></h3>
+          <p>Çok çerçeve/dil desteğiyle (TF, Torch, ONNX, Python) tek sunucuda ölçekli çıkarım yapmanızı sağlar. Dinamik batching ve model ensemble ile throughput’u artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.tensorflow.org/tfx/guide/serving" target="_blank" rel="noopener">TensorFlow Serving</a></h3>
+          <p>TF/Keras modellerini düşük gecikme ile ölçekli şekilde servis eder. A/B, Canary sürümler ve model versiyonlamasını yerleşik destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://pytorch.org/serve" target="_blank" rel="noopener">TorchServe</a></h3>
+          <p>PyTorch modelleri için hafif, üretim odaklı servis katmanıdır. Çoklu model, ölçümleme ve otomatik ölçeklemeye uygun entegrasyonlar sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.bentoml.com" target="_blank" rel="noopener">BentoML</a></h3>
+          <p>Modelleri konteynerize servis paketlerine (Bento) dönüştürür; REST/gRPC ile sunar. Model deposu, çalışma zamanı ve dağıtım reçeteleriyle MLOps’u sadeleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://vllm.ai" target="_blank" rel="noopener">vLLM</a></h3>
+          <p>LLM’ler için PagedAttention tabanlı yüksek throughput çıkarım altyapısı sağlar. OpenAI benzeri servis arayüzü ve KV cache verimliliğiyle maliyeti düşürür.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.kubeflow.org" target="_blank" rel="noopener">Kubeflow Pipelines</a></h3>
+          <p>Eğitim/ön işleme/değerlendirme adımlarını K8s üzerinde yeniden üretilebilir boru hatlarına dönüştürür. ML metadata takibi ve bileşen paylaşımıyla ekip uyumunu artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://airflow.apache.org" target="_blank" rel="noopener">Apache Airflow</a></h3>
+          <p>Veri/ML iş akışlarını DAG’lerle zamanlar, izler ve yeniden başlatır. Zengin operatör ekosistemiyle veri boru hatlarıyla ML boru hatlarını bağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.prefect.io" target="_blank" rel="noopener">Prefect</a></h3>
+          <p>Pythonik akış tanımı ve dayanıklı çalıştırma (retries, caching) özellikleriyle modern orkestrasyon sunar. Bulut/öz-yönetimli seçeneklerle esnektir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://mlflow.org" target="_blank" rel="noopener">MLflow</a></h3>
+          <p>Deney izleme (metrics/artifacts), model kayıt defteri ve paketleme/servisleştirme sağlar. Çerçeve ve altyapıdan bağımsızdır; pek çok araçla entegre olur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://wandb.ai" target="_blank" rel="noopener">Weights &amp; Biases (W&amp;B)</a></h3>
+          <p>Deney karşılaştırma panoları, sweeps (HPO) ve artifacts ile veri/model sürümleme sağlar. Takım içi paylaşımla araştırma→mühendislik köprüsünü kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://dvc.org" target="_blank" rel="noopener">DVC (Data Version Control)</a></h3>
+          <p>Büyük veri ve modelleri Git benzeri şekilde sürümlersiniz. Boru hatlarını kodlaştırıp uzaktan depolara bağlayarak tekrarlanabilirlik sağlanır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3>
+            FAISS / Milvus (Vektör Arama):
+            <a href="https://faiss.ai" target="_blank" rel="noopener">FAISS</a> ·
+            <a href="https://milvus.io" target="_blank" rel="noopener">Milvus</a>
+          </h3>
+          <p>Yüksek boyutlu gömlemelerde yakın komşu aramayı hızlandırır. RAG ve semantik arama gibi üretken yapay zekâ kullanım senaryolarında temel bileşendir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://feast.dev" target="_blank" rel="noopener">Feast (Feature Store)</a></h3>
+          <p>Eğitim/çıkarsama için tutarlı özellik servis eder; geç ve anlık özellikleri tek API ile sağlar. Veri ambarı ve çevrimiçi depo entegrasyonları hazırdır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://evidentlyai.com" target="_blank" rel="noopener">Evidently AI</a></h3>
+          <p>Data/model drift, veri kalitesi ve performans raporlarını üretimde izler. Panolar ve uyarılarla model sağlığını görünür kılar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://greatexpectations.io" target="_blank" rel="noopener">Great Expectations</a></h3>
+          <p>Veri doğrulama kurallarını (expectations) kod olarak tanımlayıp CI’ye bağlarsınız. Hatalı veri setlerinin modele sızmasını engeller.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.ray.io" target="_blank" rel="noopener">Ray</a></h3>
+          <p>Dağıtık Python; RLlib, Tune ve Serve ile ölçekli eğitim/HPO/servis akışlarını birleştirir. Tek API ile yerelden kümeye geçişi kolaylaştırır.</p>
+        </article>
+      </div>
+
+      <div class="note">
+        <strong>Not:</strong> Liste, eğitim → optimizasyon/derleyici → servis/çıkarım → MLOps/yönetişim → gözlemlenebilirlik → vektör arama/LLM zincirini dengeli kapsayacak şekilde seçildi.
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: AI/ML Engineering alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/" target="_blank" rel="noopener">Designing Machine Learning Systems — Chip Huyen</a></h3>
+          <p>Veri boru hatlarından feature store’a, çevrimiçi/çevrimdışı servis senaryolarına kadar MLE’nin pratik mimarilerini sistematik anlatır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.mlebook.com" target="_blank" rel="noopener">Machine Learning Engineering — Andriy Burkov</a></h3>
+          <p>Gereksinimlerden üretim dağıtımına, ölçüm ve izlemeye kadar mühendislik bakışıyla uçtan uca bir rehberdir.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/reliable-machine-learning/9781098106218/" target="_blank" rel="noopener">Reliable Machine Learning: Applying SRE Principles to ML in Production — Catherine Chen ve diğerleri</a></h3>
+          <p>SRE prensiplerini (SLO/SLI, olay yönetimi, test stratejileri) ML sistemlerine uyarlayarak üretimde güvenilirlik sağlar.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
