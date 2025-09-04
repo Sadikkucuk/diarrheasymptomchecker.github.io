@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Manager: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Project Manager rolü için kısa tanım, araç listesi ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#10b981;        /* yeşil ton */
+      --accent-ink:#065f46;
+      --ring: rgba(16,185,129,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(16,185,129,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:70ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(16,185,129,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(16,185,129,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 10px}
+    .prose p{margin:0 0 10px}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:18px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.05rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Project Management</span>
+      <h1>Project Manager: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">PM rolünün özeti, kapsamlı araç listesi ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Project Manager nedir?</h2>
+      <p>Project Manager (PM), kapsam, zaman, maliyet ve kalite kısıtları içinde iş hedefini gerçekleştirmekten sorumludur. Paydaşları hizalar, risk/bağımlılıkları yönetir ve doğru yaşam döngüsünü (agile/şelale/hibrit) seçip yönetişimi kurar. Kaynak planlama, raporlama ve değişiklik kontrolüyle teslimatı görünür kılar; performansı SPI/CPI gibi metriklerle izler. Takımı engellerden arındırır, net iletişim ve karar mekanizmalarıyla değeri sürdürülebilir kılar.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) PM’lerin sık kullandığı araçlar</h2>
+      <div class="card-grid" role="list">
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.microsoft.com/microsoft-project" target="_blank" rel="noopener">Microsoft Project</a></h3>
+          <p>Gantt, kritik yol, kaynak dengeleme ve baseline’larla klasik proje planlama standardıdır. Portföy/roadmap ve Power BI ile raporlamayı derinleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.oracle.com/construction-engineering/primavera-p6/" target="_blank" rel="noopener">Oracle Primavera P6</a></h3>
+          <p>Büyük ölçekli programlar için WBS, ileri kaynak/çizelge analizi ve talep kapasite planlaması sunar. İnşaat/enerji gibi sektörlerde gecikme etkisini ayrıntılı izlersiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.smartsheet.com" target="_blank" rel="noopener">Smartsheet</a></h3>
+          <p>Excel benzeri yüzeyde proje/portföy yönetimi, otomasyonlar ve formlar sağlar. Dashboard’lar ve proofing ile paydaş görünürlüğünü artırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://monday.com" target="_blank" rel="noopener">monday.com</a></h3>
+          <p>Şablonlar, otomasyonlar ve iş yükü (workload) görünümüne sahip görsel “work OS”. Zaman çizelgesi, bağımlılıklar ve portföy panolarıyla üst bakışı verir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://asana.com" target="_blank" rel="noopener">Asana</a></h3>
+          <p>Timeline, bağımlılık ve portföy modülleriyle plan ve ilerlemeyi netleştirir. Formlar/kurallar ile talep→backlog akışını standardize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/jira" target="_blank" rel="noopener">Jira Software</a></h3>
+          <p>Agile/hibrid projelerde epik→story→task hiyerarşisi ve burndown/CFD raporları sunar. Yazılım ekipleriyle sıkı entegrasyon ve otomasyonlar üretir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/confluence" target="_blank" rel="noopener">Confluence</a></h3>
+          <p>Proje şartnamesi (charter), RACI, RAID log ve toplantı notları için tek dokümantasyon alanı. Onay iş akışları ve sürüm geçmişiyle izlenebilirliği korur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.notion.so" target="_blank" rel="noopener">Notion</a></h3>
+          <p>PRD/charter/RTM/RAID gibi artefaktları veritabanı ilişkileriyle bağlarsınız. Yol haritası ve karar kayıtlarını tek yerde tutmak için esnektir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://miro.com" target="_blank" rel="noopener">Miro</a></h3>
+          <p>Kickoff, risk atölyeleri, PI Planning ve retro’lar için gerçek zamanlı beyaz tahta. Oylama/çerçeveleme ve geniş şablon kütüphanesiyle kolaylaştırmayı hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.lucidchart.com" target="_blank" rel="noopener">Lucidchart</a></h3>
+          <p>Süreç, entegrasyon ve organizasyon şemalarını standartlaştırır. Confluence/Jira gömüleriyle güncel tek görsel kaynak sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.planview.com/products-solutions/products/portfolios/" target="_blank" rel="noopener">Planview Portfolios (PPM)</a></h3>
+          <p>Talep, kapasite ve senaryo planlamasıyla portföy düzeyinde karar vermeyi destekler. Strateji→program→proje hizalamasını raporlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.broadcom.com/products/software/valueops/clarity" target="_blank" rel="noopener">Clarity PPM (Broadcom)</a></h3>
+          <p>Bütçe, kaynak ve zaman raporlarını yönetişimle birleştirir. Yatırım/epic tabanlı planlama ve onay akışları sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.wrike.com" target="_blank" rel="noopener">Wrike</a></h3>
+          <p>İstek formları, kanban/gantt ve workload yönetimi ile uçtan uca takip sağlar. Kanıt/proofing ve otomasyonlarla pazarlama/BT projelerinde etkilidir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://clickup.com" target="_blank" rel="noopener">ClickUp</a></h3>
+          <p>Görevler, dokümanlar, hedefler (Goals) ve dashboard’ları tek platformda toplar. Çok görünümlü planlama ve OKR takibi için uygundur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://powerbi.microsoft.com" target="_blank" rel="noopener">Power BI</a></h3>
+          <p>SPI/CPI, SV/CV, milestone sağlığı ve kaynak kullanımını canlı panolarda görselleştirir. Çeşitli kaynaklara bağlanıp yönetim raporlamasını standardize eder.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.intaver.com" target="_blank" rel="noopener">RiskyProject (Intaver)</a></h3>
+          <p>Çizelge ve maliyet riskine Monte Carlo simülasyonu uygular; olasılıklı bitiş tarihleri üretir. Risk kaydı (register) ile planı bağlayarak mitigasyonları önceliklendirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.diagrams.net" target="_blank" rel="noopener">draw.io (diagrams.net)</a></h3>
+          <p>RACI, süreç akışları ve iletişim planı gibi görselleri hızlıca oluşturursunuz. Drive/OneDrive/GitHub entegrasyonları ve PDF/SVG dışa aktarma desteklenir.</p>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Project Management alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.pmi.org/pmbok-guide-standards/foundational/pmbok" target="_blank" rel="noopener">A Guide to the Project Management Body of Knowledge (PMBOK® Guide) – 7th Edition — PMI</a></h3>
+          <p>İlke temelli yaklaşım, performans alanları ve değer sunumuna odaklı modern PM çerçevesini sunar.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/making-things-happen/9780596517717/" target="_blank" rel="noopener">Making Things Happen: Mastering Project Management — Scott Berkun</a></h3>
+          <p>Planlamadan risk ve iletişime, gerçek dünyadan örneklerle pratik bir PM rehberi.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.wiley.com/en-us/The+Fast+Forward+MBA+in+Project+Management%2C+6th+Edition-p-9781119086574" target="_blank" rel="noopener">The Fast Forward MBA in Project Management — Eric Verzuh</a></h3>
+          <p>Temel kavramlar, araçlar ve şablonlarla uygulamaya odaklı kapsamlı bir kaynak.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
