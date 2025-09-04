@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cloud Architect: Kısa Tanım, Araçlar ve Kitap Önerileri (AWS • Huawei Cloud • Azure)</title>
+  <meta name="description" content="Cloud Architect rolü için kısa tanım, AWS / Huawei Cloud / Azure ve genel araçlar, ayrıca kitap önerileri. Beyaz temalı, sade ve erişilebilir bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#10b981;        /* yeşil ton */
+      --accent-ink:#065f46;
+      --ring: rgba(16,185,129,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(16,185,129,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:72ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(16,185,129,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(16,185,129,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 12px}
+    .prose p{margin:0 0 10px}
+    .subtle{color:var(--muted)}
+    .provider{margin:26px 0 10px;font-size:1.05rem}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.02rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .note{border-left:4px solid var(--accent);background:rgba(16,185,129,.06);padding:10px 12px;border-radius:8px}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Cloud Architecture</span>
+      <h1>Cloud Architect: Kısa Tanım, Araçlar ve Kitap Önerileri <span class="subtle">(AWS • Huawei Cloud • Azure)</span></h1>
+      <p class="lede">Rol özeti, sağlayıcıya göre araç setleri ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Cloud Architect nedir?</h2>
+      <p>Cloud Architect, iş hedeflerini ölçeklenebilir, güvenli, dayanıklı ve maliyet-etkin bulut mimarilerine çevirir; uygulama, veri ve altyapı katmanlarını uygun servislerle bütünleştirir. Çoklu bulut/hibrid senaryolarda yönetişim (governance), güvenlik, gözlemlenebilirlik ve maliyet optimizasyonu ilkelerini belirler. İaC, otomasyon ve iyi mimari çerçeveleriyle (well-architected) kararları belgelendirir ve uygulama yaşam döngüsüne gömer. Paydaşlar arasında teknik köprü kurarak yol haritalarını ve kalite niteliklerini netleştirir.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Sık kullanılan araçlar (AWS, Huawei Cloud, Azure ve genel)</h2>
+
+      <!-- AWS -->
+      <h3 class="provider">AWS</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/well-architected-tool/" target="_blank" rel="noopener">AWS Well-Architected Tool</a></h3>
+          <p>AWS iş yüklerinizi 6 sütuna göre değerlendirip (operasyonel mükemmellik, güvenlik, güvenilirlik, performans, maliyet, sürdürülebilirlik) iyileştirme önerileri üretir. Kararları kayda geçirir, düzenli inceleme akışı kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/aws-cost-management/aws-cost-explorer/" target="_blank" rel="noopener">AWS Cost Explorer</a></h3>
+          <p>Harcama/kullanımı görselleştirir, trend ve anomali analizi ile tasarruf fırsatlarını açığa çıkarır. 13 aya kadar geçmiş ve 12 aylık öngörü desteği vardır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/cloudwatch/" target="_blank" rel="noopener">Amazon CloudWatch</a></h3>
+          <p>Metrik, log ve alarmlarla sistem çapında gözlemlenebilirlik sağlar; olaylara otomatik tepki verebilir. Uygulama/altyapı sağlığını tek pencereden izlersiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/cloudformation/" target="_blank" rel="noopener">AWS CloudFormation (IaC)</a></h3>
+          <p>AWS kaynaklarını şablonlarla (YAML/JSON) yığın (stack) olarak tutarlı ve tekrarlanabilir şekilde kurar/yönetir. Düzenli dağıtım ve çok hesap/bölge yönetimini basitleştirir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/iam/access-analyzer/" target="_blank" rel="noopener">AWS IAM Access Analyzer</a></h3>
+          <p>Kimlik/erişim politikalarını tarayıp dışa/iç’e açık ve kullanılmayan yetkileri belirler, asgari ayrıcalık (least-privilege) politikaları üretmeye yardım eder. Politika doğrulama ve bulgularla güvenlik duruşunu güçlendirir.</p>
+        </article>
+      </div>
+
+      <!-- Azure -->
+      <h3 class="provider">Azure</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/advisor" target="_blank" rel="noopener">Azure Advisor</a></h3>
+          <p>Azure kaynaklarınızı tarayıp maliyet, güvenilirlik, performans ve güvenlik için iyileştirme önerileri ve “Advisor score” sunar. Önceliklendirilmiş aksiyon listesi üretir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/en-us/azure/cost-management-billing/" target="_blank" rel="noopener">Azure Cost Management + Billing</a></h3>
+          <p>Kuruluş genelinde maliyetleri analiz/izle/optimize et; bütçeler, uyarılar ve rezervasyon/savings plan görünürlüğü sağlar. Faturalama kapsamlarını yönetmeye yönelik rehber ve araçlar içerir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/fundamentals/overview" target="_blank" rel="noopener">Azure Monitor</a></h3>
+          <p>Azure ve şirket-içi ortamlardan telemetri toplayıp analiz eder; uygulama ve altyapı performansını artırmaya yardımcı olur. Olaylara manuel/otomatik tepki senaryoları destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/" target="_blank" rel="noopener">Azure Bicep (IaC)</a></h3>
+          <p>ARM JSON’un sade DSL karşılığı; bildirimsel şablonlarla Azure kaynaklarını daha okunur şekilde tanımlayıp dağıtırsınız. Derleme sırasında ARM şablonuna dönüştürülür, bağımlılıkları otomatik yönetir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://learn.microsoft.com/en-us/azure/architecture/" target="_blank" rel="noopener">Azure Architecture Center &amp; Well-Architected</a></h3>
+          <p>Referans mimariler, desenler ve karar rehberleriyle Azure üzerinde çözüm tasarımını hızlandırır; Well-Architected değerlendirme araçlarına bağlanır.</p>
+        </article>
+      </div>
+
+      <!-- Huawei Cloud -->
+      <h3 class="provider">HUAWEI CLOUD</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.huaweicloud.com/intl/en-us/product/ces.html" target="_blank" rel="noopener">Cloud Eye (izleme)</a></h3>
+          <p>Bulut kaynaklarını gerçek zamanlı izler, alarmlar ve gösterge panolarıyla operasyonel görünürlük sağlar. Sunucu/servis seviyesinde kullanım ve sağlık takibi yaparsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://support.huaweicloud.com/intl/en-us/productdesc-rms/rms_01_0100.html" target="_blank" rel="noopener">Config (uyumluluk &amp; envanter)</a></h3>
+          <p>Kaynak konfigürasyonlarını toplayıp kurallara göre uyumluluk değerlendirir; gelişmiş sorgu ve çoklu hesap/organizasyon toplayıcı destekler. Uyumsuz kaynakları tespit edip raporlayabilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.huaweicloud.com/intl/en-us/pricing/cost-management.html" target="_blank" rel="noopener">Cost Management / Cost Center</a></h3>
+          <p>Maliyet görünürlüğü, tahsis ve optimizasyonu için çözümler sunar; farklı faturalama modları ve tasarruf seçeneklerine rehberlik eder. Cost Center üzerinden harcamaları merkezî takip edebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.huaweicloud.com/intl/en-us/product/apig.html" target="_blank" rel="noopener">API Gateway (APIG)</a></h3>
+          <p>API’leri ölçekli ve güvenli şekilde barındırır, yayınlar ve yönetir; monetizasyon ve seçici dışa açma senaryolarını destekler. Belgelenmiş yönetim ve entegrasyon özellikleriyle mikroservis trafiğini düzenler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.huaweicloud.com/intl/en-us/product/cts.html" target="_blank" rel="noopener">Cloud Trace Service (CTS)</a></h3>
+          <p>Kaynak işlemlerinin iz kayıtlarını toplar; güvenlik analizi, uyumluluk denetimi ve hata kökeni bulmaya yardımcı olur. Konsoldan arama/sorgu ve saklama politikalarıyla denetim izi sağlar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.huaweicloud.com/intl/en-us/product/cce.html" target="_blank" rel="noopener">CCE (Managed Kubernetes)</a></h3>
+          <p>Tam yönetilen Kubernetes ile konteynerli uygulamaları kurup ölçeklersiniz; entegrasyonlarla operasyon yükünü azaltır. Hibrit bulut senaryoları için esnek küme seçenekleri sunar.</p>
+        </article>
+      </div>
+
+      <!-- Genel / Çoklu Bulut -->
+      <h3 class="provider">Genel / Çoklu Bulut</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://developer.hashicorp.com/terraform" target="_blank" rel="noopener">Terraform (çoklu bulut IaC)</a></h3>
+          <p>AWS/Azure/Huawei Cloud dâhil birçok sağlayıcıya tek iş akışıyla altyapı sağlatma ve sürümleme imkânı verir. Modüler yapı ve durum yönetimiyle tekrar üretilebilir dağıtımlar yaparsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3>
+            Kubernetes + <a href="https://prometheus.io/" target="_blank" rel="noopener">Prometheus</a> + <a href="https://grafana.com/docs/grafana/latest/introduction/" target="_blank" rel="noopener">Grafana</a>
+          </h3>
+          <p><a href="https://kubernetes.io/docs/concepts/overview/" target="_blank" rel="noopener">Kubernetes</a> konteyner orkestrasyonu, Prometheus metrik toplama/uyarma ve Grafana panolarıyla uçtan uca görünürlük kurarsınız. Çoklu bulut/hibrid ortamlarda standart gözlem yığını oluşturur.</p>
+        </article>
+      </div>
+
+      <div class="note" style="margin-top:14px">
+        <strong>Not:</strong> Huawei Cloud, AWS ve Azure’ın “well-architected” çerçeveleri/araçlarıyla yönetişim ve kalite niteliklerini düzenli gözden geçirmek, çoklu bulut kararlarındaki tutarlılığı artırır.
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Cloud Architecture alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://cloudstrategybook.com" target="_blank" rel="noopener">Cloud Strategy — Gregor Hohpe</a></h3>
+          <p>Buluta geçişte mimari/organizasyonel kararları, bağımlılıklar ve iş değeri perspektifinden ele alan pratik bir yol haritası.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.manning.com/books/cloud-native-patterns" target="_blank" rel="noopener">Cloud Native Patterns — Cornelia Davis</a></h3>
+          <p>Bulut yerel mimarilerde dayanıklılık, ölçek ve evrimsel tasarım için tekrar kullanılabilir desenler sunar.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/architecting-for-scale/9781492057178/" target="_blank" rel="noopener">Architecting for Scale — Lee Atchison</a></h3>
+          <p>Büyük ölçekli sistemlerde güvenilirlik, esneklik ve operasyon tasarımını somut tekniklerle anlatır.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
