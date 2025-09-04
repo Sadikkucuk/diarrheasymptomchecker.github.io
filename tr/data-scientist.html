@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Scientist: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="Data Scientist rolü için kısa tanım, dengeli araç seti ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir sayfa." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;   /* slate-900 */
+      --muted:#475569;  /* slate-600 */
+      --line:#e2e8f0;   /* slate-200 */
+      --card:#ffffff;
+      --accent:#10b981;     /* yeşil vurgusu */
+      --accent-ink:#065f46; /* daha koyu yeşil */
+      --ring: rgba(16,185,129,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(16,185,129,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:72ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(16,185,129,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(16,185,129,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 12px}
+    .prose p{margin:0 0 10px}
+    .group{margin:26px 0 8px;font-size:1.05rem}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.02rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .note{border-left:4px solid var(--accent);background:rgba(16,185,129,.06);padding:10px 12px;border-radius:8px}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(16,185,129,.45)}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:#64748b;font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+    code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:.1rem .3rem}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">Data Science</span>
+      <h1>Data Scientist: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Rol özeti, dengeli araç yığını ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) Data Scientist nedir? (3–5 cümle)</h2>
+      <p>Data Scientist, iş problemlerini veriyle tanımlayıp istatistik, makine öğrenimi ve deney tasarımı teknikleriyle test edilebilir hipotezlere çevirir. Ham veriden özellik mühendisliği, modelleme, değerlendirme ve ürünleştirme (servisleştirme/MLOps) adımlarını uçtan uca kurgular. Sonuçları anlaşılır görselleştirmeler ve hikâyeleştirme (data storytelling) ile paydaşlara aktarır; kararları metriklerle izler. Üretimde güvenilirlik, etik ve gizlilik konularını tasarımın parçası yapar.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) Data Scientist’lerin sık kullandığı araçlar (iyi seçilmiş, en az 10)</h2>
+
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://jupyter.org" target="_blank" rel="noopener">JupyterLab</a></h3>
+          <p>Keşif amaçlı analiz, görselleştirme ve deney tekrarlanabilirliği için standart not defteri ortamıdır. Python/R/Julia çekirdekleri ve zengin eklenti ekosistemiyle esnektir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://code.visualstudio.com" target="_blank" rel="noopener">Visual Studio Code</a></h3>
+          <p>Hafif ama güçlü editör; Jupyter entegrasyonu, uzak-konteyner içinde geliştirme ve Git akışlarıyla üretkenliği artırır. Çok dil desteği ve geniş uzantı pazarı sunar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jetbrains.com/pycharm/" target="_blank" rel="noopener">PyCharm</a></h3>
+          <p>Python için gelişmiş refactoring, test ve debugger özellikleri sağlar. “Scientific mode” ile NumPy/Pandas/Matplotlib iş akışını kolaylaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://posit.co/products/open-source/rstudio/" target="_blank" rel="noopener">RStudio (Posit)</a></h3>
+          <p>R ekosistemi (tidyverse, Shiny, RMarkdown) için birinci sınıf geliştirme ortamıdır. Tekrarlanabilir raporlama ve etkileşimli uygulamalar üretmeyi hızlandırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://colab.research.google.com" target="_blank" rel="noopener">Google Colab</a></h3>
+          <p>Tarayıcıdan GPU/TPU erişimiyle hızlı prototipleme yaparsınız. Google Drive entegrasyonu ve paylaşımlı not defterleriyle iş birliği kolaydır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.databricks.com" target="_blank" rel="noopener">Databricks</a></h3>
+          <p>Lakehouse + Spark tabanlı birleşik analiz ve ML platformudur. Not defterleri, otomatik ölçeklenen kümeler ve yerleşik MLflow ile uçtan uca MLOps akışı kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.snowflake.com" target="_blank" rel="noopener">Snowflake</a></h3>
+          <p>Bulut veri ambarı; depolama/işlem ayrımıyla elastik ve maliyet etkin çalışır. Snowpark ile Python/Java fonksiyonları ve UDF’lerle gelişmiş veri bilimi akışlarını destekler.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://cloud.google.com/bigquery" target="_blank" rel="noopener">BigQuery</a></h3>
+          <p>Sunucusuz, sütun bazlı veri ambarı; petabaytlar üzerinde SQL ile analitik sağlar. BigQuery ML ile SQL’den ayrılmadan model eğitip servisleşmeye yaklaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://aws.amazon.com/sagemaker/studio/" target="_blank" rel="noopener">Amazon SageMaker Studio</a></h3>
+          <p>Tek IDE içinde veri hazırlama, eğitim, HPO ve dağıtım işlemlerini yönetirsiniz. Model izleme, feature store ve pipeline’larla MLOps’u kurumsallaştırır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://azure.microsoft.com/products/machine-learning" target="_blank" rel="noopener">Azure Machine Learning</a></h3>
+          <p>Veri hazırlama, AutoML, pipeline ve uçtan uca model yaşam döngüsü yönetimi sunar. Model kayıt/dağıtım ve izleme ile yönetişim kurar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://mlflow.org" target="_blank" rel="noopener">MLflow</a></h3>
+          <p>Deney takibi (metrics/artifacts), model kayıt defteri ve paketleme/servisleştirme araçlarını bir araya getirir. Çerçeve bağımsızdır; Databricks ve açık kaynakta yaygındır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://wandb.ai" target="_blank" rel="noopener">Weights &amp; Biases (W&amp;B)</a></h3>
+          <p>Deney izleme, görsel karşılaştırma panoları ve “sweeps” ile HPO süreçlerini hızlandırır. Artifacts ile veri/model versiyonlarını yönetebilirsiniz.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://dvc.org" target="_blank" rel="noopener">DVC (Data Version Control)</a></h3>
+          <p>Büyük veri dosyaları ve modeller için Git benzeri sürümleme sağlar. Boru hatları ve uzak depolarla tekrarlanabilir deneyler kurarsınız.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://airflow.apache.org" target="_blank" rel="noopener">Apache Airflow</a></h3>
+          <p>ETL/ELT ve ML boru hatlarını DAG’lerle orkestre eder ve zamanlar. İzlenebilirlik, yeniden başlatma ve bağımlılık yönetiminde güçlüdür.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.getdbt.com" target="_blank" rel="noopener">dbt Core</a></h3>
+          <p>Ambar içi SQL dönüşümlerini kod, test ve dokümantasyonla standartlaştırır. Veri modelinin kalitesini CI ile güvenceye alır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://duckdb.org" target="_blank" rel="noopener">DuckDB</a></h3>
+          <p>Uygulama içi (in-process) OLAP motoru; Parquet/CSV üzerinde hızlı analitik sağlar. Küçük-orta veri keşifleri ve yerel deneyler için idealdir.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://www.tableau.com" target="_blank" rel="noopener">Tableau</a></h3>
+          <p>Sürükle-bırak görselleştirmeler ve etkileşimli panolarla içgörüleri yaygınlaştırır. Veri kaynağı karışımları ve hikâye anlatımı (story) özellikleri olgundur.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://powerbi.microsoft.com" target="_blank" rel="noopener">Power BI</a></h3>
+          <p>DAX modelleme, paylaşımlı panolar ve veri ağ geçidiyle kurumsal raporlamayı hızlandırır. Birçok veri kaynağına doğrudan bağlanır.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://labelstud.io" target="_blank" rel="noopener">Label Studio</a></h3>
+          <p>Görüntü, metin, ses vb. için esnek veri etiketleme arayüzleri sunar. Webhook ve entegrasyonlarla aktif öğrenme/insan-döngüde iş akışına uyar.</p>
+        </article>
+
+        <article class="card" role="listitem">
+          <h3><a href="https://spark.apache.org" target="_blank" rel="noopener">Apache Spark</a></h3>
+          <p>Dağıtık hesaplama; DataFrame, MLlib ve Structured Streaming ile büyük veride standarttır. Python/Scala/SQL API’leriyle geniş ekosisteme sahiptir.</p>
+        </article>
+      </div>
+
+      <div class="note" style="margin-top:14px">
+        <strong>Not:</strong> Set, keşif/EDA → veri ambarı/transform → deney izleme &amp; MLOps → görselleştirme/iletişim → orkestrasyon zincirini dengeli kapsayacak şekilde seçildi.
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: Data Science alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://www.statlearning.com/" target="_blank" rel="noopener">An Introduction to Statistical Learning (ISL, 2nd Ed.) — Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani</a></h3>
+          <p>Uygulamalı istatistiksel öğrenmeye yumuşak giriş; R örnekleriyle sınıflandırma/regresyon, model değerlendirme ve seçimi anlatır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://www.oreilly.com/library/view/hands-on-machine-learning/9781098125967/" target="_blank" rel="noopener">Hands-On Machine Learning with Scikit-Learn, Keras &amp; TensorFlow (3rd Ed.) — Aurélien Géron</a></h3>
+          <p>Python ekosistemiyle uçtan uca pratik; veri hazırlama, klasik ML, derin öğrenme ve üretim ipuçlarını içerir.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://link.springer.com/book/10.1007/978-0-387-45528-0" target="_blank" rel="noopener">Pattern Recognition and Machine Learning — Christopher M. Bishop</a></h3>
+          <p>Olasılıksal modelleme, optimizasyon ve çekirdek yöntemleri derin matematiksel temellerle açıklar; teoriye sağlam bir zemin sağlar.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
