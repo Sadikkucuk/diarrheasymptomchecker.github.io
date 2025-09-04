@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Türkiye’de Kuraklık — Son Durum (4 Eylül 2025)</title>
+<meta name="description" content="Kuraklığın tanımı, türleri, endeksleri ve Türkiye’nin 4 Eylül 2025 itibarıyla meteorolojik, hidrolojik, tarımsal/ekolojik durumu. Hızlı özet, tablolar, metodoloji ve parametre çerçevesi.">
+<meta property="og:title" content="Türkiye’de Kuraklık — Son Durum">
+<meta property="og:description" content="4 Eylül 2025 itibarıyla yağış, SPI, baraj, sıcaklık rekoru ve sektör etkileri; kuraklığın tüm parametreleriyle.">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="tr_TR">
+<meta property="article:published_time" content="2025-09-04T18:25:00+03:00">
+<link rel="icon" href="data:,">
+<style>
+  :root{ --bg:#ffffff; --fg:#0b1220; --muted:#64748b; --soft:#f6f8fb; --line:#e5e7eb; --good:#16a34a; --warn:#ca8a04; --bad:#dc2626; }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:1180px;margin-inline:auto;padding:24px}
+  header{text-align:center;margin:14px 0 18px}
+  h1{font-size:clamp(22px,3.6vw,36px);margin:0 0 8px;letter-spacing:-0.02em}
+  .sub{color:var(--muted);font-size:.98rem}
+  .toolbar{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .toolbar button{appearance:none;border:1px solid var(--line);background:#fff;color:#111;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+  section{margin:28px 0}
+  section h2{font-size:1.25rem;margin:0 0 10px}
+  .note{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:18px 0}
+  .cards{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(min-width:900px){.cards{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+  .card h3{margin:0 0 10px;font-size:1rem}
+  .kpi{font-size:1.35rem;font-weight:800}
+  .kpi small{font-weight:600;color:var(--muted)}
+  .pill{display:inline-block;padding:.15rem .5rem;border:1px solid var(--line);border-radius:999px;font-size:.78rem;color:#111;background:#fff}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  thead th{background:var(--soft);font-weight:700;text-align:left}
+  th,td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  details{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff}
+  details+details{margin-top:10px}
+  summary{cursor:pointer;font-weight:700}
+  summary::marker{color:#94a3b8}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(min-width:900px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  .muted{color:var(--muted)}
+  .badge{font-weight:800}
+  footer{text-align:center;margin:28px 0 6px;color:var(--muted);font-size:.9rem}
+  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  @media print{ .toolbar{display:none} details{break-inside:avoid} section{break-inside:avoid} }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>Türkiye’de Kuraklık — Son Durum</h1>
+    <p class="sub">4 Eylül 2025 itibarıyla meteorolojik, hidrolojik ve tarımsal/ekolojik göstergelerin özeti; kuraklığın tanımı, türleri, endeksleri ve neden–etki çerçevesi.</p>
+    <time datetime="2025-09-04T18:25:00+03:00" class="sr">Yayın: 4 Eylül 2025, 18:25 (TSİ)</time>
+  </header>
+
+  <div class="toolbar">
+    <button onclick="window.print()" title="Yazdır veya PDF kaydet">Yazdır / PDF</button>
+    <button id="btn-jump" title="Hızlı özet tablosuna git">Hızlı Özet</button>
+    <button id="btn-params" title="Parametre çerçevesine git">Parametreler</button>
+  </div>
+
+  <section class="note" role="status" aria-live="polite">
+    Bu sayfa, kuraklığın <strong>özellik ve parametre çerçevesi</strong> ile <strong>Türkiye güncel durumu</strong>nu tek yerde birleştirir. Değerler 4 Eylül 2025 tarihinde yayınlanan rapor ve bültenlerden derlenmiştir.
+  </section>
+
+  <!-- Hızlı Özet Kartları -->
+  <section aria-labelledby="ozet">
+    <h2 id="ozet">Hızlı Özet (1 dakikada)</h2>
+    <div class="cards">
+      <article class="card"><h3>Su Yılı Yağışı</h3><div class="kpi">393.2 mm <small>(normale göre <span class="badge">%-26</span>)</small></div><div class="muted">1 Eki 2024–31 Tem 2025</div></article>
+      <article class="card"><h3>Temmuz 2025 Yağışı</h3><div class="kpi">9.6 mm <small>(normale göre %-39)</small></div><div class="muted">Marmara: 65 yılın en düşüğü</div></article>
+      <article class="card"><h3>Baraj Doluluk (TR)</h3><div class="kpi">%42.2</div><div class="muted">2024’e göre -10.7 puan</div></article>
+      <article class="card"><h3>İstanbul Barajları</h3><div class="kpi">~%40</div><div class="muted">4 Eyl 2025</div></article>
+      <article class="card"><h3>Ankara Barajları</h3><div class="kpi">~%18</div><div class="muted">03 Eyl 2025 (aktif)</div></article>
+      <article class="card"><h3>İzmir Tahtalı</h3><div class="kpi">~%5</div><div class="muted">26 yılın en düşük Eylül seviyesi</div></article>
+      <article class="card"><h3>Meteorolojik Kuraklık</h3><div class="kpi">SPI: çok ölçekli</div><div class="muted">3–24 ayda yaygın azalma</div></article>
+      <article class="card"><h3>Isı Dalgalanması</h3><div class="kpi">50.5 °C</div><div class="muted">Temmuz 2025 ulusal rekor</div></article>
+    </div>
+  </section>
+
+  <!-- Tablo: 1-dakikalık özet -->
+  <section aria-labelledby="tablo">
+    <h2 id="tablo">Özet Tablo</h2>
+    <table>
+      <thead><tr><th>Gösterge</th><th>Değer</th><th>Not</th></tr></thead>
+      <tbody>
+        <tr><td>Su yılı yağışı (1 Eki 2024–31 Tem 2025)</td><td><strong>393.2 mm</strong></td><td>Normale göre <strong>%-26</strong>; en fazla azalma Güneydoğu Anadolu (<strong>%-53</strong>); en az yağış Şanlıurfa (181.5 mm).</td></tr>
+        <tr><td>Temmuz 2025 yağışı</td><td><strong>9.6 mm</strong></td><td>Normale göre <strong>%-39</strong>, 2024’e göre <strong>%-71</strong>; Marmara 65 yılın en düşüğü (Yalova: 0 mm).</td></tr>
+        <tr><td>Baraj doluluk (Türkiye)</td><td><strong>%42.2</strong></td><td>2024’e göre <strong>-10.7 puan</strong>.</td></tr>
+        <tr><td>İstanbul barajları</td><td><strong>~%40</strong></td><td>İSKİ, 4 Eylül 2025.</td></tr>
+        <tr><td>Ankara barajları (aktif)</td><td><strong>~%18</strong></td><td>ASKİ, 03 Eylül 2025.</td></tr>
+        <tr><td>İzmir – Tahtalı</td><td><strong>~%5</strong></td><td>26 yılın en düşük Eylül seviyesi; dönüşümlü gece kesintileri uygulandı.</td></tr>
+        <tr><td>Meteorolojik kuraklık</td><td><strong>SPI: orta–şiddetli</strong></td><td>3/6/9/12/24 ay ölçeklerinde çok-ölçekli kuraklık.</td></tr>
+        <tr><td>Isı dalgaları</td><td><strong>50.5 °C</strong></td><td>Temmuz 2025’te ulusal rekor; evapotranspirasyon ↑.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Türkiye Bölümleri -->
+  <section aria-labelledby="tr-met">
+    <h2 id="tr-met">Meteorolojik Kuraklık — Türkiye</h2>
+    <p><strong>Su yılı yağışı</strong> normalin <strong>%-26</strong> altında; Güneydoğu Anadolu’da <strong>%-53</strong>, İç Anadolu’da <strong>%-36</strong>. Temmuz 2025, ülke ortalaması <strong>9.6 mm</strong> ile zayıf; Marmara’da 65 yılın en düşüğü.</p>
+    <details open>
+      <summary>SPI (Standart Yağış İndeksi) — Son durum</summary>
+      <ul>
+        <li><strong>3–6 ay:</strong> Ege/Marmara/İç–Güneydoğu’da yaygın negatif SPI.</li>
+        <li><strong>9–12 ay:</strong> İç ve Güneydoğu’da kuraklık uzun ölçeklere uzanıyor.</li>
+        <li><strong>24 ay:</strong> Bazı havzalarda kalıcı açıklar sürüyor.</li>
+      </ul>
+      <p class="muted">Not: SPI yalnızca yağışa bakar; ısı kaynaklı kurutucu etkiler <em>SPEI</em> gibi endekslerle daha iyi izlenir.</p>
+    </details>
+  </section>
+
+  <section aria-labelledby="tr-agro">
+    <h2 id="tr-agro">Tarımsal/Ekolojik Kuraklık — Türkiye</h2>
+    <ul>
+      <li><strong>Toprak nemi:</strong> Yaz boyunca düşük; sıcak dalgaları nedeniyle <em>atmosferik buharlaşma talebi</em> artışı gözlendi.</li>
+      <li><strong>Vejetasyon:</strong> NDVI/VCI/VHI araçları ile yeşillenme anomalileri izlenmeli; sezon ortasında stres genişledi.</li>
+      <li><strong>Yangın riski:</strong> Kuru toprak ve sıcaklık kombinasyonu riski yükseltti.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="tr-hydro">
+    <h2 id="tr-hydro">Hidrolojik Kuraklık — Türkiye</h2>
+    <ul>
+      <li><strong>Barajlar (Türkiye):</strong> Aktif doluluk <strong>%42.2</strong>.</li>
+      <li><strong>İstanbul:</strong> ~<strong>%40</strong> (4 Eyl 2025).</li>
+      <li><strong>Ankara:</strong> ~<strong>%18</strong> (03 Eyl 2025, aktif).</li>
+      <li><strong>İzmir/ Tahtalı:</strong> ~<strong>%5</strong> — 26 yılın en düşük Eylül değeri; gece planlı kesinti uygulandı.</li>
+      <li><strong>Yeraltı suyu:</strong> GRACE/GDO ürünleri ile haftalık anomaliler izlenmeli.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="tr-imp">
+    <h2 id="tr-imp">Sektörel Etkiler & Kısa Dönem Görünüm</h2>
+    <div class="grid">
+      <div>
+        <h3>Su Yönetimi</h3>
+        <ul>
+          <li>Şebekede talep yönetimi ve kaçak–kayıp azaltımı öncelikli.</li>
+          <li>İzmir örneği: düşük rezerv nedeniyle planlı kesintiler.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Tarımsal Üretim</h3>
+        <ul>
+          <li>Güneydoğu ve İç Anadolu kırılgan; sulamada verimlilik ve ürün deseninde esneklik gerekli.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Enerji</h3>
+        <ul>
+          <li>HES üretimi doluluklara duyarlı; düşük akışlı dönemde baskı artıyor.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted">Su yılı kapanışına (30 Eylül) kadar yağışların açığı tamamen kapatması beklenmez; 2025 yazındaki sıcak ve kuru bileşim kuraklığı pekiştirmiştir.</p>
+  </section>
+
+  <!-- KURAKLIK: Özellikler ve Parametre Çerçevesi (makaleden) -->
+  <section aria-labelledby="framework">
+    <h2 id="framework">Kuraklığın Özellikleri & Parametre Çerçevesi</h2>
+
+    <details open>
+      <summary>Tanım ve kapsam</summary>
+      <ul>
+        <li><strong>IPCC AR6:</strong> Bir yer ve mevsim için <em>normalin altında nem</em> (nem açığı).</li>
+        <li><strong>NIDIS/NOAA:</strong> Uzun süreli yağış/nem eksikliğine bağlı geniş alanlı <em>su kıtlığı</em> ve olumsuz etkiler.</li>
+        <li>Süre günlerden yıllara uzanır; iklim değişikliğiyle <em>daha aşırı ve öngörülemez</em>.</li>
+        <li>Etkiler: çevresel, ekonomik, sosyal/sağlık.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Kuraklık türleri</summary>
+      <ul>
+        <li><strong>Meteorolojik:</strong> Uzun süre ortalamanın altı yağış.</li>
+        <li><strong>Hidrolojik:</strong> Akış/akarsu/rezervuar/yeraltı suyu <em>eşik altı</em>.</li>
+        <li><strong>Tarımsal/Ekolojik:</strong> Düşük toprak nemi + yüksek buharlaşma → bitki stresi.</li>
+        <li><strong>Sosyo-ekonomik:</strong> Su kıtlığı nedeniyle <em>arz talebi karşılamaz</em>.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Endeksler ve izleme</summary>
+      <ul>
+        <li><strong>PDSI</strong> (yağış+sıcaklık; su bilançosu)</li>
+        <li><strong>SPI</strong> (yağış bazlı, çok ölçekli; WMO önerir)</li>
+        <li><strong>SPEI</strong> (yağış – atmosferik buharlaşma talebi)</li>
+        <li><strong>KBDI</strong> (yangın tehlikesi/kuruma)</li>
+        <li><strong>NDVI/VCI/VHI</strong> (uydu bitki ve ısı göstergeleri)</li>
+        <li><strong>Standardized Runoff Index, Deciles</strong></li>
+      </ul>
+      <p class="muted">Yüksek çözünürlüklü ürünler: <em>süre–şiddet–büyüklük–alan</em> değişimini daha iyi yakalar. Tek veri kümesine bağlı kalmayın.</p>
+    </details>
+
+    <details>
+      <summary>Nedenler ve tetikleyiciler</summary>
+      <ul>
+        <li>Yağış oluşturan süreçlerin zayıflığı (konvektif/stratiform/orografik), yüksek basınç sırtları.</li>
+        <li>Geri besleme: sıcak dalgaları → evapotranspirasyon ↑ → toprak/bitki kurur → yangın riski ↑.</li>
+        <li>Tropik kuru mevsim; <strong>ENSO</strong> (La Niña/El Niño) fazlarına bağlı alanlar.</li>
+        <li><strong>İklim değişikliği:</strong> Kara üzeri ısınma → atmosferik buharlaşma talebi ↑ → kuraklık şiddeti/sıklığı ↑.</li>
+        <li><strong>İnsan etkileri:</strong> Aşırı sulama, yanlış arazi kullanımı, ormansızlaşma, erozyon, odunsu bitki istilası.</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Etkiler</summary>
+      <div class="grid">
+        <div>
+          <h3>Çevresel</h3>
+          <ul>
+            <li>Sulak alanların kuruması, akış/yeraltı suyu düşüşü</li>
+            <li>Biyoçeşitlilik kaybı, ağaç ölümleri</li>
+            <li>Daha sık/büyük yangınlar, rüzgâr erozyonu</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Ekonomik</h3>
+          <ul>
+            <li>Tarım/ormancılık/şebeke suyu/ulaşım/enerji etkileri</li>
+            <li>Hidroelektrik üretimde düşüş</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Sosyal & Sağlık</h3>
+          <ul>
+            <li>Su kıtlığı, gıda fiyatları, göç, insani kriz</li>
+            <li>Toz ve dumanla artan hava kirliliği</li>
+          </ul>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Parametre listesi (izleme için)</summary>
+      <ul>
+        <li><strong>İklim girdileri:</strong> Yağış, sıcaklık, rüzgâr, basınç, ENSO fazı</li>
+        <li><strong>Su döngüsü:</strong> Toprak nemi, (pot.) evapotranspirasyon, akış, rezervuar/yeraltı suyu</li>
+        <li><strong>Vejetasyon:</strong> NDVI/VCI/VHI, kök nemi</li>
+        <li><strong>Endeksler:</strong> PDSI, SPI, SPEI, KBDI, Deciles, SRI</li>
+        <li><strong>Olay ölçütleri:</strong> Süre, şiddet, büyüklük, etkilenmiş alan %, eşik sınıfları (örn. D2+)</li>
+        <li><strong>Etkiler:</strong> Tarım verimi, yangın sıklığı, su tedariki, enerji, sağlık göstergeleri</li>
+        <li><strong>Yönetim:</strong> Su çekimi, sulama, arazi kullanım değişimi</li>
+      </ul>
+    </details>
+  </section>
+
+  <section aria-labelledby="kaynak">
+    <h2 id="kaynak">Veri Notu & Kaynaklar</h2>
+    <p>Değerler 4 Eylül 2025 itibarıyla ulusal/uluslararası açık kaynak rapor ve bültenlerden derlenmiştir: MGM (Aylık/Mevsimlik/Kümülatif yağış; Kuraklık Analizi/SPI), İSKİ/ASKİ/İZSU baraj verileri, Copernicus/C3S toprak nemi ve iklim bültenleri, GRACE/GDO yeraltı suyu ürünleri, USDA NDVI araçları, ajans bültenleri.</p>
+    <p class="muted">Not: Sayfa bilgi amaçlıdır; canlı veri için kurumların güncel sayfalarına başvurunuz.</p>
+  </section>
+
+  <footer>
+    <p>© 2025 • Türkiye’de Kuraklık — Son Durum • Beyaz tema • Yazdırılabilir</p>
+  </footer>
+</main>
+<script>
+  document.getElementById('btn-jump').addEventListener('click', ()=>{
+    document.getElementById('tablo').scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('btn-params').addEventListener('click', ()=>{
+    document.getElementById('framework').scrollIntoView({behavior:'smooth'});
+  });
+</script>
+</body>
+</html>
