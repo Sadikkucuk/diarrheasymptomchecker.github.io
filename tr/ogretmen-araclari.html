@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Öğretmen Yardımcı Uygulamaları ve Web Siteleri (TR) — K12</title>
+<meta name="description" content="Türkiye'de ilkokul, ortaokul ve lise öğretmenlerinin (MEB devlet uygulamaları hariç) işlerini yaparken kullandığı yardımcı uygulamalar ve web siteleri.">
+<style>
+  :root{
+    --bg:#ffffff; --fg:#0b1220; --muted:#6b7280; --line:#e5e7eb; --link:#0a58ca; --chip:#f3f4f6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,"Helvetica Neue",Arial,"Apple Color Emoji","Segoe UI Emoji";
+  }
+  .wrap{
+    max-width: 980px;
+    margin: 48px auto 80px;
+    padding: 0 20px;
+  }
+  header{
+    text-align:center; margin-bottom: 24px;
+  }
+  h1{margin:0 0 8px; font-size: clamp(24px,3.4vw,34px);}
+  p.lead{margin:0 auto 18px; color:var(--muted); max-width: 70ch}
+  .toc{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin: 18px auto 8px;
+  }
+  .toc a{
+    display:inline-block; padding:8px 12px; border:1px solid var(--line); border-radius:999px;
+    text-decoration:none; color:var(--fg); background:var(--chip);
+    font-size:14px; white-space:nowrap;
+  }
+  .search{
+    margin: 18px auto 28px; display:flex; justify-content:center;
+  }
+  .search input{
+    width: min(720px, 100%); padding:12px 14px; border:1px solid var(--line); border-radius:10px;
+    font-size:16px; outline:none;
+  }
+  section{margin: 34px 0}
+  h2{
+    font-size: clamp(20px,2.4vw,26px);
+    border-bottom:1px solid var(--line); padding-bottom:6px; margin-bottom:14px;
+  }
+  ul{margin:0; padding:0 0 0 18px}
+  li{margin: 8px 0 10px}
+  a{color:var(--link); text-decoration:underline}
+  .meta{color:var(--muted); font-size:14px}
+  footer{
+    margin-top: 40px; padding-top: 16px; border-top:1px solid var(--line); color:var(--muted); font-size:14px; text-align:center;
+  }
+  .backtop{
+    position: fixed; right: 18px; bottom: 18px; padding:10px 12px; border-radius:999px;
+    background:#111; color:#fff; border:none; cursor:pointer; font-size:14px; display:none;
+  }
+  @media (prefers-reduced-motion:no-preference){
+    html{scroll-behavior:smooth}
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Öğretmen Yardımcı Uygulamaları ve Web Siteleri (K12)</h1>
+      <p class="lead">Devlet uygulamaları (MEB/EBA vb.) hariç; Türkiye’de ilkokul, ortaokul ve lise öğretmenlerinin sık kullandığı araçların tek cümlelik açıklamalar ve <em>metin linkleri</em> ile derlenmiş listesi.</p>
+
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#lms">Sınıf yönetimi &amp; LMS</a>
+        <a href="#quiz">Canlı quiz &amp; katılım</a>
+        <a href="#sunum">Etkileşimli ders &amp; içerik</a>
+        <a href="#stem">Matematik/Fen</a>
+        <a href="#steam">Kodlama &amp; STEAM</a>
+        <a href="#yazma">Yazma &amp; intihal</a>
+        <a href="#tahta">Beyaz tahta</a>
+        <a href="#kartlar">Kartlar &amp; tekrar</a>
+        <a href="#worksheet">Çalışma kâğıdı</a>
+        <a href="#planlama">Planlama &amp; rubrik</a>
+        <a href="#okuma">Okuma &amp; açık içerik</a>
+        <a href="#sozluk">Sözlük &amp; çeviri</a>
+        <a href="#tr-ozel">TR odaklı platformlar</a>
+        <a href="#sinif-arac">Sınıf araçları</a>
+        <a href="#dokuman">Doküman &amp; işbirliği</a>
+      </nav>
+
+      <div class="search">
+        <input id="filter" type="search" placeholder="Araçlar içinde ara (ör. matematik, quiz, rubrik, video...)">
+      </div>
+      <p class="meta">Not: Bağlantılar resmi sitelere yönlendirir; bazıları kurumsal/okul e-postasıyla ücretsiz eğitim sürümü sunar.</p>
+    </header>
+
+    <!-- 1) LMS -->
+    <section id="lms">
+      <h2>1) Sınıf yönetimi, LMS, iletişim</h2>
+      <ul>
+        <li><strong>Google Classroom</strong> — ödev, duyuru ve notlamayı Drive/Docs/Meet ile birleştiren hafif LMS. <a href="https://classroom.google.com" target="_blank" rel="noopener">classroom.google.com</a></li>
+        <li><strong>Microsoft Teams for Education</strong> — ödev, rubrik, OneNote Class Notebook ve Forms entegrasyonlu ekip çalışması. <a href="https://www.microsoft.com/education/products/teams" target="_blank" rel="noopener">microsoft.com/education</a></li>
+        <li><strong>MoodleCloud</strong> — kurulum derdi olmadan barındırmalı açık kaynak Moodle. <a href="https://moodlecloud.com" target="_blank" rel="noopener">moodlecloud.com</a></li>
+        <li><strong>Canvas (Instructure)</strong> — K-12 ve lise düzeyinde güçlü LMS, ödev ve rubrik akışları. <a href="https://www.instructure.com/k12" target="_blank" rel="noopener">instructure.com/k12</a></li>
+        <li><strong>ClassDojo</strong> — sınıf davranış puanı ve veli-öğretmen iletişimi. <a href="https://www.classdojo.com" target="_blank" rel="noopener">classdojo.com</a></li>
+        <li><strong>Remind</strong> — SMS/uygulama üzerinden anlık duyuru ve hatırlatmalar. <a href="https://www.remind.com" target="_blank" rel="noopener">remind.com</a></li>
+        <li><strong>Seesaw</strong> — özellikle ilkokulda öğrenci portfolyosu ve aile katılımı. <a href="https://web.seesaw.me" target="_blank" rel="noopener">web.seesaw.me</a></li>
+      </ul>
+    </section>
+
+    <!-- 2) Quiz -->
+    <section id="quiz">
+      <h2>2) Oyunlaştırılmış ölçme, canlı katılım &amp; quiz</h2>
+      <ul>
+        <li><strong>Kahoot!</strong> — canlı bilgi yarışmaları ve ödev moduyla anlık geri bildirim. <a href="https://kahoot.com" target="_blank" rel="noopener">kahoot.com</a></li>
+        <li><strong>Quizizz</strong> — sınıfta/canlı veya ödev olarak özelleştirilebilir quizler. <a href="https://quizizz.com" target="_blank" rel="noopener">quizizz.com</a></li>
+        <li><strong>Socrative</strong> — anlık sınav, exit ticket ve raporlama. <a href="https://www.socrative.com" target="_blank" rel="noopener">socrative.com</a></li>
+        <li><strong>Nearpod</strong> — etkileşimli slaytlar, quiz ve etkinlik içeren ders akışları. <a href="https://nearpod.com" target="_blank" rel="noopener">nearpod.com</a></li>
+        <li><strong>Pear Deck</strong> — Google Slides/PowerPoint içine gömülü etkileşimli soru-cevap. <a href="https://www.peardeck.com" target="_blank" rel="noopener">peardeck.com</a></li>
+        <li><strong>Mentimeter</strong> — canlı anket, kelime bulutu, quiz ve Soru-Cevap. <a href="https://www.mentimeter.com/education" target="_blank" rel="noopener">mentimeter.com/education</a></li>
+        <li><strong>Plickers</strong> — cihazsız öğrenci yanıtları için kart tarama tabanlı ölçme. <a href="https://get.plickers.com" target="_blank" rel="noopener">plickers.com</a></li>
+        <li><strong>Formative (GoFormative)</strong> — gerçek zamanlı yanıt/puanlama ve standart eşlemesi. <a href="https://www.formative.com" target="_blank" rel="noopener">formative.com</a></li>
+        <li><strong>Blooket</strong> — oyun temelli alıştırmalar ve sınıf yarışmaları. <a href="https://www.blooket.com" target="_blank" rel="noopener">blooket.com</a></li>
+        <li><strong>Baamboozle</strong> — hızlı takım oyunları ve sınıf içi yarışmalar. <a href="https://www.baamboozle.com" target="_blank" rel="noopener">baamboozle.com</a></li>
+        <li><strong>Wordwall</strong> — etkileşimli etkinlik ve oyun şablonları (eşleştirme, çark vb.). <a href="https://wordwall.net" target="_blank" rel="noopener">wordwall.net</a></li>
+        <li><strong>Liveworksheets</strong> — PDF/worksheet’leri etkileşimli çevrimiçi alıştırmaya çevirir. <a href="https://www.liveworksheets.com" target="_blank" rel="noopener">liveworksheets.com</a></li>
+        <li><strong>LearningApps</strong> — atama ve oyunlaştırılmış mikro-etkinlikler. <a href="https://learningapps.org" target="_blank" rel="noopener">learningapps.org</a></li>
+        <li><strong>Flippity</strong> — Google Sheets’ten quiz, kelime oyunu, kart vb. üretir. <a href="https://flippity.net" target="_blank" rel="noopener">flippity.net</a></li>
+      </ul>
+    </section>
+
+    <!-- 3) İçerik üretimi -->
+    <section id="sunum">
+      <h2>3) Etkileşimli ders sunumu &amp; içerik üretimi</h2>
+      <ul>
+        <li><strong>Canva for Education</strong> — poster, çalışma kâğıdı, rubrik ve görsel hazırlanır. <a href="https://www.canva.com/education/" target="_blank" rel="noopener">canva.com/education</a></li>
+        <li><strong>Genially</strong> — interaktif sunum/infografik/oyun içerikleri. <a href="https://genial.ly" target="_blank" rel="noopener">genial.ly</a></li>
+        <li><strong>Padlet</strong> — duvar panosuyla fikir toplama ve portfolyo. <a href="https://padlet.com" target="_blank" rel="noopener">padlet.com</a></li>
+        <li><strong>Book Creator</strong> — öğrencilerle dijital kitap/dergi oluşturma. <a href="https://bookcreator.com" target="_blank" rel="noopener">bookcreator.com</a></li>
+        <li><strong>Prezi</strong> — hareketli, yakınlaştırmalı sunumlar. <a href="https://prezi.com" target="_blank" rel="noopener">prezi.com</a></li>
+        <li><strong>Edpuzzle</strong> — videolara soru ekleyip izlemeyi/puanlamayı takip eder. <a href="https://edpuzzle.com" target="_blank" rel="noopener">edpuzzle.com</a></li>
+        <li><strong>Microsoft Flip</strong> — kısa video yanıtlarıyla tartışma ve paylaşım. <a href="https://info.flip.com" target="_blank" rel="noopener">info.flip.com</a></li>
+        <li><strong>Loom for Education</strong> — ekran/video kaydıyla açıklama ve geribildirim. <a href="https://www.loom.com/education" target="_blank" rel="noopener">loom.com/education</a></li>
+        <li><strong>Screencastify</strong> — tarayıcıdan ekran kaydı ve soru ekleme. <a href="https://www.screencastify.com" target="_blank" rel="noopener">screencastify.com</a></li>
+      </ul>
+    </section>
+
+    <!-- 4) STEM -->
+    <section id="stem">
+      <h2>4) Matematik/Fen ve simülasyon</h2>
+      <ul>
+        <li><strong>GeoGebra</strong> — dinamik geometri, cebir ve çizelge araçları. <a href="https://www.geogebra.org" target="_blank" rel="noopener">geogebra.org</a></li>
+        <li><strong>Desmos Classroom</strong> — grafik hesap makinesi ve etkinlikler. <a href="https://www.desmos.com" target="_blank" rel="noopener">desmos.com</a></li>
+        <li><strong>PhET</strong> — fen ve matematik için etkileşimli simülasyonlar. <a href="https://phet.colorado.edu" target="_blank" rel="noopener">phet.colorado.edu</a></li>
+        <li><strong>Mathigon</strong> — görsel anlatımlı matematik kursları ve oyunlar. <a href="https://mathigon.org" target="_blank" rel="noopener">mathigon.org</a></li>
+      </ul>
+    </section>
+
+    <!-- 5) Kodlama -->
+    <section id="steam">
+      <h2>5) Kodlama/robotik &amp; STEAM</h2>
+      <ul>
+        <li><strong>Tinkercad</strong> — 3D tasarım ve devre/simülasyon (Arduino) ortamı. <a href="https://www.tinkercad.com" target="_blank" rel="noopener">tinkercad.com</a></li>
+        <li><strong>Scratch</strong> — blok tabanlı kodlama ile hikâye/oyun. <a href="https://scratch.mit.edu" target="_blank" rel="noopener">scratch.mit.edu</a></li>
+        <li><strong>Code.org</strong> — kademeli bilgisayar bilimi müfredatı ve etkinlikler. <a href="https://code.org" target="_blank" rel="noopener">code.org</a></li>
+        <li><strong>Replit</strong> — tarayıcıda çoklu dil desteğiyle kodlama/ödev ortamı. <a href="https://replit.com" target="_blank" rel="noopener">replit.com</a></li>
+        <li><strong>micro:bit (MakeCode)</strong> — mikrodenetleyiciyle fiziksel bilişim etkinlikleri. <a href="https://makecode.microbit.org" target="_blank" rel="noopener">makecode.microbit.org</a></li>
+        <li><strong>Arduino Education</strong> — sınıf için kitler ve içerikler. <a href="https://education.arduino.cc" target="_blank" rel="noopener">education.arduino.cc</a></li>
+      </ul>
+    </section>
+
+    <!-- 6) Yazma -->
+    <section id="yazma">
+      <h2>6) Yazma, dil ve intihal kontrolü</h2>
+      <ul>
+        <li><strong>Turnitin</strong> — ödevlerde benzerlik/intihal denetimi ve geri bildirim. <a href="https://www.turnitin.com" target="_blank" rel="noopener">turnitin.com</a></li>
+        <li><strong>Grammarly for Education</strong> — yazım/gramer ve ton geribildirimi. <a href="https://www.grammarly.com/edu" target="_blank" rel="noopener">grammarly.com/edu</a></li>
+        <li><strong>Quill.org</strong> — yazma becerileri için uyarlanabilir alıştırmalar. <a href="https://www.quill.org" target="_blank" rel="noopener">quill.org</a></li>
+        <li><strong>LanguageTool</strong> — çok dilli yazım-dilbilgisi denetimi. <a href="https://languagetool.org" target="_blank" rel="noopener">languagetool.org</a></li>
+      </ul>
+    </section>
+
+    <!-- 7) Beyaz tahta -->
+    <section id="tahta">
+      <h2>7) Beyaz tahta ve fikir panoları</h2>
+      <ul>
+        <li><strong>Whiteboard.fi</strong> — öğrenci başına bireysel çevrimiçi tahta. <a href="https://whiteboard.fi" target="_blank" rel="noopener">whiteboard.fi</a></li>
+        <li><strong>Whiteboard.chat</strong> — sınıf yönetimli paylaşımlı beyaz tahta. <a href="https://www.whiteboard.chat" target="_blank" rel="noopener">whiteboard.chat</a></li>
+        <li><strong>Explain Everything</strong> — kayıtlı/etkileşimli beyaz tahta dersleri. <a href="https://explaineverything.com" target="_blank" rel="noopener">explaineverything.com</a></li>
+        <li><strong>FigJam for Education</strong> — Figma’nın sınıf içi ortak çalışma tahtası. <a href="https://www.figma.com/education/" target="_blank" rel="noopener">figma.com/education</a></li>
+        <li><strong>Miro Education</strong> — şemalar, akışlar ve beyin fırtınası. <a href="https://miro.com/education/" target="_blank" rel="noopener">miro.com/education</a></li>
+      </ul>
+    </section>
+
+    <!-- 8) Kartlar -->
+    <section id="kartlar">
+      <h2>8) Kartlar, tekrar ve ezber</h2>
+      <ul>
+        <li><strong>Quizlet</strong> — kavram-tanım setleri ve oyun modları. <a href="https://quizlet.com" target="_blank" rel="noopener">quizlet.com</a></li>
+        <li><strong>Anki</strong> — aralıklı tekrar mantığıyla gelişmiş kart sistemi. <a href="https://apps.ankiweb.net" target="_blank" rel="noopener">apps.ankiweb.net</a></li>
+        <li><strong>Brainscape</strong> — sınıf/kurum için izleme ve SR tabanlı kartlar. <a href="https://www.brainscape.com" target="_blank" rel="noopener">brainscape.com</a></li>
+        <li><strong>Memrise</strong> — video kliplerle özgün dil girdisi ve tekrar. <a href="https://www.memrise.com" target="_blank" rel="noopener">memrise.com</a></li>
+      </ul>
+    </section>
+
+    <!-- 9) Worksheet -->
+    <section id="worksheet">
+      <h2>9) Çalışma kâğıdı/etkinlik üreticiler</h2>
+      <ul>
+        <li><strong>Educandy</strong> — kelime oyunları ve quizleri hızla üretir. <a href="https://www.educandy.com" target="_blank" rel="noopener">educandy.com</a></li>
+        <li><strong>Crossword Labs</strong> — bulmaca ve kelime avı oluşturucu. <a href="https://crosswordlabs.com" target="_blank" rel="noopener">crosswordlabs.com</a></li>
+        <li><strong>Flippity</strong> — Sheets’ten çok sayıda oyun/etkinlik (bkz. yukarı). <a href="https://flippity.net" target="_blank" rel="noopener">flippity.net</a></li>
+      </ul>
+    </section>
+
+    <!-- 10) Planlama -->
+    <section id="planlama">
+      <h2>10) Planlama, notlandırma ve rubrik</h2>
+      <ul>
+        <li><strong>Additio</strong> — dijital not defteri, yoklama, rubrik ve planlama. <a href="https://additioapp.com" target="_blank" rel="noopener">additioapp.com</a></li>
+        <li><strong>TeacherKit</strong> — yoklama, not, davranış takibi; sınıf yönetimi. <a href="https://www.teacherkit.net" target="_blank" rel="noopener">teacherkit.net</a></li>
+        <li><strong>Planboard (Chalk)</strong> — ders planı/takvimi ve standart eşlemesi. <a href="https://www.chalk.com" target="_blank" rel="noopener">chalk.com</a></li>
+        <li><strong>RubiStar</strong> — hızlı rubrik şablonları üretir. <a href="https://rubistar.4teachers.org" target="_blank" rel="noopener">rubistar.4teachers.org</a></li>
+      </ul>
+    </section>
+
+    <!-- 11) Okuma -->
+    <section id="okuma">
+      <h2>11) Okuma ve açık içerik kütüphaneleri</h2>
+      <ul>
+        <li><strong>Khan Academy</strong> — ders videoları, alıştırmalar ve öğretmen panosu. <a href="https://www.khanacademy.org" target="_blank" rel="noopener">khanacademy.org</a></li>
+        <li><strong>CommonLit</strong> — metinler, sorular ve okuryazarlık etkinlikleri. <a href="https://www.commonlit.org" target="_blank" rel="noopener">commonlit.org</a></li>
+        <li><strong>TED-Ed</strong> — ders planlı kısa eğitim videoları. <a href="https://ed.ted.com" target="_blank" rel="noopener">ed.ted.com</a></li>
+        <li><strong>National Geographic Education</strong> — ders planları ve kaynaklar. <a href="https://education.nationalgeographic.org" target="_blank" rel="noopener">education.nationalgeographic.org</a></li>
+      </ul>
+    </section>
+
+    <!-- 12) Sözlük -->
+    <section id="sozluk">
+      <h2>12) Sözlük/çeviri (resmî kurumlar hariç)</h2>
+      <ul>
+        <li><strong>Tureng</strong> — TR-EN odaklı çok dilli sözlük ve telaffuz. <a href="https://tureng.com" target="_blank" rel="noopener">tureng.com</a></li>
+        <li><strong>Cambridge Dictionary</strong> — öğrenen odaklı sözlük/çeviri ve telaffuz. <a href="https://dictionary.cambridge.org" target="_blank" rel="noopener">dictionary.cambridge.org</a></li>
+        <li><strong>Linguee</strong> — bağlam içinde iki dilli örneklerle arama. <a href="https://www.linguee.com" target="_blank" rel="noopener">linguee.com</a></li>
+        <li><strong>Reverso Context</strong> — bağlamsal örneklerle çok dilli arama. <a href="https://context.reverso.net/translation/" target="_blank" rel="noopener">context.reverso.net</a></li>
+      </ul>
+    </section>
+
+    <!-- 13) Türkiye odaklı -->
+    <section id="tr-ozel">
+      <h2>13) Türkiye odaklı <em>özel</em> (devlet dışı) platformlar</h2>
+      <ul>
+        <li><strong>Morpa Kampüs</strong> — ilkokul/ortaokul için ders anlatımı, test ve raporlama. <a href="https://www.morpakampus.com" target="_blank" rel="noopener">morpakampus.com</a></li>
+        <li><strong>Okulistik</strong> — konu anlatımı, ölçme-değerlendirme, oyun ve e-kitaplar. <a href="https://www.okulistik.com" target="_blank" rel="noopener">okulistik.com</a></li>
+        <li><strong>Doping Hafıza</strong> — video ders, soru bankası ve sınav hazırlık araçları. <a href="https://www.dopinghafiza.com" target="_blank" rel="noopener">dopinghafiza.com</a></li>
+        <li><strong>Kunduz</strong> — öğrencilerin soru gönderdiği, öğretmenlerin yanıtladığı destek platformu. <a href="https://kunduz.com" target="_blank" rel="noopener">kunduz.com</a></li>
+      </ul>
+    </section>
+
+    <!-- 14) Sınıf araçları -->
+    <section id="sinif-arac">
+      <h2>14) Sınıf araçları (zamanlayıcı, isim seçici, gürültü ölçer)</h2>
+      <ul>
+        <li><strong>Classroomscreen</strong> — tek ekranda zamanlayıcı, ses seviyesi, QR, rastgele isim vb. widget’lar. <a href="https://classroomscreen.com" target="_blank" rel="noopener">classroomscreen.com</a></li>
+        <li><strong>Bouncy Balls</strong> — mikrofondan sınıf gürültü düzeyini görselleştirir. <a href="https://bouncyballs.org" target="_blank" rel="noopener">bouncyballs.org</a></li>
+        <li><strong>Online Stopwatch</strong> — kronometre, geri sayım ve oyunlu zamanlayıcılar. <a href="https://www.onlinestopwatch.com" target="_blank" rel="noopener">onlinestopwatch.com</a></li>
+        <li><strong>Wheel of Names</strong> — rastgele isim/öğe seçici. <a href="https://wheelofnames.com" target="_blank" rel="noopener">wheelofnames.com</a></li>
+        <li><strong>ClassroomQ</strong> — öğrencilerin “söz istiyorum/soru var” kuyruğunu yönetir. <a href="https://classroomq.com" target="_blank" rel="noopener">classroomq.com</a></li>
+      </ul>
+    </section>
+
+    <!-- 15) Doküman -->
+    <section id="dokuman">
+      <h2>15) Doküman ve işbirliği</h2>
+      <ul>
+        <li><strong>Google Docs</strong> — eşzamanlı doküman yazımı ve şablonlar. <a href="https://docs.google.com" target="_blank" rel="noopener">docs.google.com</a></li>
+        <li><strong>OneNote Class Notebook</strong> — her öğrenci için özel bölüm ve ortak alan. <a href="https://www.onenote.com/classnotebook" target="_blank" rel="noopener">onenote.com/classnotebook</a></li>
+        <li><strong>Notion (Education)</strong> — ders planı, içerik havuzu ve paylaşımlı sayfalar. <a href="https://www.notion.com/product/notion-for-education" target="_blank" rel="noopener">notion.com/education</a></li>
+        <li><strong>Trello for Educators</strong> — ders/ödev kanban panoları ve koordinasyon. <a href="https://trello.com/education" target="_blank" rel="noopener">trello.com/education</a></li>
+      </ul>
+    </section>
+
+    <footer>
+      <div>© 2025 — Bağımsız kaynak derlemesi. <strong>Not:</strong> Bu sayfa bilgilendirme amaçlıdır; okul/kurum politikalarınızı dikkate alınız.</div>
+    </footer>
+  </div>
+
+  <button class="backtop" id="backtop" aria-label="Yukarı dön">↑ Yukarı</button>
+
+<script>
+  // Basit filtreleme
+  const filter = document.getElementById('filter');
+  filter.addEventListener('input', () => {
+    const q = filter.value.trim().toLowerCase();
+    document.querySelectorAll('section ul li').forEach(li => {
+      li.style.display = li.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // Yukarı dön butonu
+  const btn = document.getElementById('backtop');
+  window.addEventListener('scroll', () => {
+    btn.style.display = window.scrollY > 400 ? 'block' : 'none';
+  });
+  btn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+</script>
+</body>
+</html>
