@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DevOps Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</title>
+  <meta name="description" content="DevOps Engineer rolü için kısa tanım, araç setleri ve kitap önerileri. Beyaz temalı, sade ve erişilebilir bir rehber." />
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --card:#ffffff;
+      --accent:#0ea5e9;        /* mavi ton */
+      --accent-ink:#075985;
+      --ring: rgba(14,165,233,.28);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:16px/1.65 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+    header.hero{padding:8px 0 24px;border-bottom:1px solid var(--line);margin-bottom:24px}
+    .kicker{display:inline-block;letter-spacing:.08em;text-transform:uppercase;font-weight:700;font-size:.78rem;color:var(--accent-ink);background:rgba(14,165,233,.08);padding:.35rem .6rem;border-radius:999px}
+    h1{font-size:clamp(1.8rem,2.6vw,2.6rem);line-height:1.15;margin:.6rem 0 0.4rem}
+    .lede{color:var(--muted);margin:0;max-width:72ch}
+    nav.toc{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+    nav.toc a{font-size:.9rem;color:var(--accent-ink);text-decoration:none;background:rgba(14,165,233,.08);padding:.4rem .6rem;border-radius:8px;border:1px solid rgba(14,165,233,.18)}
+    section{margin:40px 0}
+    section h2{font-size:1.4rem;margin:0 0 12px}
+    .prose p{margin:0 0 10px}
+    .subtle{color:var(--muted)}
+    .group{margin:26px 0 8px;font-size:1.05rem}
+    .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px 16px;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+    }
+    .card:hover{transform:translateY(-2px);box-shadow:0 6px 18px -8px rgba(2,6,23,.18);border-color:#cbd5e1}
+    .card h3{margin:0 0 6px;font-size:1.02rem}
+    .card a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .books{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .book{border:1px solid var(--line);border-radius:14px;padding:16px 16px;background:var(--card)}
+    .book h3{margin:0 0 6px;font-size:1.05rem}
+    .book a{color:var(--accent-ink);text-decoration:none;border-bottom:1px dashed rgba(14,165,233,.45)}
+    .note{border-left:4px solid var(--accent);background:rgba(14,165,233,.06);padding:10px 12px;border-radius:8px}
+    .footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+    a:focus-visible,.card:focus-within{outline:2px solid var(--ring);outline-offset:2px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="hero">
+      <span class="kicker">DevOps</span>
+      <h1>DevOps Engineer: Kısa Tanım, Araçlar ve Kitap Önerileri</h1>
+      <p class="lede">Rol özeti, dengeli seçilmiş araç yığını ve üç temel kaynakla beyaz temalı, sade bir sayfa.</p>
+      <nav class="toc" aria-label="İçindekiler">
+        <a href="#tanim">Kısa Tanım</a>
+        <a href="#araclar">Araçlar</a>
+        <a href="#kitaplar">Kitap Önerileri</a>
+      </nav>
+    </header>
+
+    <!-- 1) Tanım -->
+    <section id="tanim" class="prose">
+      <h2>1) DevOps Engineer nedir?</h2>
+      <p>DevOps Engineer, yazılım teslimatını hızlandırmak ve güvenilirliği artırmak için geliştirme (Dev) ve operasyon (Ops) disiplinlerini otomasyonla birleştiren kişidir. Süreçleri kodlaştırır (IaC), sürekli tümleştirme/dağıtım (CI/CD) boru hatları kurar ve gözlemlenebilirlikle (metric-log-trace) kaliteyi görünür kılar. Güvenlik (DevSecOps), maliyet ve ölçeklenebilirlik gibi kalite niteliklerini erken safhada ele alır. Hedefi; tekrar üretilebilir, denetlenebilir ve kendi kendini iyileştiren bir teslimat sistemi kurmaktır.</p>
+    </section>
+
+    <!-- 2) Araçlar -->
+    <section id="araclar">
+      <h2>2) DevOps’ların sık kullandığı araçlar</h2>
+
+      <h3 class="group">CI/CD</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://github.com/features/actions" target="_blank" rel="noopener">GitHub Actions</a></h3>
+          <p>Depoya her itişte CI/CD iş akışları tetiklersiniz. Matris derlemeleri, ortam sırları ve self-hosted runner’larla esnektir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://docs.gitlab.com/ee/ci/" target="_blank" rel="noopener">GitLab CI/CD</a></h3>
+          <p><code>.gitlab-ci.yml</code> ile boru hatlarını kod olarak tanımlarsınız. Dahili container registry, review apps ve ortam korumaları sunar.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.jenkins.io" target="_blank" rel="noopener">Jenkins</a></h3>
+          <p>Açık kaynak CI/CD sunucusu; yüzlerce eklentiyle derleme, test, dağıtımı otomatikleştirir. Pipeline-as-code yaklaşımıyla süreçler sürümlenir.</p>
+        </article>
+      </div>
+
+      <h3 class="group">Container &amp; Orkestrasyon</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.docker.com" target="_blank" rel="noopener">Docker</a></h3>
+          <p>Uygulamaları taşınabilir imajlara paketleyip her yerde aynı şekilde çalıştırırsınız. Compose ile çok servisi yerelde kolayca orkestre edersiniz.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://kubernetes.io" target="_blank" rel="noopener">Kubernetes</a></h3>
+          <p>Container orkestrasyonu standardı; dağıtım, ölçekleme ve self-healing özellikleri sağlar. RBAC, HPA ve taint/affinity ile güvenli ve verimli kümeler kurulur.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://helm.sh" target="_blank" rel="noopener">Helm</a></h3>
+          <p>Kubernetes manifestlerini chart’larla versiyonlanabilir paketlere dönüştürür. Değişken yönetimi ve rollback süreçlerini sadeleştirir.</p>
+        </article>
+      </div>
+
+      <h3 class="group">IaC &amp; Yapılandırma</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.terraform.io" target="_blank" rel="noopener">Terraform</a></h3>
+          <p>Çoklu bulutta altyapıyı kodla tanımlayıp tekrar üretilebilir dağıtımlar yaparsınız. State ve modüler yapı ile ekipler arası yeniden kullanım yüksektir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.ansible.com" target="_blank" rel="noopener">Ansible</a></h3>
+          <p>Ajan gerektirmeyen yapılandırma/dağıtım otomasyonu sağlar. YAML playbook’larla sunucu ve uygulama kurulumlarını idempotent şekilde yönetirsiniz.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.pulumi.com" target="_blank" rel="noopener">Pulumi</a></h3>
+          <p>TypeScript/Python/C#/Go gibi dillerle IaC yazarak mevcut yazılım ekosisteminizden yararlanırsınız. Test edilebilirlik ve paket yönetimi güçlüdür.</p>
+        </article>
+      </div>
+
+      <h3 class="group">Gözlemlenebilirlik</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://prometheus.io" target="_blank" rel="noopener">Prometheus</a></h3>
+          <p>Zaman serisi metrik toplar, sorgular ve uyarı üretir. Service discovery ve pull modeliyle Kubernetes gibi dinamik ortamlarda etkilidir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://grafana.com" target="_blank" rel="noopener">Grafana</a></h3>
+          <p>Metrik/log/trace verilerini zengin panolarda birleştirir. Uyarı kuralları ve paylaşılan dashboard’larla operasyon görünürlüğünü artırır.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.elastic.co/elastic-stack" target="_blank" rel="noopener">Elastic Stack</a></h3>
+          <p>Log toplama, indeksleme ve görselleştirmede sektör standardıdır. Uyarı ve SIEM eklentileriyle üretim sorunlarını kök nedenine indirirsiniz.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://opentelemetry.io" target="_blank" rel="noopener">OpenTelemetry</a></h3>
+          <p>Diller ve framework’ler arası standart telemetri (tracing, metrics, logs) enstrümantasyonu sağlar. Satıcı bağımsız veri üretip Prometheus/Grafana/Jaeger’e akıtabilirsiniz.</p>
+        </article>
+      </div>
+
+      <h3 class="group">Güvenlik (DevSecOps)</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.vaultproject.io" target="_blank" rel="noopener">HashiCorp Vault</a></h3>
+          <p>Sırlar (token, anahtar, sertifika) için güvenli saklama ve dinamik kimlik bilgileri üretimi sunar. Politika ve denetim izleriyle uygunluğu güçlendirir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://snyk.io" target="_blank" rel="noopener">Snyk</a></h3>
+          <p>Bağımlılıklar, container imajları ve IaC üzerinde güvenlik açığı taraması yapar. PR’lara düzeltme önerileri ve politika entegrasyonu getirir (DevSecOps).</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://aquasecurity.github.io/trivy/" target="_blank" rel="noopener">Trivy</a></h3>
+          <p>Hafif ve hızlı güvenlik tarayıcısı; imaj, repo ve IaC zafiyetlerini raporlar. CI akışlarına kolayca eklenir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.checkov.io" target="_blank" rel="noopener">Checkov</a></h3>
+          <p>Terraform/CloudFormation/K8s manifestleri için statik politika denetimi (policy-as-code) yapar. Yanlış yapılandırmaları erken safhada yakalarsınız.</p>
+        </article>
+      </div>
+
+      <h3 class="group">Artefakt Depoları</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://jfrog.com/artifactory/" target="_blank" rel="noopener">JFrog Artifactory</a></h3>
+          <p>İkili/artefakt deposu; Docker imajlarından Maven/NPM paketlerine kadar merkezi yönetim sağlar. Proxy/remote cache ile tedarik zincirini hızlandırır.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.sonatype.com/products/sonatype-nexus-repository" target="_blank" rel="noopener">Sonatype Nexus Repository</a></h3>
+          <p>Kurumsal paket ve imaj yönetimi için güçlü bir alternatiftir. İnce taneli erişim, staging ve politika denetimleri sunar.</p>
+        </article>
+      </div>
+
+      <h3 class="group">Olay Yönetimi (Incident / On-Call)</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://www.pagerduty.com" target="_blank" rel="noopener">PagerDuty</a></h3>
+          <p>Olay yönetimi, on-call takvimleri ve otomatik eskalasyon akışları sunar. Gürültüyü azaltan kural ve runbook entegrasyonlarıyla MTTR’ı düşürür.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://www.atlassian.com/software/opsgenie" target="_blank" rel="noopener">Opsgenie</a></h3>
+          <p>Uyarı konsolidasyonu, on-call ve olay koordinasyonunu merkezi yönetir. Jira/Statuspage gibi Atlassian araçlarıyla sıkı entegredir.</p>
+        </article>
+      </div>
+
+      <h3 class="group">GitOps &amp; Sürekli Dağıtım</h3>
+      <div class="card-grid" role="list">
+        <article class="card" role="listitem">
+          <h3><a href="https://argo-cd.readthedocs.io" target="_blank" rel="noopener">Argo CD</a></h3>
+          <p>Kubernetes için GitOps tabanlı sürekli dağıtım; istenen durumun (desired state) kaynakla drift’ini izler ve senkronize eder. Rollback ve progressive delivery senaryolarını basitleştirir.</p>
+        </article>
+        <article class="card" role="listitem">
+          <h3><a href="https://fluxcd.io" target="_blank" rel="noopener">Flux</a></h3>
+          <p>GitOps yaklaşımıyla manifest ve Helm sürümlerini küme ile eşitler. Multi-tenancy ve policy entegrasyonlarıyla işletim modelini olgunlaştırır.</p>
+        </article>
+      </div>
+
+      <div class="note" style="margin-top:14px">
+        <strong>Not:</strong> Liste, CI/CD → Container/K8s → IaC/Config → Observability → Security → Artifact → Incident/GitOps zincirini dengeli kapsayacak şekilde seçildi.
+      </div>
+    </section>
+
+    <!-- 3) Kitaplar -->
+    <section id="kitaplar">
+      <h2>3) Bonus: DevOps alanında en iyi 3 İngilizce kitap (linkli)</h2>
+      <div class="books" role="list">
+        <article class="book" role="listitem">
+          <h3><a href="https://itrevolution.com/accelerate/" target="_blank" rel="noopener">Accelerate — Nicole Forsgren, Jez Humble, Gene Kim</a></h3>
+          <p>Yazılım teslimat performansını bilimsel metriklerle (DORA) açıklayan temel kaynak; hangi uygulamaların etki yarattığını kanıta dayalı gösterir.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://itrevolution.com/book/the-devops-handbook/" target="_blank" rel="noopener">The DevOps Handbook (2nd Ed.) — Gene Kim, Jez Humble, Patrick Debois, John Willis</a></h3>
+          <p>Akış, geri bildirim ve sürekli öğrenme prensiplerini pratik kalıplarla anlatır; teknoloji ve organizasyon boyutlarını birlikte ele alır.</p>
+        </article>
+
+        <article class="book" role="listitem">
+          <h3><a href="https://sre.google/books/" target="_blank" rel="noopener">Site Reliability Engineering — Beyer, Jones, Petoff, Murphy (Google)</a></h3>
+          <p>Güvenilirlik mühendisliğinin ilkeleri (SLO/SLI, hata bütçesi, on-call, otomasyon) ve büyük ölçek uygulamalara yönelik somut pratikler.</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
