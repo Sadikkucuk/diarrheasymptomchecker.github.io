@@ -1,659 +1,510 @@
-import React, { useMemo, useState, useRef } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Download, Calculator, FileText, Settings, Users, Home, FolderDown } from "lucide-react";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Miras & Emlak Beyanname Oluşturucu (Tek Sayfa HTML)</title>
+  <meta name="description" content="Miras parametreleri, mirasçı pay dağılımı ve Arazi/Arsa/Bina için bireysel emlak beyannamesi PDF üreten tek sayfalık uygulama." />
+  <style>
+    :root{--bg:#ffffff;--fg:#0b1220;--muted:#6b7280;--line:#e5e7eb;--card:#f8fafc;--accent:#0ea5e9;--danger:#ef4444}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+    header{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:saturate(1.2) blur(8px);border-bottom:1px solid var(--line)}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    h1{margin:0;font-size:20px}
+    h2{margin:0 0 8px;font-size:16px}
+    h3{margin:0 0 8px;font-size:15px}
+    .grid{display:grid;gap:12px}
+    .g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media (max-width: 960px){.g-2,.g-3,.g-4{grid-template-columns:1fr}}
 
-// --- Types ---
-const RELATIONS = [
-  { value: "spouse", label: "Eş" },
-  { value: "child", label: "Çocuk" },
-  { value: "parent", label: "Anne/Baba" },
-  { value: "sibling", label: "Kardeş" },
-  { value: "grandparent", label: "Dede/Nine" },
-  { value: "other", label: "Diğer" },
-] as const;
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .row{display:flex;gap:8px;align-items:center}
+    .spacer{flex:1}
+    input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--fg)}
+    input[type="date"]{padding:8px 10px}
+    textarea{min-height:72px}
+    button{cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--fg);padding:10px 14px;border-radius:12px}
+    .btn{display:inline-flex;align-items:center;gap:8px}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    .btn.ghost{background:transparent}
+    .btn.danger{border-color:var(--danger);color:var(--danger)}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:999px;background:#fff}
+    .muted{color:var(--muted)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 
-const PROPERTY_TYPES = [
-  { value: "arazi", label: "Arazi" },
-  { value: "arsa", label: "Arsa" },
-  { value: "bina", label: "Bina" },
-] as const;
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+    thead th{background:#eef2f7}
+    .right{text-align:right}
+    .center{text-align:center}
 
-function fmtPct(x:number){
-  return (Math.round(x*10000)/100).toFixed(2)+"%";
-}
+    .pdf-sheet{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+    .section-title{font-weight:600;margin:8px 0}
 
-// --- Inheritance Engine (TMK uyumlu temel kurallar) ---
-/**
- * Not: Aşağıdaki motor, Türk Medeni Kanunu'ndaki zümre sisteminin pratik bir implementasyonudur.
- * - Eş + Altsoy varsa: eş 1/4, altsoy 3/4'ü eşit paylaşır (temsil prensibi için gelişmiş mod eklenecek).
- * - Eş + Ana-Baba zümresi (ebeveyn/kardeş) varsa: eş 1/2, kalan 1/2 zümreye gider.
- *   * İki hattan (anne ve baba hattı) her biri 1/4 — burada basit yaklaşım: yaşayan ebeveyn varsa payı alır,
- *     değilse kardeşler eşit paylaşır. (Gelişmiş modda hat bazlı temsil yapılır.)
- * - Eş + Büyükana/büyükbaba zümresi varsa: eş 3/4, kalan 1/4 zümreye.
- * - Yukarıdakiler yoksa: eş tek başına tam pay alır; eş de yoksa zümre 1-2-3'e göre dağıtılır.
- */
-function computeHeirShares(heirs:{id:string; relation:string; name:string; customShare?:number;}[]) {
-  const total = 1.0;
-  const spouse = heirs.filter(h=>h.relation==='spouse');
-  const children = heirs.filter(h=>h.relation==='child');
-  const parents = heirs.filter(h=>h.relation==='parent');
-  const siblings = heirs.filter(h=>h.relation==='sibling');
-  const grands = heirs.filter(h=>h.relation==='grandparent');
+    .badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef6ff;color:#0b5cab;border:1px solid #dbeafe;font-size:12px}
+    .tiny{font-size:12px}
 
-  // Custom override: if any heir has customShare, honor normalized custom shares (expert mode)
-  const hasCustom = heirs.some(h=>typeof h.customShare==='number' && !Number.isNaN(h.customShare!));
-  if(hasCustom){
-    const sum = heirs.reduce((acc,h)=>acc+(h.customShare||0),0) || 1;
-    return Object.fromEntries(heirs.map(h=>[h.id,(h.customShare||0)/sum]));
-  }
+    .divider{height:1px;background:var(--line);margin:12px 0}
+  </style>
+  <!-- Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNa5H0GyG3mMr7jbp+JtqM5knWj0GqG2QjO1uc8fGx0PrzVBY7v8jI3d9F5Vq+s6wA9KqUo8+5fVb3bqk8NQ0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-YcsIP8r5c5QZf8y3+UuRupQy0y7pFUnf9dY5YVx0zQyUi5s8b8P3t8WmYw2zY+5Ww8cY8qH1k9q0G5lqYv6Y0w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" integrity="sha512-2Vksm5cwRkWc6nn+Kc6oIy37XcLb3z7b9D4F2Yp9gNCo2od9WuuQK0W0s1YQbWkXjR6c8k6oJcCof4iTn1rG5A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js" integrity="sha512-bGv6C3G6Jc5eH9y6VZ3z1dUo7zZWlDk8z4cK2lud0uQv7dE0u7yXyQpPjQ34gUeKkE7b1CakqE1eKiyw1qUoWw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+  <header>
+    <div class="wrap row">
+      <h1>🏛️ Miras & Emlak Vergisi Beyanname Oluşturucu</h1>
+      <div class="spacer"></div>
+      <button class="btn" id="btnIntikalPdf">İntikal Özeti PDF</button>
+      <button class="btn" id="btnZipAll">Hepsini indir (.zip)</button>
+    </div>
+  </header>
 
-  const sCount = spouse.length;
-  const result: Record<string, number> = Object.fromEntries(heirs.map(h=>[h.id,0]));
+  <main class="wrap grid g-2" style="padding-top:12px">
+    <!-- Sol kolon: Girdi formları -->
+    <section class="grid g-1" style="gap:12px">
+      <div class="card">
+        <h2>Parametreler <span class="badge">Excel › PARAMETRELER</span></h2>
+        <div class="grid g-2">
+          <div><label class="tiny muted">Ad</label><input id="decName" placeholder="Vefat Eden Ad"/></div>
+          <div><label class="tiny muted">Soyad</label><input id="decSurname" placeholder="Vefat Eden Soyad"/></div>
+          <div><label class="tiny muted">T.C. Kimlik No</label><input id="decTckn" placeholder="11 haneli"/></div>
+          <div><label class="tiny muted">Ölüm Tarihi</label><input id="deathDate" type="date"/></div>
+          <div><label class="tiny muted">Ölüm İli</label><input id="deathProvince" placeholder="İl"/></div>
+          <div><label class="tiny muted">Ölüm İlçesi</label><input id="deathDistrict" placeholder="İlçe"/></div>
+          <div class="g-1" style="grid-column:1/-1"><label class="tiny muted">Adres</label><textarea id="decAddress" placeholder="Son ikamet adresi"></textarea></div>
+        </div>
+      </div>
 
-  if(sCount>0 && children.length>0){
-    // Spouse + descendants
-    const spouseShare = 0.25;
-    const rest = total - spouseShare; // 0.75
-    const eachChild = children.length>0? rest/children.length : 0;
-    spouse.forEach(h=> result[h.id]+= spouseShare / sCount);
-    children.forEach(h=> result[h.id]+= eachChild);
-    return result;
-  }
+      <div class="card">
+        <div class="row"><h2>Mükellef Bilgileri / Mirasçılar <span class="badge">Excel › MÜKELLEF BİLGİLERİ</span></h2><div class="spacer"></div><button class="btn" id="addHeir">+ Mirasçı Ekle</button></div>
+        <div id="heirsList" class="grid" style="gap:10px"></div>
+        <div class="row muted tiny" id="heirsTotal">Toplam Pay: 0%</div>
+        <div class="tiny muted">Not: İleri durumlar için <b>Özel Pay %</b> girerseniz, paylar girilen yüzdelerden normalize edilir.</div>
+      </div>
 
-  if(sCount>0 && (parents.length>0 || siblings.length>0)){
-    // Spouse + parents/siblings (2. zümre)
-    const spouseShare = 0.5;
-    const zRest = total - spouseShare; // 0.5
-    // Two lines (anne & baba hattı) ~ quarter each in ideal; simplified split by living parents, else siblings.
-    // Practical simplified rule:
-    //  - If two parents alive: each gets 0.25.
-    //  - If one parent alive: that parent gets 0.25; remaining 0.25 to siblings equally.
-    //  - If no parents: all 0.5 to siblings equally.
-    spouse.forEach(h=> result[h.id]+= spouseShare / sCount);
-
-    if(parents.length===2){
-      parents.forEach(h=> result[h.id]+= 0.25);
-    } else if(parents.length===1){
-      parents.forEach(h=> result[h.id]+= 0.25);
-      const sibShare = 0.25;
-      const eachSib = siblings.length>0 ? sibShare / siblings.length : 0;
-      siblings.forEach(h=> result[h.id]+= eachSib);
-    } else {
-      // no parents, all to siblings
-      const eachSib = siblings.length>0 ? zRest / siblings.length : 0;
-      siblings.forEach(h=> result[h.id]+= eachSib);
-    }
-    return result;
-  }
-
-  if(sCount>0 && grands.length>0){
-    // Spouse + grandparents (3. zümre)
-    const spouseShare = 0.75;
-    const rest = total - spouseShare; // 0.25
-    spouse.forEach(h=> result[h.id]+= spouseShare / sCount);
-    const eachGrand = grands.length>0? rest/grands.length : 0;
-    grands.forEach(h=> result[h.id]+= eachGrand);
-    return result;
-  }
-
-  if(sCount>0 && children.length===0 && parents.length===0 && siblings.length===0 && grands.length===0){
-    spouse.forEach(h=> result[h.id]+= total / sCount);
-    return result;
-  }
-
-  // No spouse cases:
-  if(children.length>0){
-    const each = total/children.length;
-    children.forEach(h=> result[h.id]+= each);
-    return result;
-  }
-  if(parents.length>0 || siblings.length>0){
-    // Assign 0.5 to parents if they exist, otherwise to siblings
-    if(parents.length>0){
-      const eachP = 0.5/(parents.length);
-      parents.forEach(h=> result[h.id]+= eachP);
-      const sibShare = 0.5;
-      const eachS = siblings.length>0? sibShare/siblings.length : 0;
-      siblings.forEach(h=> result[h.id]+= eachS);
-    } else {
-      const eachS = siblings.length>0? total/siblings.length : 0;
-      siblings.forEach(h=> result[h.id]+= eachS);
-    }
-    return result;
-  }
-  if(grands.length>0){
-    const each = total/grands.length;
-    grands.forEach(h=> result[h.id]+= each);
-    return result;
-  }
-  // No heirs (Hazine'ye intikal) — uygulamada kullanıcı uyarılır.
-  return result;
-}
-
-// --- PDF helpers ---
-async function elementToPdf(el:HTMLElement, filename:string){
-  const a4w = 595.28; // pt
-  const a4h = 841.89; // pt
-  const scale = 2;
-  const canvas = await html2canvas(el, { scale });
-  const imgData = canvas.toDataURL("image/png");
-  const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
-  const pageWidth = a4w, pageHeight = a4h;
-
-  // Calculate the image dimensions to fit A4 width
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  let position = 0;
-  let heightLeft = imgHeight;
-
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    pdf.addPage();
-    position = heightLeft * -1;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-  }
-
-  pdf.save(filename);
-}
-
-async function elementsToZipPdfs(pairs: {el:HTMLElement, filename:string}[], zipName:string){
-  const zip = new JSZip();
-  for(const {el, filename} of pairs){
-    const a4w = 595.28; const a4h = 841.89; const scale = 2;
-    const canvas = await html2canvas(el, { scale });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
-    const pageWidth = a4w, pageHeight = a4h;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    let position = 0; let heightLeft = imgHeight;
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
-    while (heightLeft > 0) {
-      pdf.addPage();
-      position = heightLeft * -1;
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-    }
-    const blob = pdf.output("blob");
-    const arr = await blob.arrayBuffer();
-    zip.file(filename, arr);
-  }
-  const content = await zip.generateAsync({ type: "blob" });
-  saveAs(content, zipName);
-}
-
-// --- Main Component ---
-export default function App(){
-  // PARAMETRELER (Excel mapping)
-  const [params, setParams] = useState({
-    decedentName: "",
-    decedentSurname: "",
-    tckn: "",
-    deathDate: "",
-    deathProvince: "",
-    deathDistrict: "",
-    decedentAddress: "",
-  });
-
-  // MÜKELLEF BİLGİLERİ (Heirs)
-  const [heirs, setHeirs] = useState<{id:string; name:string; surname:string; tckn:string; relation:string; customShare?:number}[]>([]);
-
-  // TAŞINMAZLAR (Arazi/Arsa/Bina)
-  type Prop = {id:string; type:string; province:string; district:string; neighborhood:string; block:string; parcel:string; area:number; address:string; acquisitionDate:string; reason:string; grossShare:number};
-  const [properties, setProperties] = useState<Prop[]>([]);
-
-  // Hesaplama
-  const shares = useMemo(()=> computeHeirShares(heirs), [heirs]);
-  const sumShares = useMemo(()=> Object.values(shares).reduce((a,b)=>a+b,0), [shares]);
-
-  // Refs for PDFs
-  const refIntikal = useRef<HTMLDivElement>(null);
-  const refBireyselArazi = useRef<HTMLDivElement>(null);
-  const refBireyselArsa = useRef<HTMLDivElement>(null);
-  const refBireyselBina = useRef<HTMLDivElement>(null);
-  const refVergiBeyan = useRef<HTMLDivElement>(null);
-
-  const propsByType = useMemo(()=>({
-    arazi: properties.filter(p=>p.type==='arazi'),
-    arsa: properties.filter(p=>p.type==='arsa'),
-    bina: properties.filter(p=>p.type==='bina'),
-  }),[properties]);
-
-  // UI helpers
-  const addHeir = ()=> setHeirs(s=>[...s, {id:crypto.randomUUID(), name:"", surname:"", tckn:"", relation:"child"}]);
-  const addProperty = (type:string)=> setProperties(s=>[...s, {id:crypto.randomUUID(), type, province:"", district:"", neighborhood:"", block:"", parcel:"", area:0, address:"", acquisitionDate: params.deathDate || "", reason:"Veraset (İntikal)", grossShare:1}]);
-
-  const totalHeirShares = Object.values(shares).reduce((a,b)=>a+b,0);
-
-  return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <header className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Home className="w-6 h-6"/>
-          <h1 className="text-xl font-semibold">Miras & Emlak Vergisi Beyanname Oluşturucu (MVP)</h1>
-          <div className="ml-auto flex gap-2">
-            <Button variant="secondary" onClick={()=>{
-              if(refIntikal.current) elementToPdf(refIntikal.current, `INTIKAL_OZET_${params.decedentSurname||""}.pdf`);
-            }}><FileText className="w-4 h-4 mr-2"/>İntikal Özeti PDF</Button>
-            <Button variant="secondary" onClick={()=>{
-              const parts: {el:HTMLElement, filename:string}[] = [];
-              if(refBireyselArazi.current) parts.push({el:refBireyselArazi.current, filename:`BIREYSEL_ARAZI_${params.decedentSurname||""}.pdf`});
-              if(refBireyselArsa.current) parts.push({el:refBireyselArsa.current, filename:`BIREYSEL_ARSA_${params.decedentSurname||""}.pdf`});
-              if(refBireyselBina.current) parts.push({el:refBireyselBina.current, filename:`BIREYSEL_BINA_${params.decedentSurname||""}.pdf`});
-              if(refVergiBeyan.current) parts.push({el:refVergiBeyan.current, filename:`VERGI_BEYANNAME_OZET_${params.decedentSurname||""}.pdf`});
-              if(parts.length===0) return;
-              elementsToZipPdfs(parts, `BEYANNAME_PAKET_${params.decedentSurname||""}.zip`)
-            }}><FolderDown className="w-4 h-4 mr-2"/>Hepsini İndir (.zip)</Button>
+      <div class="card">
+        <div class="row"><h2>Taşınmazlar <span class="badge">Excel › İNTİKAL & BİREYSEL_*</span></h2>
+          <div class="spacer"></div>
+          <div class="row">
+            <button class="btn" data-add-prop="arazi">+ Arazi</button>
+            <button class="btn" data-add-prop="arsa">+ Arsa</button>
+            <button class="btn" data-add-prop="bina">+ Bina</button>
           </div>
         </div>
-      </header>
+        <div id="propsList" class="grid" style="gap:10px"></div>
+      </div>
+    </section>
 
-      <main className="max-w-6xl mx-auto p-4 grid lg:grid-cols-3 gap-4">
-        {/* Sol Kolon: Parametreler & Mükellef Bilgileri */}
-        <div className="lg:col-span-1 space-y-4">
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <h2 className="text-lg font-semibold flex items-center gap-2"><Settings className="w-5 h-5"/> Parametreler (Excel › PARAMETRELER)</h2>
-              <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="Ad" value={params.decedentName} onChange={e=>setParams({...params, decedentName:e.target.value})}/>
-                <Input placeholder="Soyad" value={params.decedentSurname} onChange={e=>setParams({...params, decedentSurname:e.target.value})}/>
-                <Input placeholder="T.C. Kimlik No" value={params.tckn} onChange={e=>setParams({...params, tckn:e.target.value})}/>
-                <Input type="date" placeholder="Ölüm Tarihi" value={params.deathDate} onChange={e=>setParams({...params, deathDate:e.target.value})}/>
-                <Input placeholder="Öldüğü İl" value={params.deathProvince} onChange={e=>setParams({...params, deathProvince:e.target.value})}/>
-                <Input placeholder="Öldüğü İlçe" value={params.deathDistrict} onChange={e=>setParams({...params, deathDistrict:e.target.value})}/>
-                <Textarea className="col-span-2" placeholder="Adresi" value={params.decedentAddress} onChange={e=>setParams({...params, decedentAddress:e.target.value})}/>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <h2 className="text-lg font-semibold flex items-center gap-2"><Users className="w-5 h-5"/> Mükellef Bilgileri / Mirasçılar (Excel › MÜKELLEF BİLGİLERİ)</h2>
-              <div className="space-y-3">
-                {heirs.map((h, idx)=> (
-                  <div key={h.id} className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-3"><Input placeholder="Ad" value={h.name} onChange={e=>setHeirs(prev=>prev.map(x=>x.id===h.id?{...x,name:e.target.value}:x))}/></div>
-                    <div className="col-span-3"><Input placeholder="Soyad" value={h.surname} onChange={e=>setHeirs(prev=>prev.map(x=>x.id===h.id?{...x,surname:e.target.value}:x))}/></div>
-                    <div className="col-span-3"><Input placeholder="TCKN" value={h.tckn} onChange={e=>setHeirs(prev=>prev.map(x=>x.id===h.id?{...x,tckn:e.target.value}:x))}/></div>
-                    <div className="col-span-2">
-                      <Select value={h.relation} onValueChange={(v)=> setHeirs(prev=>prev.map(x=>x.id===h.id?{...x, relation:v}:x))}>
-                        <SelectTrigger className="w-full"><SelectValue placeholder="Yakınlık"/></SelectTrigger>
-                        <SelectContent>
-                          {RELATIONS.map(r=> <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <Button variant="ghost" size="icon" onClick={()=> setHeirs(s=>s.filter(x=>x.id!==h.id))}><Trash2 className="w-4 h-4"/></Button>
-                    </div>
-                    <div className="col-span-12 text-sm text-slate-600 -mt-1">Hesaplanan pay: <strong>{fmtPct(shares[h.id]||0)}</strong> {" "} (İsteğe bağlı özel pay %) <Input className="inline-block w-24 ml-2" type="number" min={0} step={0.01} placeholder="Örn: 25" value={typeof h.customShare==='number'? (h.customShare*100).toString(): ""} onChange={e=> {
-                      const v = e.target.value === "" ? undefined : Math.max(0, Number(e.target.value)/100);
-                      setHeirs(prev=> prev.map(x=> x.id===h.id? {...x, customShare: v} : x));
-                    }}/>
-                    </div>
-                  </div>
-                ))}
-                <div className="flex justify-between items-center">
-                  <Button onClick={addHeir}><Plus className="w-4 h-4 mr-2"/>Mirasçı Ekle</Button>
-                  <div className="text-sm text-slate-600">Toplam Pay: <strong>{(Math.round(totalHeirShares*10000)/100).toFixed(2)}%</strong></div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4 space-y-3">
-              <h2 className="text-lg font-semibold flex items-center gap-2"><Calculator className="w-5 h-5"/> Taşınmazlar (Excel › İNTİKAL & BİREYSEL_*)</h2>
-              <div className="flex gap-2">
-                {PROPERTY_TYPES.map(pt=> (
-                  <Button key={pt.value} onClick={()=> addProperty(pt.value)}><Plus className="w-4 h-4 mr-2"/>{pt.label} Ekle</Button>
-                ))}
-              </div>
-              <div className="space-y-4">
-                {properties.map((p)=> (
-                  <div key={p.id} className="border border-slate-200 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-medium">{PROPERTY_TYPES.find(pt=>pt.value===p.type)?.label}</div>
-                      <Button variant="ghost" size="icon" onClick={()=> setProperties(s=>s.filter(x=>x.id!==p.id))}><Trash2 className="w-4 h-4"/></Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Input placeholder="İl" value={p.province} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, province:e.target.value}:x))}/>
-                      <Input placeholder="İlçe" value={p.district} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, district:e.target.value}:x))}/>
-                      <Input placeholder="Mahalle/Köy" value={p.neighborhood} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, neighborhood:e.target.value}:x))}/>
-                      <Input placeholder="Ada" value={p.block} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, block:e.target.value}:x))}/>
-                      <Input placeholder="Parsel" value={p.parcel} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, parcel:e.target.value}:x))}/>
-                      <Input type="number" placeholder="Yüzölçümü (m²)" value={p.area} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, area:Number(e.target.value)}:x))}/>
-                      <Input className="col-span-2" placeholder="Adres" value={p.address} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, address:e.target.value}:x))}/>
-                      <Input type="date" placeholder="Edinme / İntikal Tarihi" value={p.acquisitionDate} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, acquisitionDate:e.target.value}:x))}/>
-                      <Input placeholder="Edinme Sebebi" value={p.reason} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, reason:e.target.value}:x))}/>
-                      <div className="col-span-2 text-sm text-slate-600">Taşınmaz toplam payı (müşterek): <Input className="inline-block w-24 ml-2" type="number" step={0.01} min={0.01} max={1} value={p.grossShare} onChange={e=> setProperties(s=> s.map(x=> x.id===p.id? {...x, grossShare: Number(e.target.value)}:x))}/> (1 = tam)
-                      </div>
-                    </div>
-                    {heirs.length>0 && (
-                      <div className="mt-3 text-sm">
-                        <div className="font-medium mb-1">Mirasçı Bazlı Pay Dağılımı (Bu taşınmaz için)</div>
-                        <div className="grid grid-cols-12 gap-2">
-                          <div className="col-span-5 font-medium">Mirasçı</div>
-                          <div className="col-span-3 font-medium">Hesaplanan Pay</div>
-                          <div className="col-span-4 font-medium">Taşınmazdaki Hisse</div>
-                          {heirs.map(h=> {
-                            const base = shares[h.id]||0; // estate share
-                            const hisse = p.grossShare * base;
-                            return (
-                              <React.Fragment key={h.id}>
-                                <div className="col-span-5">{h.name} {h.surname} — {RELATIONS.find(r=>r.value===h.relation)?.label}</div>
-                                <div className="col-span-3">{fmtPct(base)}</div>
-                                <div className="col-span-4">{fmtPct(hisse)} (pay: {Math.round(hisse*10000)/10000})</div>
-                              </React.Fragment>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+    <!-- Sağ kolon: PDF önizleme blokları -->
+    <section class="grid g-1" style="gap:12px">
+      <div class="card">
+        <h2>İntikal Özeti (Önizleme) <span class="badge">Excel › İNTİKAL(Arazi-Arsa-Bina)</span></h2>
+        <div id="pdf-intikal" class="pdf-sheet">
+          <div class="center muted tiny">İNTİKAL ÖZET FORMU</div>
+          <div class="divider"></div>
+          <div class="grid g-2 tiny">
+            <div><b>Vefat Eden:</b> <span id="vi-name"></span></div>
+            <div><b>TCKN:</b> <span id="vi-tckn"></span></div>
+            <div><b>Ölüm Tarihi:</b> <span id="vi-death"></span></div>
+            <div><b>Yer:</b> <span id="vi-place"></span></div>
+            <div style="grid-column:1/-1"><b>Adres:</b> <span id="vi-address"></span></div>
+          </div>
+          <div class="section-title">Mirasçılar ve Paylar</div>
+          <table class="tiny" id="tbl-heirs-intikal">
+            <thead><tr><th>Ad Soyad</th><th>Yakınlık</th><th class="center">Pay</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="right tiny muted" id="vi-total">Toplam: 0%</div>
+          <div class="section-title">Taşınmaz Listesi</div>
+          <table class="tiny" id="tbl-props-intikal">
+            <thead><tr><th>Tür</th><th>İl/İlçe</th><th>Mahalle</th><th>Ada/Parsel</th><th class="right">m²</th><th class="center">Pay</th></tr></thead>
+            <tbody></tbody>
+          </table>
         </div>
+        <div class="row right" style="margin-top:8px"><div class="spacer"></div><button class="btn" id="btnIntikalPdf2">PDF indir</button></div>
+      </div>
 
-        {/* Sağ Kolonlar: PDF Önizleme Şablonları */}
-        <div className="lg:col-span-2 space-y-4">
-          {/* İNTİKAL ÖZET */}
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div ref={refIntikal} id="pdf-intikal" className="bg-white p-6 border border-slate-200 rounded-xl">
-                <div className="text-center mb-3">
-                  <div className="text-sm tracking-wider text-slate-600">EXCEL › İNTİKAL(Arazi-Arsa-Bina)</div>
-                  <h3 className="text-xl font-semibold">İNTİKAL ÖZET FORMU</h3>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div><strong>Vefat Eden:</strong> {params.decedentName} {params.decedentSurname}</div>
-                  <div><strong>TCKN:</strong> {params.tckn}</div>
-                  <div><strong>Ölüm Tarihi:</strong> {params.deathDate}</div>
-                  <div><strong>Yer:</strong> {params.deathProvince}/{params.deathDistrict}</div>
-                  <div className="col-span-2"><strong>Adres:</strong> {params.decedentAddress}</div>
-                </div>
-                <hr className="my-3"/>
-                <div className="text-sm mb-2 font-medium">Mirasçılar ve Paylar</div>
-                <table className="w-full text-sm border border-slate-200">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      <th className="border px-2 py-1 text-left">Ad Soyad</th>
-                      <th className="border px-2 py-1 text-left">Yakınlık</th>
-                      <th className="border px-2 py-1">Pay</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {heirs.map(h=> (
-                      <tr key={h.id}>
-                        <td className="border px-2 py-1">{h.name} {h.surname}</td>
-                        <td className="border px-2 py-1">{RELATIONS.find(r=>r.value===h.relation)?.label}</td>
-                        <td className="border px-2 py-1 text-center">{fmtPct(shares[h.id]||0)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="text-right text-xs text-slate-600 mt-1">Toplam: {(Math.round(sumShares*10000)/100).toFixed(2)}%</div>
-                <hr className="my-3"/>
-                <div className="text-sm mb-2 font-medium">Taşınmaz Listesi</div>
-                <table className="w-full text-sm border border-slate-200">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      <th className="border px-2 py-1">Tür</th>
-                      <th className="border px-2 py-1">İl/İlçe</th>
-                      <th className="border px-2 py-1">Mahalle</th>
-                      <th className="border px-2 py-1">Ada/Parsel</th>
-                      <th className="border px-2 py-1">m²</th>
-                      <th className="border px-2 py-1">Pay</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {properties.map(p=> (
-                      <tr key={p.id}>
-                        <td className="border px-2 py-1">{PROPERTY_TYPES.find(x=>x.value===p.type)?.label}</td>
-                        <td className="border px-2 py-1">{p.province}/{p.district}</td>
-                        <td className="border px-2 py-1">{p.neighborhood}</td>
-                        <td className="border px-2 py-1">{p.block}/{p.parcel}</td>
-                        <td className="border px-2 py-1 text-right">{p.area}</td>
-                        <td className="border px-2 py-1 text-center">{fmtPct(p.grossShare)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="mt-3 flex justify-end"><Button onClick={()=> refIntikal.current && elementToPdf(refIntikal.current, `INTIKAL_OZET_${params.decedentSurname||""}.pdf`)}><Download className="w-4 h-4 mr-2"/>PDF indir</Button></div>
-            </CardContent>
-          </Card>
-
-          {/* BİREYSEL — Arazi */}
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div ref={refBireyselArazi} id="pdf-bireysel-arazi" className="bg-white p-6 border border-slate-200 rounded-xl">
-                <div className="text-center mb-3">
-                  <div className="text-sm tracking-wider text-slate-600">EXCEL › BİREYSEL_Arazi</div>
-                  <h3 className="text-xl font-semibold">BİREYSEL ARAZİ — Emlak Vergisi Beyannamesi</h3>
-                </div>
-                {propsByType.arazi.length===0 ? (
-                  <div className="text-sm text-slate-600">Arazi kaydı yok.</div>
-                ):(
-                  <>
-                    {heirs.map(h=> (
-                      <div key={h.id} className="mb-4">
-                        <div className="font-medium mb-1">Mükellef: {h.name} {h.surname} — Hisse: {fmtPct(shares[h.id]||0)}</div>
-                        <table className="w-full text-sm border border-slate-200">
-                          <thead>
-                            <tr className="bg-slate-50">
-                              <th className="border px-2 py-1">İl/İlçe</th>
-                              <th className="border px-2 py-1">Mahalle</th>
-                              <th className="border px-2 py-1">Ada/Parsel</th>
-                              <th className="border px-2 py-1">m²</th>
-                              <th className="border px-2 py-1">Pay</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {propsByType.arazi.map(p=>{
-                              const hisse = (shares[h.id]||0) * p.grossShare;
-                              return (
-                                <tr key={p.id}>
-                                  <td className="border px-2 py-1">{p.province}/{p.district}</td>
-                                  <td className="border px-2 py-1">{p.neighborhood}</td>
-                                  <td className="border px-2 py-1">{p.block}/{p.parcel}</td>
-                                  <td className="border px-2 py-1 text-right">{p.area}</td>
-                                  <td className="border px-2 py-1 text-center">{fmtPct(hisse)}</td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-              <div className="mt-3 flex justify-end"><Button onClick={()=> refBireyselArazi.current && elementToPdf(refBireyselArazi.current, `BIREYSEL_ARAZI_${params.decedentSurname||""}.pdf`)}><Download className="w-4 h-4 mr-2"/>PDF indir</Button></div>
-            </CardContent>
-          </Card>
-
-          {/* BİREYSEL — Arsa */}
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div ref={refBireyselArsa} id="pdf-bireysel-arsa" className="bg-white p-6 border border-slate-200 rounded-xl">
-                <div className="text-center mb-3">
-                  <div className="text-sm tracking-wider text-slate-600">EXCEL › BİREYSEL_Arsa</div>
-                  <h3 className="text-xl font-semibold">BİREYSEL ARSA — Emlak Vergisi Beyannamesi</h3>
-                </div>
-                {propsByType.arsa.length===0 ? (
-                  <div className="text-sm text-slate-600">Arsa kaydı yok.</div>
-                ):(
-                  <>
-                    {heirs.map(h=> (
-                      <div key={h.id} className="mb-4">
-                        <div className="font-medium mb-1">Mükellef: {h.name} {h.surname} — Hisse: {fmtPct(shares[h.id]||0)}</div>
-                        <table className="w-full text-sm border border-slate-200">
-                          <thead>
-                            <tr className="bg-slate-50">
-                              <th className="border px-2 py-1">İl/İlçe</th>
-                              <th className="border px-2 py-1">Mahalle</th>
-                              <th className="border px-2 py-1">Ada/Parsel</th>
-                              <th className="border px-2 py-1">m²</th>
-                              <th className="border px-2 py-1">Pay</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {propsByType.arsa.map(p=>{
-                              const hisse = (shares[h.id]||0) * p.grossShare;
-                              return (
-                                <tr key={p.id}>
-                                  <td className="border px-2 py-1">{p.province}/{p.district}</td>
-                                  <td className="border px-2 py-1">{p.neighborhood}</td>
-                                  <td className="border px-2 py-1">{p.block}/{p.parcel}</td>
-                                  <td className="border px-2 py-1 text-right">{p.area}</td>
-                                  <td className="border px-2 py-1 text-center">{fmtPct(hisse)}</td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-              <div className="mt-3 flex justify-end"><Button onClick={()=> refBireyselArsa.current && elementToPdf(refBireyselArsa.current, `BIREYSEL_ARSA_${params.decedentSurname||""}.pdf`)}><Download className="w-4 h-4 mr-2"/>PDF indir</Button></div>
-            </CardContent>
-          </Card>
-
-          {/* BİREYSEL — Bina */}
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div ref={refBireyselBina} id="pdf-bireysel-bina" className="bg-white p-6 border border-slate-200 rounded-xl">
-                <div className="text-center mb-3">
-                  <div className="text-sm tracking-wider text-slate-600">EXCEL › BİREYSEL_Bina</div>
-                  <h3 className="text-xl font-semibold">BİREYSEL BİNA — Emlak Vergisi Beyannamesi</h3>
-                </div>
-                {propsByType.bina.length===0 ? (
-                  <div className="text-sm text-slate-600">Bina kaydı yok.</div>
-                ):(
-                  <>
-                    {heirs.map(h=> (
-                      <div key={h.id} className="mb-4">
-                        <div className="font-medium mb-1">Mükellef: {h.name} {h.surname} — Hisse: {fmtPct(shares[h.id]||0)}</div>
-                        <table className="w-full text-sm border border-slate-200">
-                          <thead>
-                            <tr className="bg-slate-50">
-                              <th className="border px-2 py-1">İl/İlçe</th>
-                              <th className="border px-2 py-1">Mahalle</th>
-                              <th className="border px-2 py-1">Ada/Parsel</th>
-                              <th className="border px-2 py-1">m²</th>
-                              <th className="border px-2 py-1">Pay</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {propsByType.bina.map(p=>{
-                              const hisse = (shares[h.id]||0) * p.grossShare;
-                              return (
-                                <tr key={p.id}>
-                                  <td className="border px-2 py-1">{p.province}/{p.district}</td>
-                                  <td className="border px-2 py-1">{p.neighborhood}</td>
-                                  <td className="border px-2 py-1">{p.block}/{p.parcel}</td>
-                                  <td className="border px-2 py-1 text-right">{p.area}</td>
-                                  <td className="border px-2 py-1 text-center">{fmtPct(hisse)}</td>
-                                </tr>
-                              )
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-              <div className="mt-3 flex justify-end"><Button onClick={()=> refBireyselBina.current && elementToPdf(refBireyselBina.current, `BIREYSEL_BINA_${params.decedentSurname||""}.pdf`)}><Download className="w-4 h-4 mr-2"/>PDF indir</Button></div>
-            </CardContent>
-          </Card>
-
-          {/* VERG. BEYANNAME Özet */}
-          <Card className="rounded-2xl shadow-sm">
-            <CardContent className="p-4">
-              <div ref={refVergiBeyan} id="pdf-vergi-beyan" className="bg-white p-6 border border-slate-200 rounded-xl">
-                <div className="text-center mb-3">
-                  <div className="text-sm tracking-wider text-slate-600">EXCEL › VERG. BEYANNAME</div>
-                  <h3 className="text-xl font-semibold">VERGİ BEYANNAME — ÖZET</h3>
-                </div>
-                <div className="grid grid-cols-3 gap-3 text-sm">
-                  <div className="p-2 bg-slate-50 rounded-lg">
-                    <div className="font-medium">Arazi</div>
-                    <div>Adet: {propsByType.arazi.length}</div>
-                  </div>
-                  <div className="p-2 bg-slate-50 rounded-lg">
-                    <div className="font-medium">Arsa</div>
-                    <div>Adet: {propsByType.arsa.length}</div>
-                  </div>
-                  <div className="p-2 bg-slate-50 rounded-lg">
-                    <div className="font-medium">Bina</div>
-                    <div>Adet: {propsByType.bina.length}</div>
-                  </div>
-                </div>
-                <div className="mt-3 text-sm">
-                  <div className="font-medium mb-1">Mükellef Bazlı Beyannameler</div>
-                  {heirs.length===0? (
-                    <div className="text-slate-600">Henüz mirasçı eklenmedi.</div>
-                  ):(
-                    <table className="w-full text-sm border border-slate-200">
-                      <thead>
-                        <tr className="bg-slate-50">
-                          <th className="border px-2 py-1">Mükellef</th>
-                          <th className="border px-2 py-1">Arazi</th>
-                          <th className="border px-2 py-1">Arsa</th>
-                          <th className="border px-2 py-1">Bina</th>
-                          <th className="border px-2 py-1">Toplam Beyan</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {heirs.map(h=>{
-                          const sa = propsByType.arazi.reduce((acc,p)=> acc + p.grossShare*(shares[h.id]||0), 0);
-                          const ss = propsByType.arsa.reduce((acc,p)=> acc + p.grossShare*(shares[h.id]||0), 0);
-                          const sb = propsByType.bina.reduce((acc,p)=> acc + p.grossShare*(shares[h.id]||0), 0);
-                          const total = sa+ss+sb;
-                          return (
-                            <tr key={h.id}>
-                              <td className="border px-2 py-1">{h.name} {h.surname}</td>
-                              <td className="border px-2 py-1 text-center">{fmtPct(sa)}</td>
-                              <td className="border px-2 py-1 text-center">{fmtPct(ss)}</td>
-                              <td className="border px-2 py-1 text-center">{fmtPct(sb)}</td>
-                              <td className="border px-2 py-1 text-center font-medium">{fmtPct(total)}</td>
-                            </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
-              <div className="mt-3 flex justify-end"><Button onClick={()=> refVergiBeyan.current && elementToPdf(refVergiBeyan.current, `VERGI_BEYANNAME_OZET_${params.decedentSurname||""}.pdf`)}><Download className="w-4 h-4 mr-2"/>PDF indir</Button></div>
-            </CardContent>
-          </Card>
+      <div class="card">
+        <h2>Bireysel — Arazi <span class="badge">Excel › BİREYSEL_Arazi</span></h2>
+        <div id="pdf-bireysel-arazi" class="pdf-sheet">
+          <div class="center tiny muted">BİREYSEL ARAZİ — Emlak Vergisi Beyannamesi</div>
+          <div id="arazi-sections" class="grid" style="gap:10px"></div>
         </div>
-      </main>
+        <div class="row right" style="margin-top:8px"><div class="spacer"></div><button class="btn" id="btnAraziPdf">PDF indir</button></div>
+      </div>
 
-      <footer className="max-w-6xl mx-auto px-4 pb-8 text-xs text-slate-500">
-        Excel sayfa haritası: PARAMETRELER → form alanları; İNTİKAL(Arazi-Arsa-Bina) → intikal özeti; MÜKELLEF BİLGİLERİ → mirasçılar;
-        BİREYSEL_Arazi/Arsa/Bina → bireysel beyanname PDF'leri; VERG. BEYANNAME → özet paket.
-      </footer>
-    </div>
-  );
-}
+      <div class="card">
+        <h2>Bireysel — Arsa <span class="badge">Excel › BİREYSEL_Arsa</span></h2>
+        <div id="pdf-bireysel-arsa" class="pdf-sheet">
+          <div class="center tiny muted">BİREYSEL ARSA — Emlak Vergisi Beyannamesi</div>
+          <div id="arsa-sections" class="grid" style="gap:10px"></div>
+        </div>
+        <div class="row right" style="margin-top:8px"><div class="spacer"></div><button class="btn" id="btnArsaPdf">PDF indir</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Bireysel — Bina <span class="badge">Excel › BİREYSEL_Bina</span></h2>
+        <div id="pdf-bireysel-bina" class="pdf-sheet">
+          <div class="center tiny muted">BİREYSEL BİNA — Emlak Vergisi Beyannamesi</div>
+          <div id="bina-sections" class="grid" style="gap:10px"></div>
+        </div>
+        <div class="row right" style="margin-top:8px"><div class="spacer"></div><button class="btn" id="btnBinaPdf">PDF indir</button></div>
+      </div>
+
+      <div class="card">
+        <h2>Vergi Beyanname — Özet <span class="badge">Excel › VERG. BEYANNAME</span></h2>
+        <div id="pdf-vergi-beyan" class="pdf-sheet">
+          <div class="grid g-3 tiny">
+            <div class="card" style="padding:8px"><div><b>Arazi</b></div><div id="count-arazi">Adet: 0</div></div>
+            <div class="card" style="padding:8px"><div><b>Arsa</b></div><div id="count-arsa">Adet: 0</div></div>
+            <div class="card" style="padding:8px"><div><b>Bina</b></div><div id="count-bina">Adet: 0</div></div>
+          </div>
+          <div class="section-title">Mükellef Bazlı Beyanlar</div>
+          <table class="tiny" id="tbl-vergi-summary">
+            <thead><tr><th>Mükellef</th><th class="center">Arazi</th><th class="center">Arsa</th><th class="center">Bina</th><th class="center">Toplam</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row right" style="margin-top:8px"><div class="spacer"></div><button class="btn" id="btnVergiPdf">PDF indir</button></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap tiny muted" style="padding-bottom:24px">
+    Excel eşlemesi: PARAMETRELER → form; İNTİKAL → özet; MÜKELLEF BİLGİLERİ → mirasçılar; BİREYSEL_Arazi/Arsa/Bina → bireysel beyannameler; VERG. BEYANNAME → özet.
+  </footer>
+
+  <script>
+  // ---------- Model ----------
+  const RELATIONS = [
+    { value: 'spouse', label: 'Eş' },
+    { value: 'child', label: 'Çocuk' },
+    { value: 'parent', label: 'Anne/Baba' },
+    { value: 'sibling', label: 'Kardeş' },
+    { value: 'grandparent', label: 'Dede/Nine' },
+    { value: 'other', label: 'Diğer' }
+  ];
+  const PROPERTY_TYPES = [
+    { value: 'arazi', label: 'Arazi' },
+    { value: 'arsa', label: 'Arsa' },
+    { value: 'bina', label: 'Bina' }
+  ];
+
+  const state = {
+    params: {
+      decedentName: '', decedentSurname: '', tckn: '', deathDate: '', deathProvince: '', deathDistrict: '', decedentAddress: ''
+    },
+    heirs: [], // {id,name,surname,tckn,relation,customShare}
+    properties: [] // {id,type,province,district,neighborhood,block,parcel,area,address,acquisitionDate,reason,grossShare}
+  };
+
+  function uid(){ return 'id_'+Math.random().toString(36).slice(2,9); }
+  function fmtPct(x){ return (Math.round(x*10000)/100).toFixed(2)+'%'; }
+
+  // ---------- Inheritance Engine (TMK pratik) ----------
+  function computeHeirShares(heirs){
+    const total = 1.0;
+    const spouse = heirs.filter(h=>h.relation==='spouse');
+    const children = heirs.filter(h=>h.relation==='child');
+    const parents = heirs.filter(h=>h.relation==='parent');
+    const siblings = heirs.filter(h=>h.relation==='sibling');
+    const grands = heirs.filter(h=>h.relation==='grandparent');
+
+    const hasCustom = heirs.some(h=> h.customShare !== undefined && h.customShare !== null && h.customShare !== '' && !Number.isNaN(Number(h.customShare)) );
+    if(hasCustom){
+      const sum = heirs.reduce((acc,h)=> acc + (Number(h.customShare)||0), 0) || 1;
+      const out = {}; heirs.forEach(h=> out[h.id] = (Number(h.customShare)||0) / sum );
+      return out;
+    }
+
+    const sCount = spouse.length;
+    const result = Object.fromEntries(heirs.map(h=>[h.id,0]));
+
+    if(sCount>0 && children.length>0){
+      const spouseShare = 0.25; const rest = total - spouseShare; const eachChild = rest / children.length;
+      spouse.forEach(h=> result[h.id]+= spouseShare / sCount);
+      children.forEach(h=> result[h.id]+= eachChild);
+      return result;
+    }
+    if(sCount>0 && (parents.length>0 || siblings.length>0)){
+      const spouseShare = 0.5; const zRest = total - spouseShare; // 0.5
+      spouse.forEach(h=> result[h.id]+= spouseShare / sCount);
+      if(parents.length===2){ parents.forEach(h=> result[h.id]+= 0.25); }
+      else if(parents.length===1){ parents.forEach(h=> result[h.id]+= 0.25); const sibShare=0.25; const eachS = siblings.length? sibShare/siblings.length:0; siblings.forEach(h=> result[h.id]+= eachS); }
+      else { const eachS = siblings.length? zRest/siblings.length:0; siblings.forEach(h=> result[h.id]+= eachS); }
+      return result;
+    }
+    if(sCount>0 && grands.length>0){
+      const spouseShare = 0.75; const rest = total - spouseShare; const eachG = rest / grands.length;
+      spouse.forEach(h=> result[h.id]+= spouseShare / sCount); grands.forEach(h=> result[h.id]+= eachG); return result;
+    }
+    if(sCount>0 && children.length===0 && parents.length===0 && siblings.length===0 && grands.length===0){
+      spouse.forEach(h=> result[h.id]+= total / sCount); return result;
+    }
+
+    // No spouse
+    if(children.length>0){ const each = total/children.length; children.forEach(h=> result[h.id]+= each); return result; }
+    if(parents.length>0 || siblings.length>0){
+      if(parents.length>0){ const eachP = 0.5/parents.length; parents.forEach(h=> result[h.id]+= eachP); const sibShare=0.5; const eachS = siblings.length? sibShare/siblings.length:0; siblings.forEach(h=> result[h.id]+= eachS); }
+      else { const eachS = siblings.length? total/siblings.length:0; siblings.forEach(h=> result[h.id]+= eachS); }
+      return result;
+    }
+    if(grands.length>0){ const each = total/grands.length; grands.forEach(h=> result[h.id]+= each); return result; }
+    return result; // aksi halde 0 (Hazine)
+  }
+
+  // ---------- DOM helpers ----------
+  const $ = sel => document.querySelector(sel);
+  const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+  function bindParams(){
+    const map = [
+      ['decName','decedentName'],['decSurname','decedentSurname'],['decTckn','tckn'],['deathDate','deathDate'],
+      ['deathProvince','deathProvince'],['deathDistrict','deathDistrict'],['decAddress','decedentAddress']
+    ];
+    map.forEach(([id,key])=>{
+      const el = document.getElementById(id); if(!el) return;
+      el.addEventListener('input',()=>{ state.params[key] = el.value; render(); });
+    })
+  }
+
+  function renderHeirs(){
+    const wrap = $('#heirsList'); wrap.innerHTML = '';
+    const shares = computeHeirShares(state.heirs);
+    state.heirs.forEach(h=>{
+      const row = document.createElement('div'); row.className = 'card'; row.style.padding='10px';
+      row.innerHTML = `
+        <div class="grid g-4">
+          <div><label class="tiny muted">Ad</label><input data-heir="name" data-id="${h.id}" value="${h.name||''}" placeholder="Ad"/></div>
+          <div><label class="tiny muted">Soyad</label><input data-heir="surname" data-id="${h.id}" value="${h.surname||''}" placeholder="Soyad"/></div>
+          <div><label class="tiny muted">TCKN</label><input data-heir="tckn" data-id="${h.id}" value="${h.tckn||''}" placeholder="TCKN"/></div>
+          <div>
+            <label class="tiny muted">Yakınlık</label>
+            <select data-heir="relation" data-id="${h.id}">
+              ${RELATIONS.map(r=>`<option value="${r.value}" ${h.relation===r.value?'selected':''}>${r.label}</option>`).join('')}
+            </select>
+          </div>
+          <div style="grid-column:1/-1" class="row tiny">
+            <div class="pill">Hesaplanan pay: <b>${fmtPct(shares[h.id]||0)}</b></div>
+            <div class="pill">Özel Pay %: <input data-heir="customShare" data-id="${h.id}" type="number" min="0" step="0.01" value="${h.customShare!==undefined && h.customShare!==null ? (Number(h.customShare)*100) : ''}" style="width:90px"/> </div>
+            <div class="spacer"></div>
+            <button class="btn danger" data-del-heir="${h.id}">Sil</button>
+          </div>
+        </div>`;
+      wrap.appendChild(row);
+    });
+
+    wrap.querySelectorAll('input[data-heir], select[data-heir]').forEach(el=>{
+      el.addEventListener('input', e=>{
+        const inp = e.target; const key = inp.getAttribute('data-heir'); const id = inp.getAttribute('data-id');
+        state.heirs = state.heirs.map(x=> x.id===id ? ({...x, [key]: key==='customShare' ? (inp.value===''? undefined : Number(inp.value)/100) : inp.value}) : x);
+        render();
+      })
+    })
+    wrap.querySelectorAll('button[data-del-heir]').forEach(btn=>{
+      btn.addEventListener('click',()=>{ const id = btn.getAttribute('data-del-heir'); state.heirs = state.heirs.filter(x=>x.id!==id); render(); })
+    })
+
+    const total = Object.values(computeHeirShares(state.heirs)).reduce((a,b)=>a+b,0);
+    $('#heirsTotal').textContent = `Toplam Pay: ${(Math.round(total*10000)/100).toFixed(2)}%`;
+  }
+
+  function renderProps(){
+    const wrap = $('#propsList'); wrap.innerHTML = '';
+    state.properties.forEach(p=>{
+      const row = document.createElement('div'); row.className='card'; row.style.padding='10px';
+      row.innerHTML = `
+        <div class="row"><b>${PROPERTY_TYPES.find(t=>t.value===p.type)?.label||p.type}</b><div class="spacer"></div><button class="btn danger" data-del-prop="${p.id}">Sil</button></div>
+        <div class="grid g-4">
+          <div><label class="tiny muted">İl</label><input data-prop="province" data-id="${p.id}" value="${p.province||''}"/></div>
+          <div><label class="tiny muted">İlçe</label><input data-prop="district" data-id="${p.id}" value="${p.district||''}"/></div>
+          <div><label class="tiny muted">Mahalle/Köy</label><input data-prop="neighborhood" data-id="${p.id}" value="${p.neighborhood||''}"/></div>
+          <div><label class="tiny muted">Ada</label><input data-prop="block" data-id="${p.id}" value="${p.block||''}"/></div>
+          <div><label class="tiny muted">Parsel</label><input data-prop="parcel" data-id="${p.id}" value="${p.parcel||''}"/></div>
+          <div><label class="tiny muted">Yüzölçümü (m²)</label><input type="number" step="0.01" data-prop="area" data-id="${p.id}" value="${p.area||0}"/></div>
+          <div class="g-1" style="grid-column:1/-1"><label class="tiny muted">Adres</label><input data-prop="address" data-id="${p.id}" value="${p.address||''}"/></div>
+          <div><label class="tiny muted">İntikal/Edinme Tarihi</label><input type="date" data-prop="acquisitionDate" data-id="${p.id}" value="${p.acquisitionDate||''}"/></div>
+          <div><label class="tiny muted">Edinme Sebebi</label><input data-prop="reason" data-id="${p.id}" value="${p.reason||'Veraset (İntikal)'}"/></div>
+          <div class="row tiny" style="grid-column:1/-1"><div class="pill">Taşınmaz toplam payı (1=tam): <input type="number" min="0.01" max="1" step="0.01" data-prop="grossShare" data-id="${p.id}" value="${p.grossShare ?? 1}" style="width:100px"/></div></div>
+        </div>`;
+      wrap.appendChild(row);
+    })
+
+    wrap.querySelectorAll('input[data-prop]').forEach(inp=>{
+      inp.addEventListener('input', e=>{
+        const el=e.target; const key=el.getAttribute('data-prop'); const id=el.getAttribute('data-id');
+        state.properties = state.properties.map(x=> x.id===id ? ({...x, [key]: key==='area' || key==='grossShare' ? Number(el.value) : el.value}) : x);
+        render();
+      })
+    })
+    wrap.querySelectorAll('button[data-del-prop]').forEach(btn=>{
+      btn.addEventListener('click',()=>{ const id=btn.getAttribute('data-del-prop'); state.properties = state.properties.filter(x=>x.id!==id); render(); })
+    })
+  }
+
+  function updatePreview_Intikal(shares){
+    // header fields
+    $('#vi-name').textContent = `${state.params.decedentName||''} ${state.params.decedentSurname||''}`.trim();
+    $('#vi-tckn').textContent = state.params.tckn||'';
+    $('#vi-death').textContent = state.params.deathDate||'';
+    $('#vi-place').textContent = `${state.params.deathProvince||''}/${state.params.deathDistrict||''}`;
+    $('#vi-address').textContent = state.params.decedentAddress||'';
+
+    // heirs table
+    const tb = $('#tbl-heirs-intikal tbody'); tb.innerHTML='';
+    state.heirs.forEach(h=>{
+      const tr = document.createElement('tr');
+      const rel = RELATIONS.find(r=>r.value===h.relation)?.label || h.relation;
+      tr.innerHTML = `<td>${h.name||''} ${h.surname||''}</td><td>${rel}</td><td class="center">${fmtPct(shares[h.id]||0)}</td>`;
+      tb.appendChild(tr);
+    })
+    const sum = Object.values(shares).reduce((a,b)=>a+b,0);
+    $('#vi-total').textContent = `Toplam: ${(Math.round(sum*10000)/100).toFixed(2)}%`;
+
+    // props table
+    const pbody = $('#tbl-props-intikal tbody'); pbody.innerHTML='';
+    state.properties.forEach(p=>{
+      const tr = document.createElement('tr');
+      const label = PROPERTY_TYPES.find(t=>t.value===p.type)?.label || p.type;
+      tr.innerHTML = `<td>${label}</td><td>${p.province||''}/${p.district||''}</td><td>${p.neighborhood||''}</td><td>${p.block||''}/${p.parcel||''}</td><td class="right">${Number(p.area||0)}</td><td class="center">${fmtPct(p.grossShare ?? 1)}</td>`;
+      pbody.appendChild(tr);
+    })
+  }
+
+  function sectionForType(type, containerId, shares){
+    const cont = document.getElementById(containerId); cont.innerHTML='';
+    const props = state.properties.filter(p=>p.type===type);
+    if(props.length===0){ cont.innerHTML = '<div class="tiny muted">Kayıt yok.</div>'; return; }
+    state.heirs.forEach(h=>{
+      const div = document.createElement('div'); div.className='card'; div.style.padding='8px';
+      const hissePct = fmtPct(shares[h.id]||0);
+      div.innerHTML = `<div class="tiny"><b>Mükellef:</b> ${h.name||''} ${h.surname||''} — <b>Hisse:</b> ${hissePct}</div>`;
+      const tbl = document.createElement('table'); tbl.className='tiny';
+      tbl.innerHTML = '<thead><tr><th>İl/İlçe</th><th>Mahalle</th><th>Ada/Parsel</th><th class="right">m²</th><th class="center">Pay</th></tr></thead>';
+      const tb = document.createElement('tbody');
+      props.forEach(p=>{
+        const hisse = (shares[h.id]||0) * (p.grossShare ?? 1);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.province||''}/${p.district||''}</td><td>${p.neighborhood||''}</td><td>${p.block||''}/${p.parcel||''}</td><td class="right">${Number(p.area||0)}</td><td class="center">${fmtPct(hisse)}</td>`;
+        tb.appendChild(tr);
+      })
+      tbl.appendChild(tb); div.appendChild(tbl); cont.appendChild(div);
+    })
+  }
+
+  function updatePreview_Vergi(shares){
+    const arazi = state.properties.filter(p=>p.type==='arazi');
+    const arsa = state.properties.filter(p=>p.type==='arsa');
+    const bina = state.properties.filter(p=>p.type==='bina');
+    $('#count-arazi').textContent = 'Adet: '+arazi.length;
+    $('#count-arsa').textContent = 'Adet: '+arsa.length;
+    $('#count-bina').textContent = 'Adet: '+bina.length;
+
+    const tb = $('#tbl-vergi-summary tbody'); tb.innerHTML='';
+    state.heirs.forEach(h=>{
+      const sa = arazi.reduce((acc,p)=> acc + (p.grossShare ?? 1)*(shares[h.id]||0), 0);
+      const ss = arsa.reduce((acc,p)=> acc + (p.grossShare ?? 1)*(shares[h.id]||0), 0);
+      const sb = bina.reduce((acc,p)=> acc + (p.grossShare ?? 1)*(shares[h.id]||0), 0);
+      const total = sa+ss+sb;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${h.name||''} ${h.surname||''}</td><td class="center">${fmtPct(sa)}</td><td class="center">${fmtPct(ss)}</td><td class="center">${fmtPct(sb)}</td><td class="center"><b>${fmtPct(total)}</b></td>`;
+      tb.appendChild(tr);
+    })
+  }
+
+  function render(){
+    renderHeirs();
+    renderProps();
+    const shares = computeHeirShares(state.heirs);
+    updatePreview_Intikal(shares);
+    sectionForType('arazi','arazi-sections',shares);
+    sectionForType('arsa','arsa-sections',shares);
+    sectionForType('bina','bina-sections',shares);
+    updatePreview_Vergi(shares);
+  }
+
+  // ---------- PDF helpers ----------
+  async function elementToPdf(el, filename){
+    const { jsPDF } = window.jspdf;
+    const a4w = 595.28, a4h = 841.89, scale=2;
+    const canvas = await html2canvas(el, { scale });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ unit:'pt', format:'a4', compress:true });
+    const pageWidth = a4w, pageHeight=a4h;
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let position = 0, heightLeft = imgHeight;
+    pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+    heightLeft -= pageHeight;
+    while(heightLeft>0){ pdf.addPage(); position = heightLeft * -1; pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight); heightLeft -= pageHeight; }
+    pdf.save(filename);
+  }
+
+  async function zipPdfs(pairs, zipName){
+    const { jsPDF } = window.jspdf;
+    const zip = new JSZip();
+    for(const {el,filename} of pairs){
+      const a4w=595.28, a4h=841.89, scale=2;
+      const canvas = await html2canvas(el,{scale});
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ unit:'pt', format:'a4', compress:true });
+      const pageWidth=a4w, pageHeight=a4h;
+      const imgWidth=pageWidth; const imgHeight=(canvas.height*imgWidth)/canvas.width;
+      let position=0, heightLeft=imgHeight;
+      pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight);
+      heightLeft -= pageHeight;
+      while(heightLeft>0){ pdf.addPage(); position = heightLeft*-1; pdf.addImage(imgData,'PNG',0,position,imgWidth,imgHeight); heightLeft -= pageHeight; }
+      const blob = pdf.output('blob'); const arr = await blob.arrayBuffer();
+      zip.file(filename, arr);
+    }
+    const content = await zip.generateAsync({type:'blob'});
+    saveAs(content, zipName);
+  }
+
+  // ---------- Events ----------
+  document.getElementById('addHeir').addEventListener('click',()=>{
+    state.heirs.push({ id:uid(), name:'', surname:'', tckn:'', relation:'child' });
+    render();
+  });
+  $$('#propsList [data-add-prop]'); // placeholder to avoid errors if queried early
+  $$('[data-add-prop]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const type = btn.getAttribute('data-add-prop');
+      state.properties.push({ id:uid(), type, province:'', district:'', neighborhood:'', block:'', parcel:'', area:0, address:'', acquisitionDate: state.params.deathDate||'', reason:'Veraset (İntikal)', grossShare:1 });
+      render();
+    })
+  })
+
+  // Header buttons (and duplicates under previews)
+  function collectPairs(){
+    const surname = (state.params.decedentSurname||'').trim();
+    const parts = [];
+    const intikal = document.getElementById('pdf-intikal'); if(intikal) parts.push({el:intikal, filename:`INTIKAL_OZET_${surname}.pdf`});
+    const arazi = document.getElementById('pdf-bireysel-arazi'); if(arazi && state.properties.some(p=>p.type==='arazi')) parts.push({el:arazi, filename:`BIREYSEL_ARAZI_${surname}.pdf`});
+    const arsa = document.getElementById('pdf-bireysel-arsa'); if(arsa && state.properties.some(p=>p.type==='arsa')) parts.push({el:arsa, filename:`BIREYSEL_ARSA_${surname}.pdf`});
+    const bina = document.getElementById('pdf-bireysel-bina'); if(bina && state.properties.some(p=>p.type==='bina')) parts.push({el:bina, filename:`BIREYSEL_BINA_${surname}.pdf`});
+    const vergi = document.getElementById('pdf-vergi-beyan'); if(vergi) parts.push({el:vergi, filename:`VERGI_BEYANNAME_OZET_${surname}.pdf`});
+    return parts;
+  }
+
+  document.getElementById('btnIntikalPdf').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-intikal'), `INTIKAL_OZET_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnIntikalPdf2').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-intikal'), `INTIKAL_OZET_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnAraziPdf').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-bireysel-arazi'), `BIREYSEL_ARAZI_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnArsaPdf').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-bireysel-arsa'), `BIREYSEL_ARSA_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnBinaPdf').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-bireysel-bina'), `BIREYSEL_BINA_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnVergiPdf').addEventListener('click',()=> elementToPdf(document.getElementById('pdf-vergi-beyan'), `VERGI_BEYANNAME_OZET_${(state.params.decedentSurname||'')}.pdf`));
+  document.getElementById('btnZipAll').addEventListener('click',()=> zipPdfs(collectPairs(), `BEYANNAME_PAKET_${(state.params.decedentSurname||'')}.zip`));
+
+  // Params bindings
+  bindParams();
+  render();
+  </script>
+</body>
+</html>
